@@ -31,7 +31,16 @@ import Tournee from "@collecteur/screens/Tournee.jsx";
 
 function Depart() {
   const { user } = useAuth();
-  return user.role === "structure" ? <Navigate to="/gestion" replace /> : <Accueil />;
+  if (user?.role === "structure") return <Navigate to={user.statut === "actif" ? "/gestion" : "/validation"} replace />;
+  return <Accueil />;
+}
+
+function Public({ children }) {
+  return (
+    <RouteProtegee roles={["citoyen"]} invite>
+      {children}
+    </RouteProtegee>
+  );
 }
 
 function Citoyen({ children }) {
@@ -50,21 +59,15 @@ export default function App() {
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
           <Route path="validation" element={<Validation />} />
-          <Route
-            element={
-              <RouteProtegee>
-                <Layout />
-              </RouteProtegee>
-            }
-          >
+          <Route element={<Layout />}>
             <Route index element={<Depart />} />
-            <Route path="carte" element={<Citoyen><CarteDepotoirs /></Citoyen>} />
-            <Route path="signaler" element={<Citoyen><CreerSignalement /></Citoyen>} />
-            <Route path="signaler/envoye" element={<Citoyen><SignalementEnvoye /></Citoyen>} />
-            <Route path="mes-signalements" element={<Citoyen><MesSignalements /></Citoyen>} />
-            <Route path="mes-signalements/:id" element={<Citoyen><SuiviSignalement /></Citoyen>} />
-            <Route path="structures" element={<Citoyen><Structures /></Citoyen>} />
-            <Route path="structures/:id" element={<Citoyen><StructureDetail /></Citoyen>} />
+            <Route path="carte" element={<Public><CarteDepotoirs /></Public>} />
+            <Route path="signaler" element={<Public><CreerSignalement /></Public>} />
+            <Route path="signaler/envoye" element={<Public><SignalementEnvoye /></Public>} />
+            <Route path="mes-signalements" element={<Public><MesSignalements /></Public>} />
+            <Route path="mes-signalements/:id" element={<Public><SuiviSignalement /></Public>} />
+            <Route path="structures" element={<Public><Structures /></Public>} />
+            <Route path="structures/:id" element={<Public><StructureDetail /></Public>} />
             <Route path="structures/:id/abonnement" element={<Citoyen><DemandeAbonnement /></Citoyen>} />
             <Route path="collecte" element={<Citoyen><DemandeCollecte /></Citoyen>} />
             <Route path="messagerie" element={<Citoyen><Messagerie /></Citoyen>} />

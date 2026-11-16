@@ -1,5 +1,5 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { LogOut, LogIn } from "lucide-react";
 import BarreNavigation from "./BarreNavigation.jsx";
 import StatutReseau from "./StatutReseau.jsx";
 import Logo from "./Logo.jsx";
@@ -27,13 +27,20 @@ export default function Layout() {
         <header className="appli-entete">
           <div className="appli-marque">
             <Logo hauteur={38} />
-            <small>{user.role === "structure" ? user.nom : "Espace citoyen"}</small>
+            <small>{user?.role === "structure" ? user.nom : "Espace citoyen"}</small>
           </div>
           <StatutReseau />
-          <button type="button" className="appli-quitter" onClick={quitter}>
-            <LogOut size={18} />
-            Quitter
-          </button>
+          {user ? (
+            <button type="button" className="appli-quitter" onClick={quitter}>
+              <LogOut size={18} />
+              Quitter
+            </button>
+          ) : (
+            <Link to="/connexion" state={{ depuis: pathname }} className="appli-quitter">
+              <LogIn size={18} />
+              Se connecter
+            </Link>
+          )}
         </header>
       )}
       <main className={entete ? "appli-contenu" : "appli-contenu plein"} data-nav={navigation ? "oui" : "non"}>

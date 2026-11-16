@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ShieldCheck, Upload, Check } from "lucide-react";
 import { signup } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
@@ -30,6 +30,7 @@ export default function Inscription() {
   const [chargement, setChargement] = useState(false);
   const { enregistrer } = useAuth();
   const navigate = useNavigate();
+  const { state } = useLocation();
   const structure = form.role === "structure";
 
   function handleChange(e) {
@@ -54,7 +55,7 @@ export default function Inscription() {
     try {
       const utilisateur = await signup(form);
       enregistrer(utilisateur);
-      navigate(utilisateur.role === "structure" ? "/validation" : "/");
+      navigate(utilisateur.role === "structure" ? "/validation" : state?.depuis || "/");
     } catch (err) {
       setErreur(err.message);
     } finally {
@@ -213,7 +214,10 @@ export default function Inscription() {
         </button>
 
         <p className="auth-bas">
-          Déjà inscrit ? <Link to="/connexion">Se connecter</Link>
+          Déjà inscrit ?{" "}
+          <Link to="/connexion" state={state}>
+            Se connecter
+          </Link>
         </p>
       </form>
     </section>

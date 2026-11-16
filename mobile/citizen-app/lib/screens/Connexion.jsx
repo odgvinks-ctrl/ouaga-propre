@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { login } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import Logo from "../widgets/Logo.jsx";
@@ -12,6 +12,7 @@ export default function Connexion() {
   const [chargement, setChargement] = useState(false);
   const { enregistrer } = useAuth();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,7 +28,7 @@ export default function Connexion() {
       if (utilisateur.role === "structure") {
         navigate(utilisateur.statut === "actif" ? "/gestion" : "/validation");
       } else {
-        navigate("/");
+        navigate(state?.depuis || "/");
       }
     } catch (err) {
       setErreur(err.message);
@@ -78,8 +79,18 @@ export default function Connexion() {
         </button>
 
         <p className="auth-bas">
-          Pas encore de compte ? <Link to="/inscription">Créer un compte</Link>
+          Pas encore de compte ?{" "}
+          <Link to="/inscription" state={state}>
+            Créer un compte
+          </Link>
         </p>
+
+        <Link to="/signaler" className="btn btn-secondaire btn-large">
+          Signaler un dépotoir sans compte
+        </Link>
+        <Link to="/" className="auth-bas">
+          Continuer sans compte
+        </Link>
 
         <details className="auth-demo">
           <summary>Comptes de démonstration</summary>

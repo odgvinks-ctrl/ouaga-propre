@@ -180,3 +180,18 @@
   text-decoration: none;
   box-shadow: var(--ombre);
 }
+
+.accueil-connexion {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--vert);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}

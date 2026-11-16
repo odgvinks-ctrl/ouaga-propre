@@ -14,6 +14,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
+import { idAppareil } from "../services/invite.js";
 import { creerSignalement, getSignalementsProches, confirmerSignalement } from "../services/signalements.js";
 import { quartiers } from "../models/quartiers.js";
 import { typesSignalement } from "../models/statuts.js";
@@ -33,9 +34,10 @@ const titres = ["Prenez une photo", "Où se trouve-t-il ?", "Qu'avez-vous vu ?"]
 
 export default function CreerSignalement() {
   const { user } = useAuth();
+  const auteurId = user ? user.id : idAppareil();
   const navigate = useNavigate();
   const [etape, setEtape] = useState(0);
-  const [form, setForm] = useState({ type: "depotoir", taille: "moyen", description: "", quartier: user.secteur || quartiers[0] });
+  const [form, setForm] = useState({ type: "depotoir", taille: "moyen", description: "", quartier: user?.secteur || quartiers[0] });
   const [photo, setPhoto] = useState(null);
   const [apercu, setApercu] = useState("");
   const [gps, setGps] = useState(null);
@@ -77,10 +79,10 @@ export default function CreerSignalement() {
   useEffect(() => {
     if (!position) return;
     const minuteur = setTimeout(() => {
-      getSignalementsProches(position).then((liste) => setDoublons(liste.filter((s) => s.auteurId !== user.id)));
+      getSignalementsProches(position).then((liste) => setDoublons(liste.filter((s) => s.auteurId !== auteurId)));
     }, 350);
     return () => clearTimeout(minuteur);
-  }, [position, user.id]);
+  }, [position, auteurId]);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -112,7 +114,7 @@ export default function CreerSignalement() {
   async function confirmer(id) {
     setChargement(true);
     try {
-      await confirmerSignalement(id, user.id);
+      await confirmerSignalement(id, auteurId);
       navigate("/signaler/envoye", { state: { confirme: true } });
     } catch (err) {
       setErreur(err.message);
@@ -125,7 +127,7 @@ export default function CreerSignalement() {
     e.preventDefault();
     setChargement(true);
     try {
-      const signalement = await creerSignalement(user.id, { ...form, position, photo: photo ? photo.name : "" });
+      const signalement = await creerSignalement(auteurId, { ...form, position, photo: photo ? photo.name : "" });
       navigate("/signaler/envoye", { state: { id: signalement.id } });
     } catch (err) {
       setErreur(err.message);

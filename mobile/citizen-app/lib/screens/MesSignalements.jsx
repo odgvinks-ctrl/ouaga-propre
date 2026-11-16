@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Camera, Trash2, Waves } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
+import { idAppareil } from "../services/invite.js";
 import { useActualisation } from "../providers/useActualisation.js";
 import { getMesSignalements } from "../services/signalements.js";
 import { statutsSignalement, typesSignalement, volumes } from "../models/statuts.js";
@@ -13,21 +14,24 @@ import "./Ecran.css";
 
 export default function MesSignalements() {
   const { user } = useAuth();
+  const auteurId = user ? user.id : idAppareil();
   const [signalements, setSignalements] = useState([]);
   const [chargement, setChargement] = useState(true);
 
   async function charger() {
-    setSignalements(await getMesSignalements(user.id));
+    setSignalements(await getMesSignalements(auteurId));
     setChargement(false);
   }
 
-  useActualisation(charger, user.id);
+  useActualisation(charger, auteurId);
 
   return (
     <section className="ecran">
       <div>
         <h1>Mes signalements</h1>
-        <p className="ecran-sous-titre">Touchez un signalement pour voir où il en est.</p>
+        <p className="ecran-sous-titre">
+          {user ? "Touchez un signalement pour voir où il en est." : "Les signalements envoyés depuis ce téléphone, sans compte."}
+        </p>
       </div>
 
       {chargement && <p className="message message-vide">Chargement...</p>}

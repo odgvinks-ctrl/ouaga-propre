@@ -48,6 +48,7 @@
   align-items: center;
   gap: 6px;
   font: 600 13px var(--texte);
+  text-decoration: none;
   cursor: pointer;
 }
 

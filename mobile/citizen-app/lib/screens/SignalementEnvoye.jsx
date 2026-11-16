@@ -21,10 +21,10 @@ export default function SignalementEnvoye() {
   const confirme = state?.confirme;
 
   async function charger() {
-    setScore(await getMesPoints(user.id));
+    if (user) setScore(await getMesPoints(user.id));
   }
 
-  useActualisation(charger, user.id);
+  useActualisation(charger, user?.id || "invite");
 
   const points = score ? score.points : 0;
   const prochain = prochainBadge(points);
@@ -38,7 +38,9 @@ export default function SignalementEnvoye() {
         <p className="ecran-sous-titre">
           {confirme
             ? "Ce dépotoir était déjà signalé. Votre confirmation aide la mairie à le traiter en priorité."
-            : "Merci. Il partira automatiquement si le réseau est coupé."}
+            : user
+              ? "Merci. Il partira automatiquement si le réseau est coupé."
+              : "Merci. Vous pouvez suivre ce signalement depuis ce téléphone, même sans compte."}
         </p>
       </div>
 
@@ -53,41 +55,60 @@ export default function SignalementEnvoye() {
         </div>
       )}
 
-      <div className="groupe envoye-points">
-        <p>
-          <Leaf size={18} />
-          <span>
-            <strong>+{confirme ? 5 : 10} points</strong> dès que la mairie aura vérifié · {score ? score.solde : 0} disponibles
-          </span>
-        </p>
-        {prochain && (
-          <>
-            <div className="envoye-barre">
-              <i style={{ width: `${progression(points)}%` }}></i>
+      {!user && (
+        <div className="groupe envoye-points">
+          <p>
+            <Leaf size={18} />
+            <span>
+              <strong>Créez un compte gratuit</strong> : ce signalement et les suivants vous rapporteront des points à échanger contre des unités,
+              de l'internet ou des SMS.
+            </span>
+          </p>
+          <Link to="/inscription" className="btn btn-primaire">
+            Créer mon compte
+          </Link>
+        </div>
+      )}
+
+      {user && (
+        <div className="groupe envoye-points">
+          <p>
+            <Leaf size={18} />
+            <span>
+              <strong>+{confirme ? 5 : 10} points</strong> dès que la mairie aura vérifié · {score ? score.solde : 0} disponibles
+            </span>
+          </p>
+          {prochain && (
+            <>
+              <div className="envoye-barre">
+                <i style={{ width: `${progression(points)}%` }}></i>
+              </div>
+              <small>
+                {prochain.seuil - points} points avant le badge « {prochain.label} »
+              </small>
+            </>
+          )}
+          {obtenus.length > 0 && (
+            <div className="etiquettes">
+              {obtenus.map((b) => (
+                <span key={b.cle} className="etiquette">
+                  {b.label}
+                </span>
+              ))}
             </div>
-            <small>
-              {prochain.seuil - points} points avant le badge « {prochain.label} »
-            </small>
-          </>
-        )}
-        {obtenus.length > 0 && (
-          <div className="etiquettes">
-            {obtenus.map((b) => (
-              <span key={b.cle} className="etiquette">
-                {b.label}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <div className="envoye-pied">
         <Link to={state?.id ? `/mes-signalements/${state.id}` : "/mes-signalements"} className="btn btn-primaire btn-large">
           Suivre mon signalement
         </Link>
-        <Link to="/recompenses" className="btn btn-secondaire btn-large">
-          Échanger mes points
-        </Link>
+        {user && (
+          <Link to="/recompenses" className="btn btn-secondaire btn-large">
+            Échanger mes points
+          </Link>
+        )}
         <Link to="/" className="btn btn-secondaire btn-large">
           Retour à l'accueil
         </Link>

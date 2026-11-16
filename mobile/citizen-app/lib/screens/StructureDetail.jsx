@@ -20,15 +20,19 @@ export default function StructureDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([getStructure(id), getMesAbonnements(user.id)])
+    Promise.all([getStructure(id), user ? getMesAbonnements(user.id) : []])
       .then(([s, abonnements]) => {
         setStructure(s);
         setAbonnement(abonnements.find((a) => a.structureId === id && a.statut !== "refuse") || null);
       })
       .catch((e) => setErreur(e.message));
-  }, [id, user.id]);
+  }, [id, user?.id]);
 
   async function ecrire() {
+    if (!user) {
+      navigate("/connexion", { state: { depuis: `/structures/${id}` } });
+      return;
+    }
     const conversationId = await demarrerConversation(user.id, id);
     navigate(`/messagerie/${conversationId}`);
   }
@@ -92,8 +96,8 @@ export default function StructureDetail() {
       <p className="section-titre">Passe dans</p>
       <div className="etiquettes">
         {structure.quartiers.map((q) => (
-          <span key={q} className={q === user.secteur ? "etiquette fiche-chez-moi" : "etiquette"}>
-            {q === user.secteur && <MapPin size={13} />}
+          <span key={q} className={q === user?.secteur ? "etiquette fiche-chez-moi" : "etiquette"}>
+            {q === user?.secteur && <MapPin size={13} />}
             {q}
           </span>
         ))}

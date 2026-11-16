@@ -125,7 +125,7 @@ export default function SuiviSignalement() {
       </div>
       {signalement.description && <p className="element-meta">{signalement.description}</p>}
 
-      {signalement.structureId && (
+      {signalement.structureId && user && (
         <div className="element suivi-structure">
           <span className="suivi-logo">{initiales(signalement.structureNom)}</span>
           <div>

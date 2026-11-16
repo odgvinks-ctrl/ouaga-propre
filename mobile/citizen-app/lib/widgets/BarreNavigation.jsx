@@ -25,13 +25,13 @@ const liensStructure = [
 export default function BarreNavigation() {
   const { user } = useAuth();
   const [nonLus, setNonLus] = useState(0);
-  const liens = user.role === "structure" ? liensStructure : liensCitoyen;
+  const liens = user?.role === "structure" ? liensStructure : liensCitoyen;
 
   async function charger() {
-    setNonLus(await compterNonLus(user.id));
+    setNonLus(user ? await compterNonLus(user.id) : 0);
   }
 
-  useActualisation(charger, user.id, 6000);
+  useActualisation(charger, user?.id || "invite", 6000);
 
   return (
     <nav className="barre-nav" aria-label="Navigation">

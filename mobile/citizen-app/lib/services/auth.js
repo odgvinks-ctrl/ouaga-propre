@@ -1,5 +1,6 @@
 import { lireBase, ecrireBase, delai, comptePublic, nouvelId } from "./base.js";
 import { piecesRequises } from "../models/documents.js";
+import { idAppareil } from "./invite.js";
 
 const CLE_SESSION = "ouaga-propre-session";
 
@@ -41,6 +42,22 @@ export async function chargerMoi() {
   return compte && compte.statut !== "suspendu" ? comptePublic(compte) : null;
 }
 
+function rattacherSignalementsInvite(base, citoyenId) {
+  const invite = idAppareil();
+  let nombre = 0;
+  base.signalements.forEach((s) => {
+    if (s.auteurId === invite) {
+      s.auteurId = citoyenId;
+      nombre += 1;
+    }
+    if ((s.confirmations || []).includes(invite)) {
+      s.confirmations = s.confirmations.map((c) => (c === invite ? citoyenId : c));
+      nombre += 1;
+    }
+  });
+  return nombre;
+}
+
 export async function login({ telephone, password }) {
   await delai();
   const compte = lireBase().comptes.find((c) => c.telephone === normaliserTelephone(telephone));
@@ -52,6 +69,10 @@ export async function login({ telephone, password }) {
   }
   if (compte.statut === "suspendu") {
     throw new Error("Ce compte est suspendu. Contactez la mairie pour le réactiver.");
+  }
+  if (compte.role === "citoyen") {
+    const base = lireBase();
+    if (rattacherSignalementsInvite(base, compte.id)) ecrireBase(base);
   }
   ecrireSession(compte.id);
   return comptePublic(compte);
@@ -122,6 +143,7 @@ export async function signup(form) {
     });
   }
 
+  if (!structure) rattacherSignalementsInvite(base, id);
   ecrireBase(base);
   ecrireSession(id);
   return comptePublic(compte);

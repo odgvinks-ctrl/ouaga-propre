@@ -10,7 +10,7 @@ import "./Ecran.css";
 
 export default function Structures() {
   const { user } = useAuth();
-  const [quartier, setQuartier] = useState(user.secteur || "");
+  const [quartier, setQuartier] = useState(user?.secteur || "");
   const [structures, setStructures] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");

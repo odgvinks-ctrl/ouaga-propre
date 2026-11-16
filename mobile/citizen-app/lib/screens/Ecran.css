@@ -652,3 +652,10 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.connexion-requise .element-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  width: 100%;
+}

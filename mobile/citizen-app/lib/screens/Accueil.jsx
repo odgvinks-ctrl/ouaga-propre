@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Camera, Truck, WifiOff, Leaf, Building2, ChevronRight, Maximize2 } from "lucide-react";
+import { Camera, Truck, WifiOff, Leaf, Building2, ChevronRight, Maximize2, LogIn } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
+import { idAppareil } from "../services/invite.js";
 import { useReseau } from "../providers/useReseau.js";
 import { useActualisation } from "../providers/useActualisation.js";
 import { getMesAbonnements } from "../services/abonnements.js";
@@ -27,11 +28,11 @@ export default function Accueil() {
 
   async function charger() {
     const [mesAbonnements, mesCollectes, mesSignalements, carte, mesPoints] = await Promise.all([
-      getMesAbonnements(user.id),
-      getMesCollectes(user.id),
-      getMesSignalements(user.id),
+      user ? getMesAbonnements(user.id) : [],
+      user ? getMesCollectes(user.id) : [],
+      getMesSignalements(user ? user.id : idAppareil()),
       getDepotoirsCarte(),
-      getMesPoints(user.id),
+      user ? getMesPoints(user.id) : null,
     ]);
     setAbonnements(mesAbonnements);
     setCollectes(mesCollectes);
@@ -40,7 +41,7 @@ export default function Accueil() {
     setScore(mesPoints);
   }
 
-  useActualisation(charger, user.id);
+  useActualisation(charger, user?.id || "invite");
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -58,7 +59,7 @@ export default function Accueil() {
   const visibles = points.filter((p) => !filtre || p.type === filtre);
   const rang = dernier ? rangEtape(dernier.statut) : -1;
 
-  let collecteTexte = "Choisir une structure et s'abonner";
+  let collecteTexte = user ? "Choisir une structure et s'abonner" : "Connectez-vous pour vous abonner";
   if (actif) {
     collecteTexte = prochaine ? `Passage le ${dateCourte(prochaine.datePrevue)}` : "Demander un passage";
   } else if (enAttente) {
@@ -71,13 +72,20 @@ export default function Accueil() {
         <CarteDepotoirs points={visibles} centre={moi} moi={moi} hauteur="100%" arrondi={0} zoom={15} controles={false} />
 
         <header className="accueil-entete">
-          <Link to="/profil" className="accueil-avatar" aria-label="Mon profil">
-            {initiales(user.nom)}
-          </Link>
+          {user ? (
+            <Link to="/profil" className="accueil-avatar" aria-label="Mon profil">
+              {initiales(user.nom)}
+            </Link>
+          ) : null}
           <div>
-            <small>{user.secteur || "Ouagadougou"}</small>
-            <strong>Bonjour {prenom(user.nom)}</strong>
+            <small>{user ? user.secteur || "Ouagadougou" : "Ouagadougou"}</small>
+            <strong>{user ? `Bonjour ${prenom(user.nom)}` : "Bienvenue"}</strong>
           </div>
+          {!user && (
+            <Link to="/connexion" className="accueil-connexion">
+              <LogIn size={15} /> Se connecter
+            </Link>
+          )}
           {score && (
             <Link to="/recompenses" className="accueil-points">
               <Leaf size={15} /> {score.solde} pts
@@ -154,8 +162,15 @@ export default function Accueil() {
           </Link>
         )}
 
+        {!user && (
+          <p className="message message-info">
+            Pas besoin de compte pour signaler. Avec un compte gratuit, vos signalements vous rapportent des points à échanger contre des unités ou de
+            l'internet. <Link to="/inscription">Créer un compte</Link>
+          </p>
+        )}
+
         <Link to="/mes-signalements" className="groupe groupe-ligne">
-          <span>Tous mes signalements</span>
+          <span>{user ? "Tous mes signalements" : "Mes signalements sur ce téléphone"}</span>
           <span className="compteur">{signalements.length}</span>
           <ChevronRight size={20} />
         </Link>
