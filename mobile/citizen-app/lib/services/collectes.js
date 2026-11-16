@@ -11,6 +11,7 @@ function enrichir(base, c) {
     citoyenTelephone: citoyen.telephone || "",
     quartier: abonnement.quartier || "",
     repere: abonnement.repere || "",
+    position: abonnement.position || null,
   };
 }
 
@@ -76,4 +77,28 @@ export async function planifierCollecte(id, datePrevue) {
 export async function terminerCollecte(id) {
   await delai();
   return changer(id, { statut: "faite" });
+}
+
+export async function reporterCollecte(id) {
+  await delai();
+  const demain = new Date(Date.now() + 86400000);
+  demain.setHours(9, 0, 0, 0);
+  return changer(id, { datePrevue: demain.toISOString() });
+}
+
+export async function getTournee(structureId) {
+  await delai();
+  const base = lireBase();
+  const finJournee = new Date();
+  finJournee.setHours(23, 59, 59, 999);
+  const debutJournee = new Date();
+  debutJournee.setHours(0, 0, 0, 0);
+  const miennes = base.collectes.filter((c) => c.structureId === structureId).map((c) => enrichir(base, c));
+  const points = miennes
+    .filter((c) => c.statut === "planifiee" && new Date(c.datePrevue) <= finJournee)
+    .sort((a, b) => a.datePrevue.localeCompare(b.datePrevue));
+  const faites = miennes.filter(
+    (c) => c.statut === "faite" && c.datePrevue && new Date(c.datePrevue) >= debutJournee && new Date(c.datePrevue) <= finJournee
+  );
+  return { points, faites };
 }

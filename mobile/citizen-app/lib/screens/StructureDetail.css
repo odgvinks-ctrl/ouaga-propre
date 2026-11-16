@@ -1,0 +1,164 @@
+.fiche {
+  margin: -4px -16px 0;
+  padding: 0 16px 16px;
+}
+
+.fiche-bandeau {
+  position: relative;
+  height: 104px;
+  margin: 0 -16px;
+  overflow: hidden;
+  background: var(--vert);
+}
+
+.fiche-retour {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1;
+  min-height: 40px;
+  padding: 0 12px;
+  gap: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fiche-carte {
+  position: relative;
+  margin-top: -40px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: var(--rayon);
+  border: 1px solid var(--ligne);
+  background: #FFFFFF;
+}
+
+.fiche-identite {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fiche-identite h1 {
+  font-size: 19px !important;
+}
+
+.fiche-logo {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid var(--ligne);
+  color: var(--vert-fonce);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 20px var(--titre);
+}
+
+.fiche-valide {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--vert-clair);
+  color: #006B32;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fiche-chiffres {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-top: 12px;
+  border-top: 1px solid #E9EDEA;
+  text-align: center;
+}
+
+.fiche-chiffres span + span {
+  border-left: 1px solid #E9EDEA;
+}
+
+.fiche-chiffres strong {
+  display: block;
+  font: 800 19px var(--titre);
+}
+
+.fiche-chiffres small {
+  font-size: 12px;
+  color: var(--encre-douce);
+}
+
+.fiche-chez-moi {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--rouge-clair);
+  color: #A8141A;
+}
+
+.fiche-formules {
+  display: flex;
+  gap: 10px;
+  margin-right: -16px;
+  padding-right: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.fiche-formule {
+  flex: none;
+  width: 180px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: var(--rayon);
+  border: 1px solid var(--ligne);
+  background: #FFFFFF;
+  scroll-snap-align: start;
+}
+
+.fiche-formule small {
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.fiche-formule b {
+  font: 800 18px var(--titre);
+}
+
+.fiche-actions {
+  position: sticky;
+  bottom: 64px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--ligne);
+  background: var(--fond);
+}
+
+.fiche-contacts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fiche-contacts .btn {
+  padding: 0 8px;
+  font-size: 14px;
+}

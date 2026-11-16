@@ -1,86 +1,123 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { useAuth } from "@citoyen/providers/AuthContext.jsx";
 import { useActualisation } from "@citoyen/providers/useActualisation.js";
 import { getSignalementsStructure, changerStatutSignalement } from "@citoyen/services/signalements.js";
-import { statutsSignalement, typesSignalement } from "@citoyen/models/statuts.js";
+import { statutsSignalement, typesSignalement, volumes } from "@citoyen/models/statuts.js";
 import { dateCourte } from "@citoyen/services/format.js";
 import Badge from "@citoyen/widgets/Badge.jsx";
+import FeuilleConfirmation from "@citoyen/widgets/FeuilleConfirmation.jsx";
 import "@citoyen/screens/Ecran.css";
+
+function lienCarte(position) {
+  return `https://www.openstreetmap.org/?mlat=${position.lat}&mlon=${position.lng}#map=18/${position.lat}/${position.lng}`;
+}
 
 export default function Interventions() {
   const { user } = useAuth();
-  const [interventions, setInterventions] = useState([]);
+  const [signalements, setSignalements] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
+  const [aConfirmer, setAConfirmer] = useState(null);
 
   async function charger() {
-    const liste = await getSignalementsStructure(user.id);
-    setInterventions(liste.filter((s) => s.statut === "pris_en_charge" || s.statut === "nettoye"));
+    setSignalements(await getSignalementsStructure(user.id));
     setChargement(false);
   }
 
   useActualisation(charger, user.id);
 
-  async function terminer(intervention) {
-    if (!window.confirm("Confirmer que le lieu est nettoyé ?")) return;
+  async function changer(signalement, statut) {
+    setAConfirmer(null);
     try {
-      await changerStatutSignalement(intervention.id, "nettoye");
+      await changerStatutSignalement(signalement.id, statut);
+      setErreur("");
       await charger();
     } catch (err) {
       setErreur(err.message);
     }
   }
 
-  const enCours = interventions.filter((i) => i.statut === "pris_en_charge");
-  const terminees = interventions.filter((i) => i.statut === "nettoye");
+  const alertes = signalements.filter((s) => s.statut === "transmis");
+  const enCours = signalements.filter((s) => s.statut === "pris_en_charge");
+  const terminees = signalements.filter((s) => s.statut === "nettoye").slice(0, 10);
+
+  function carte(s, action) {
+    return (
+      <article key={s.id} className="element">
+        <div className="element-haut">
+          <h3>{typesSignalement[s.type]}</h3>
+          {s.statut === "transmis" ? (
+            <span className="badge statut-attente">{volumes[s.taille]}</span>
+          ) : (
+            <Badge statut={s.statut} liste={statutsSignalement} />
+          )}
+        </div>
+        <p className="element-meta">
+          {s.quartier} · signalé le {dateCourte(s.date)}
+        </p>
+        {s.description && <p className="element-meta">{s.description}</p>}
+        {s.position && s.statut !== "nettoye" && (
+          <a href={lienCarte(s.position)} target="_blank" rel="noreferrer noopener" className="element-meta">
+            <MapPin size={14} /> Voir sur la carte
+          </a>
+        )}
+        {action}
+      </article>
+    );
+  }
 
   return (
     <section className="ecran">
-      <Link to="/gestion" className="ecran-retour">
-        <ArrowLeft size={18} /> Accueil
-      </Link>
-      <h1>Suivi des interventions</h1>
+      <div>
+        <h1>Interventions</h1>
+        <p className="ecran-sous-titre">Dépotoirs et caniveaux vérifiés par l'administration et transmis à votre structure.</p>
+      </div>
 
       {erreur && <p className="message message-erreur">{erreur}</p>}
       {chargement && <p className="message message-vide">Chargement...</p>}
 
-      <p className="section-titre">En cours ({enCours.length})</p>
-      {!chargement && enCours.length === 0 && (
-        <p className="message message-vide">
-          Aucune intervention en cours. <Link to="/gestion/alertes">Voir les alertes</Link>
-        </p>
-      )}
+      <p className="section-titre">Alertes à prendre en charge ({alertes.length})</p>
+      {!chargement && alertes.length === 0 && <p className="message message-vide">Aucune nouvelle alerte.</p>}
       <div className="liste">
-        {enCours.map((i) => (
-          <article key={i.id} className="element">
-            <div className="element-haut">
-              <h3>{typesSignalement[i.type]}</h3>
-              <Badge statut={i.statut} liste={statutsSignalement} />
-            </div>
-            <p className="element-meta">
-              {i.quartier} · signalé le {dateCourte(i.date)}
-            </p>
-            <button type="button" className="btn btn-valider" onClick={() => terminer(i)}>
+        {alertes.map((s) =>
+          carte(
+            s,
+            <button type="button" className="btn btn-primaire" onClick={() => changer(s, "pris_en_charge")}>
+              Prendre en charge
+            </button>
+          )
+        )}
+      </div>
+
+      <p className="section-titre">En cours ({enCours.length})</p>
+      {!chargement && enCours.length === 0 && <p className="message message-vide">Aucune intervention en cours.</p>}
+      <div className="liste">
+        {enCours.map((s) =>
+          carte(
+            s,
+            <button
+              type="button"
+              className="btn btn-valider"
+              onClick={() => setAConfirmer(s)}
+            >
               Lieu nettoyé
             </button>
-          </article>
-        ))}
+          )
+        )}
       </div>
 
       {terminees.length > 0 && <p className="section-titre">Terminées</p>}
-      <div className="liste">
-        {terminees.map((i) => (
-          <article key={i.id} className="element">
-            <div className="element-haut">
-              <h3>{typesSignalement[i.type]}</h3>
-              <Badge statut={i.statut} liste={statutsSignalement} />
-            </div>
-            <p className="element-meta">{i.quartier}</p>
-          </article>
-        ))}
-      </div>
+      <div className="liste">{terminees.map((s) => carte(s, null))}</div>
+      {aConfirmer && (
+        <FeuilleConfirmation
+          titre="Le lieu est-il nettoyé ?"
+          texte="Le citoyen qui a signalé ce dépotoir sera informé que le lieu est propre."
+          libelle="Confirmer le nettoyage"
+          onAnnuler={() => setAConfirmer(null)}
+          onConfirmer={() => changer(aConfirmer, "nettoye")}
+        />
+      )}
     </section>
   );
 }

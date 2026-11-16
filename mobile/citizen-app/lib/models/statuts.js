@@ -38,3 +38,13 @@ export const volumes = {
   moyen: "Moyen",
   grand: "Grand",
 };
+
+export const statutsVehicule = {
+  disponible: { label: "Disponible", classe: "statut-ok" },
+  en_tournee: { label: "En tournée", classe: "statut-info" },
+  en_panne: { label: "En panne", classe: "statut-refus" },
+};
+
+export const typesVehicule = ["Tricycle", "Charrette", "Moto-benne", "Camion benne"];
+
+export const rolesEquipe = ["Chef d'équipe", "Pré-collecteur", "Chauffeur", "Agent de curage"];

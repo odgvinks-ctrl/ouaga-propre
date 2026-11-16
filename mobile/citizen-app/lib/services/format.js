@@ -19,3 +19,13 @@ export function prenom(nom) {
 export function lienWhatsapp(numero) {
   return `https://wa.me/226${String(numero || "").replace(/\D/g, "").slice(-8)}`;
 }
+
+export function initiales(nom) {
+  return String(nom || "")
+    .split(" ")
+    .filter(Boolean)
+    .map((mot) => mot[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}

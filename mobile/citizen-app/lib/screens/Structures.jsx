@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Building2 } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { getStructures, prixMinimum } from "../services/structures.js";
 import { quartiers } from "../models/quartiers.js";
-import { prix } from "../services/format.js";
+import { prix, initiales } from "../services/format.js";
+import EtatVide from "../widgets/EtatVide.jsx";
 import "./Ecran.css";
 
 export default function Structures() {
@@ -47,7 +48,7 @@ export default function Structures() {
       {erreur && <p className="message message-erreur">{erreur}</p>}
       {chargement && <p className="message message-vide">Chargement...</p>}
       {!chargement && structures.length === 0 && !erreur && (
-        <p className="message message-vide">Aucune structure ne couvre encore ce secteur.</p>
+        <EtatVide icone={Building2} titre="Personne dans ce secteur" texte="Aucune structure ne couvre encore ce secteur. Essayez un secteur voisin." />
       )}
 
       <div className="liste">
@@ -56,9 +57,12 @@ export default function Structures() {
           return (
             <Link key={s.id} to={`/structures/${s.id}`} className="element">
               <div className="element-haut">
-                <div>
-                  <h3>{s.nom}</h3>
-                  <p className="element-meta">{s.type}</p>
+                <div className="tete-ecran">
+                  <span className="logo-structure">{initiales(s.nom)}</span>
+                  <div>
+                    <h3>{s.nom}</h3>
+                    <p className="element-meta">{s.type}</p>
+                  </div>
                 </div>
                 <ChevronRight size={20} />
               </div>
@@ -70,7 +74,11 @@ export default function Structures() {
                 ))}
                 {s.quartiers.length > 3 && <span className="etiquette">+{s.quartiers.length - 3}</span>}
               </div>
-              {minimum !== null && <p className="element-meta">À partir de {prix(minimum)} par mois</p>}
+              {minimum !== null && (
+                <p className="element-meta">
+                  À partir de <strong className="prix-fort">{prix(minimum)}</strong> par mois
+                </p>
+              )}
             </Link>
           );
         })}

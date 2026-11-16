@@ -7,6 +7,7 @@ import { quartiers } from "../models/quartiers.js";
 import { typesStructure } from "../models/statuts.js";
 import "./Ecran.css";
 import "./Auth.css";
+import Logo from "../widgets/Logo.jsx";
 
 const vide = {
   role: "citoyen",
@@ -50,7 +51,7 @@ export default function Inscription() {
     try {
       const utilisateur = await signup(form);
       enregistrer(utilisateur);
-      navigate(utilisateur.role === "structure" ? "/en-attente" : "/");
+      navigate(utilisateur.role === "structure" ? "/validation" : "/");
     } catch (err) {
       setErreur(err.message);
     } finally {
@@ -61,6 +62,9 @@ export default function Inscription() {
   return (
     <section className="auth">
       <form className="auth-carte" onSubmit={handleSubmit}>
+        <div className="auth-logo">
+          <Logo hauteur={64} />
+        </div>
         <h1>Créer un compte</h1>
         <p className="auth-sous-titre">Vous êtes :</p>
 

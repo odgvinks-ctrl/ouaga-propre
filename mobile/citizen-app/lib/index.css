@@ -1,21 +1,25 @@
 :root {
-  --laterite: #A2441F;
-  --laterite-clair: #F6E3D8;
-  --ocre: #C98A1C;
-  --ocre-clair: #FBEFD5;
-  --vert: #2E6B3A;
-  --vert-clair: #E3EFE2;
-  --bleu: #17375E;
-  --bleu-clair: #E6EDF5;
-  --brique: #8E1B1B;
-  --brique-clair: #F9E1DE;
-  --sable: #F7F1E8;
+  --vert: #00853F;
+  --vert-fonce: #006B32;
+  --vert-clair: #E6F3EC;
+  --rouge: #D71920;
+  --rouge-fonce: #A8141A;
+  --rouge-clair: #FDECEC;
+  --jaune: #FCD116;
+  --jaune-clair: #FFF7CC;
+  --fond: #F3F5F4;
   --carte: #FFFFFF;
-  --ligne: #E4D9C8;
-  --encre: #1F1A16;
-  --encre-douce: #5C5248;
+  --ligne: #DCE2DE;
+  --neutre: #E9EDEA;
+  --encre: #202B25;
+  --encre-douce: #4F5B54;
   --titre: "Archivo", sans-serif;
   --texte: "Public Sans", system-ui, sans-serif;
+  --ombre: 0 2px 8px rgba(32, 43, 37, 0.14);
+  --ombre-forte: 0 -4px 16px rgba(32, 43, 37, 0.12);
+  --rayon-petit: 8px;
+  --rayon: 12px;
+  --rayon-feuille: 20px;
 }
 
 * {
@@ -24,7 +28,7 @@
 
 body {
   margin: 0;
-  background: var(--sable);
+  background: var(--fond);
   color: var(--encre);
   font-family: var(--texte);
 }
@@ -37,7 +41,7 @@ h3 {
 }
 
 a {
-  color: var(--bleu);
+  color: var(--vert-fonce);
 }
 
 .btn {
@@ -45,35 +49,64 @@ a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 18px;
   border-radius: 10px;
   border: 1px solid transparent;
-  font: 600 15px var(--texte);
+  font: 700 15px var(--texte);
   cursor: pointer;
   text-decoration: none;
 }
 
 .btn-primaire {
-  background: var(--bleu);
+  background: var(--vert);
   color: #FFFFFF;
 }
 
 .btn-signaler {
-  background: var(--laterite);
+  background: var(--rouge);
   color: #FFFFFF;
 }
 
 .btn-secondaire {
   background: #FFFFFF;
   color: var(--encre);
-  border-color: #CDBFA9;
+  border-color: #C3CCC6;
 }
 
 .carte {
   background: var(--carte);
   border: 1px solid var(--ligne);
-  border-radius: 14px;
+  border-radius: var(--rayon);
+}
+
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes montee {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .statut-reseau {
@@ -85,12 +118,7 @@ a {
   font: 600 13px var(--texte);
 }
 
-.statut-reseau.en-ligne {
-  background: var(--vert-clair);
-  color: #245B2F;
-}
-
 .statut-reseau.hors-ligne {
-  background: var(--ocre-clair);
-  color: #6E4604;
+  background: var(--jaune);
+  color: var(--encre);
 }

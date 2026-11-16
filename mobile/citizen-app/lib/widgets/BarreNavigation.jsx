@@ -1,33 +1,51 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { House, Camera, Building2, ClipboardList, RefreshCw, Inbox, Truck, Bell, User } from "lucide-react";
+import { House, Map, Camera, MessageCircle, User, LayoutGrid, Inbox, Navigation } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
+import { useActualisation } from "../providers/useActualisation.js";
+import { compterNonLus } from "../services/messages.js";
 import "./BarreNavigation.css";
 
 const liensCitoyen = [
   { vers: "/", label: "Accueil", icone: House },
-  { vers: "/signaler", label: "Signaler", icone: Camera },
-  { vers: "/structures", label: "Structures", icone: Building2 },
-  { vers: "/demandes", label: "Demandes", icone: ClipboardList },
-  { vers: "/envois", label: "Envois", icone: RefreshCw },
+  { vers: "/carte", label: "Carte", icone: Map },
+  { vers: "/signaler", label: "Signaler", icone: Camera, central: true, alerte: true },
+  { vers: "/messagerie", label: "Messages", icone: MessageCircle, messages: true },
+  { vers: "/profil", label: "Profil", icone: User },
 ];
 
 const liensStructure = [
-  { vers: "/gestion", label: "Accueil", icone: House },
-  { vers: "/gestion/demandes", label: "Demandes", icone: Inbox },
-  { vers: "/gestion/collectes", label: "Collectes", icone: Truck },
-  { vers: "/gestion/alertes", label: "Alertes", icone: Bell },
+  { vers: "/gestion", label: "Tableau", icone: LayoutGrid },
+  { vers: "/gestion/abonnements", label: "Demandes", icone: Inbox },
+  { vers: "/gestion/tournee", label: "Tournée", icone: Navigation, central: true },
+  { vers: "/gestion/messagerie", label: "Messages", icone: MessageCircle, messages: true },
   { vers: "/gestion/profil", label: "Profil", icone: User },
 ];
 
 export default function BarreNavigation() {
   const { user } = useAuth();
+  const [nonLus, setNonLus] = useState(0);
   const liens = user.role === "structure" ? liensStructure : liensCitoyen;
+
+  async function charger() {
+    setNonLus(await compterNonLus(user.id));
+  }
+
+  useActualisation(charger, user.id, 6000);
 
   return (
     <nav className="barre-nav" aria-label="Navigation">
-      {liens.map(({ vers, label, icone: Icone }) => (
-        <NavLink key={vers} to={vers} end={vers === "/" || vers === "/gestion"} className="barre-nav-lien">
-          <Icone size={22} />
+      {liens.map(({ vers, label, icone: Icone, central, alerte, messages }) => (
+        <NavLink
+          key={vers}
+          to={vers}
+          end={vers === "/" || vers === "/gestion"}
+          className={["barre-nav-lien", central && "principal", alerte && "alerte"].filter(Boolean).join(" ")}
+        >
+          <span className="barre-nav-icone">
+            <Icone size={central ? 20 : 22} />
+            {messages && nonLus > 0 && <b>{nonLus}</b>}
+          </span>
           {label}
         </NavLink>
       ))}

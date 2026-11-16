@@ -11,7 +11,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px 10px;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--ligne);
 }
 
 .appli-marque {
@@ -22,27 +25,11 @@
   min-width: 0;
 }
 
-.appli-marque span {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: var(--laterite);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font: 800 14px var(--titre);
-  flex: none;
-}
-
-.appli-marque strong {
-  display: block;
-  font: 800 17px var(--titre);
-  line-height: 1.1;
-}
-
 .appli-marque small {
   display: block;
+  min-width: 0;
+  padding-left: 10px;
+  border-left: 1px solid var(--ligne);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -51,19 +38,32 @@
 }
 
 .appli-quitter {
-  width: 40px;
-  height: 40px;
+  min-height: 40px;
+  padding: 0 10px;
   border-radius: 10px;
   border: 1px solid var(--ligne);
   background: #FFFFFF;
   color: var(--encre);
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  font: 600 13px var(--texte);
   cursor: pointer;
 }
 
 .appli-contenu {
   flex: 1;
   padding: 4px 16px 16px;
+}
+
+.appli-contenu[data-nav="oui"] {
+  padding-bottom: 88px;
+}
+
+.appli-contenu.plein {
+  padding: 0;
+}
+
+.appli-contenu.plein[data-nav="oui"] {
+  padding-bottom: 0;
 }

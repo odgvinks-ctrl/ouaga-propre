@@ -9,7 +9,7 @@ export default function RouteProtegee({ children, roles }) {
   }
 
   if (user.role === "structure" && user.statut !== "actif") {
-    return <Navigate to="/en-attente" replace />;
+    return <Navigate to="/validation" replace />;
   }
 
   if (roles && !roles.includes(user.role)) {

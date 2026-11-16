@@ -1,0 +1,80 @@
+.conversation-entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.conversation-entete .ecran-retour {
+  flex-basis: 100%;
+}
+
+.conversation-entete h1 {
+  flex: 1;
+  min-width: 0;
+  font-size: 20px;
+}
+
+.conversation-fil {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 300px;
+}
+
+.bulle {
+  max-width: 80%;
+  align-self: flex-start;
+  padding: 10px 12px;
+  border-radius: 14px 14px 14px 4px;
+  background: #FFFFFF;
+  border: 1px solid var(--ligne);
+}
+
+.bulle p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.bulle span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--encre-douce);
+}
+
+.bulle-moi {
+  align-self: flex-end;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #FFFFFF;
+}
+
+.bulle-moi span {
+  color: #DCE5F0;
+}
+
+.conversation-saisie {
+  position: sticky;
+  bottom: 72px;
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  background: var(--fond);
+}
+
+.conversation-saisie input {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #C3CCC6;
+  border-radius: 12px;
+  font: 16px var(--texte);
+  outline: none;
+}
+
+.conversation-saisie input:focus {
+  border-color: var(--vert);
+}

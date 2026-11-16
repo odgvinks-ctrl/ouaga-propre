@@ -1,13 +1,15 @@
-import { Wifi, WifiOff } from "lucide-react";
+import { WifiOff } from "lucide-react";
 import { useReseau } from "../providers/useReseau.js";
 
 export default function StatutReseau() {
   const enLigne = useReseau();
 
+  if (enLigne) return null;
+
   return (
-    <span className={enLigne ? "statut-reseau en-ligne" : "statut-reseau hors-ligne"}>
-      {enLigne ? <Wifi size={14} /> : <WifiOff size={14} />}
-      {enLigne ? "En ligne" : "Hors ligne"}
+    <span className="statut-reseau hors-ligne" role="status">
+      <WifiOff size={14} />
+      Hors ligne
     </span>
   );
 }

@@ -24,7 +24,8 @@ export async function getStructure(id) {
   const base = lireBase();
   const structure = base.structures.find((s) => s.id === id);
   if (!structure) throw new Error("Structure introuvable.");
-  return avecCompte(base, structure);
+  const abonnes = base.abonnements.filter((a) => a.structureId === id && a.statut === "accepte").length;
+  return { ...avecCompte(base, structure), abonnes };
 }
 
 function modifierStructure(id, changement) {

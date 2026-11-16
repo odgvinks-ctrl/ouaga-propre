@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Lock } from "lucide-react";
 import { useAuth } from "@citoyen/providers/AuthContext.jsx";
 import { getStructure, modifierProfil } from "@citoyen/services/structures.js";
 import { typesStructure } from "@citoyen/models/statuts.js";
+import ZonesIntervention from "../widgets/ZonesIntervention.jsx";
+import GrilleTarifs from "../widgets/GrilleTarifs.jsx";
 import "@citoyen/screens/Ecran.css";
+
+const onglets = [
+  { cle: "infos", label: "Informations" },
+  { cle: "secteurs", label: "Secteurs" },
+  { cle: "tarifs", label: "Tarifs" },
+];
 
 export default function Profil() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const onglet = params.get("onglet") || "infos";
   const [structure, setStructure] = useState(null);
   const [form, setForm] = useState({ type: "", responsable: "", whatsapp: "", description: "" });
   const [erreur, setErreur] = useState("");
@@ -57,6 +67,27 @@ export default function Profil() {
   return (
     <section className="ecran">
       <h1>Profil de la structure</h1>
+
+      <div className="choix-groupe" role="tablist">
+        {onglets.map((o) => (
+          <button
+            key={o.cle}
+            type="button"
+            role="tab"
+            aria-selected={onglet === o.cle}
+            className={onglet === o.cle ? "choix actif" : "choix"}
+            onClick={() => setParams({ onglet: o.cle })}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      {onglet === "secteurs" && <ZonesIntervention />}
+      {onglet === "tarifs" && <GrilleTarifs />}
+
+      {onglet === "infos" && (
+        <>
 
       <div className="element">
         <h3>{structure.nom}</h3>
@@ -111,9 +142,11 @@ export default function Profil() {
         </button>
       </form>
 
-      <button type="button" className="btn btn-refuser btn-large" onClick={quitter}>
-        Se déconnecter
-      </button>
+          <button type="button" className="btn btn-refuser btn-large" onClick={quitter}>
+            Se déconnecter
+          </button>
+        </>
+      )}
     </section>
   );
 }

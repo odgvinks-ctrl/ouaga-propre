@@ -1,0 +1,121 @@
+.cockpit {
+  min-height: 100vh;
+  padding-bottom: 88px;
+}
+
+.cockpit-entete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 16px 76px;
+  background: var(--vert);
+  color: #FFFFFF;
+}
+
+.cockpit-entete > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.cockpit-entete small {
+  display: block;
+  font-size: 13px;
+  color: #E6F3EC;
+}
+
+.cockpit-entete strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 800 18px var(--titre);
+}
+
+.cockpit-logo {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: var(--vert-fonce);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 15px var(--titre);
+  text-decoration: none;
+}
+
+.cockpit-quitter {
+  min-height: 40px;
+  padding: 0 10px;
+  gap: 6px;
+  flex: none;
+  font: 600 13px var(--texte);
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.cockpit-tournee {
+  position: relative;
+  margin: -60px 16px 0;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: var(--rayon);
+  border: 1px solid var(--ligne);
+  background: #FFFFFF;
+  color: var(--encre);
+  text-decoration: none;
+  box-shadow: var(--ombre);
+}
+
+.cockpit-tournee > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cockpit-tournee strong {
+  font: 800 18px var(--titre);
+}
+
+.cockpit-reprendre {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  border-radius: 10px;
+  background: var(--vert);
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.cockpit-corps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 16px 0;
+}
+
+.cockpit-alerte {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.cockpit-alerte svg {
+  flex: none;
+}

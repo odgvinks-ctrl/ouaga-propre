@@ -1,0 +1,96 @@
+.stats-periode {
+  display: flex;
+  align-self: flex-start;
+  padding: 3px;
+  border-radius: 10px;
+  background: #E9EDEA;
+}
+
+.stats-periode button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--encre-douce);
+  font: 600 13px var(--texte);
+  cursor: pointer;
+}
+
+.stats-periode button.actif {
+  background: #FFFFFF;
+  color: var(--encre);
+  font-weight: 800;
+  box-shadow: 0 1px 3px rgba(32, 43, 37, 0.12);
+}
+
+.stats-bloc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--rayon);
+  border: 1px solid var(--ligne);
+  background: #FFFFFF;
+}
+
+.stats-grand {
+  font: 800 34px var(--titre);
+  line-height: 1;
+}
+
+.stats-evolution {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.stats-evolution.hausse {
+  background: var(--vert-clair);
+  color: #006B32;
+}
+
+.stats-evolution.baisse {
+  background: var(--rouge-clair);
+  color: var(--rouge-fonce);
+}
+
+.stats-anneau {
+  align-items: center;
+  text-align: center;
+}
+
+.stats-moyen {
+  font-size: 20px !important;
+}
+
+.stat-ligne {
+  display: grid;
+  grid-template-columns: 90px 1fr 32px;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.stat-barre {
+  height: 12px;
+  border-radius: 6px;
+  background: #E9EDEA;
+  overflow: hidden;
+}
+
+.stat-barre i {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--vert);
+  transition: width 0.6s ease;
+}
+
+.stat-ligne strong {
+  text-align: right;
+}

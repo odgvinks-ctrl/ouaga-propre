@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
+import Logo from "../widgets/Logo.jsx";
 import "./Ecran.css";
 import "./Auth.css";
 
@@ -24,7 +25,7 @@ export default function Connexion() {
       const utilisateur = await login(form);
       enregistrer(utilisateur);
       if (utilisateur.role === "structure") {
-        navigate(utilisateur.statut === "actif" ? "/gestion" : "/en-attente");
+        navigate(utilisateur.statut === "actif" ? "/gestion" : "/validation");
       } else {
         navigate("/");
       }
@@ -39,15 +40,11 @@ export default function Connexion() {
     <section className="auth">
       <form className="auth-carte" onSubmit={handleSubmit}>
         <div className="auth-logo">
-          <span>OP</span>
-          <div>
-            <strong>Ouaga Propre</strong>
-            <small>Commune de Ouagadougou</small>
-          </div>
+          <Logo hauteur={110} />
         </div>
 
         <h1>Connexion</h1>
-        <p className="auth-sous-titre">Citoyen ou structure de pré-collecte, connectez-vous avec votre numéro.</p>
+        <p className="auth-sous-titre">Citoyen ou structure de pré-collecte, connectez-vous avec votre numéro de téléphone.</p>
 
         <label className="champ">
           Numéro de téléphone
@@ -84,9 +81,19 @@ export default function Connexion() {
           Pas encore de compte ? <Link to="/inscription">Créer un compte</Link>
         </p>
 
-        <p className="auth-demo">
-          Comptes de démonstration (mot de passe demo1234) : citoyen 70112233, structure 70223344, structure en attente 78990011.
-        </p>
+        <details className="auth-demo">
+          <summary>Comptes de démonstration</summary>
+          <dl>
+            <dt>Citoyen</dt>
+            <dd>70112233</dd>
+            <dt>Structure validée</dt>
+            <dd>70223344</dd>
+            <dt>Structure en attente</dt>
+            <dd>78990011</dd>
+            <dt>Mot de passe</dt>
+            <dd>demo1234</dd>
+          </dl>
+        </details>
       </form>
     </section>
   );

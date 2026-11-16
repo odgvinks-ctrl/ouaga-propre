@@ -2,8 +2,8 @@
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  padding: 32px 16px;
-  background: var(--sable);
+  padding: 24px 16px 32px;
+  background: #FFFFFF;
 }
 
 .auth-carte {
@@ -21,29 +21,10 @@
   margin-bottom: 8px;
 }
 
-.auth-logo span {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--laterite);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font: 800 16px var(--titre);
-}
 
-.auth-logo strong {
-  display: block;
-  font: 800 21px var(--titre);
-}
-
-.auth-logo small {
-  color: var(--encre-douce);
-}
 
 .auth-carte h1 {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
 }
 
@@ -53,7 +34,6 @@
 }
 
 .auth-bas {
-  text-align: center;
   font-size: 15px;
   color: var(--encre-douce);
 }
@@ -63,25 +43,48 @@
 }
 
 .auth-demo {
-  font-size: 13px;
-  line-height: 1.6;
-  text-align: center;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px dashed #C3CCC6;
+  border-radius: 10px;
+  font-size: 14px;
   color: var(--encre-douce);
 }
 
+.auth-demo summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-demo dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 10px 0 0;
+}
+
+.auth-demo dt {
+  color: var(--encre-douce);
+}
+
+.auth-demo dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--encre);
+}
+
 .attente-icone {
-  width: 72px;
-  height: 72px;
-  border-radius: 22px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  align-self: center;
-  background: var(--ocre-clair);
-  color: #6E4604;
+  background: var(--jaune-clair);
+  color: #202B25;
 }
 
 .attente-icone.refus {
-  background: var(--brique-clair);
-  color: var(--brique);
+  background: var(--rouge-clair);
+  color: var(--rouge-fonce);
 }

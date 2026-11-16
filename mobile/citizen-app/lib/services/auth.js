@@ -112,3 +112,15 @@ export async function signup(form) {
   ecrireSession(id);
   return comptePublic(compte);
 }
+
+export async function modifierMonProfil(id, { nom, secteur }) {
+  await delai();
+  if (nom.trim().length < 3) throw new Error("Le nom est trop court.");
+  const base = lireBase();
+  const compte = base.comptes.find((c) => c.id === id);
+  if (!compte) throw new Error("Compte introuvable.");
+  compte.nom = nom.trim();
+  compte.secteur = secteur;
+  ecrireBase(base);
+  return comptePublic(compte);
+}

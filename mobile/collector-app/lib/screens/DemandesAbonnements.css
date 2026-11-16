@@ -1,0 +1,114 @@
+.pile {
+  position: relative;
+  overflow: hidden;
+  margin: 0 -16px;
+  padding: 0 16px;
+}
+
+.pile-carte {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: var(--rayon);
+  border: 1px solid var(--ligne);
+  background: #FFFFFF;
+  touch-action: pan-y;
+  user-select: none;
+  transition: transform 0.2s ease, border-color 0.15s ease;
+}
+
+.pile-carte.glisse {
+  transition: border-color 0.15s ease;
+}
+
+.pile-carte.vers-accepter {
+  border-color: var(--vert);
+  box-shadow: inset 4px 0 0 var(--vert);
+}
+
+.pile-carte.vers-refuser {
+  border-color: var(--rouge-fonce);
+  box-shadow: inset -4px 0 0 var(--rouge-fonce);
+}
+
+.pile-tete {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pile-tete > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.pile-tete h2 {
+  font-size: 19px !important;
+  font-weight: 800;
+}
+
+.pile-avatar {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--jaune-clair);
+  color: #202B25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 18px var(--titre);
+}
+
+.pile-details {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pile-details li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid #E9EDEA;
+  font-size: 15px;
+}
+
+.pile-details svg {
+  flex: none;
+  color: var(--encre-douce);
+}
+
+.pile-boutons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 8px;
+}
+
+.pile-boutons .btn {
+  min-height: 52px;
+  padding: 0 8px;
+  gap: 6px;
+}
+
+.pile-appeler {
+  width: 52px;
+  height: 52px;
+  color: var(--vert-fonce);
+}
+
+.pile-aide {
+  margin: 0;
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.choix-groupe.colonne {
+  flex-direction: column;
+}
+
+.choix-groupe.colonne .choix {
+  text-align: left;
+}
