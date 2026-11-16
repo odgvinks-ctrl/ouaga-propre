@@ -10,7 +10,7 @@ import "./SignalementEnvoye.css";
 
 const suite = [
   "La mairie vérifie la photo et la position.",
-  "Le signalement est transmis à la structure du secteur.",
+  "Le signalement est transmis à la structure du quartier.",
   "Vous suivez chaque étape jusqu'au nettoyage.",
 ];
 
@@ -57,7 +57,7 @@ export default function SignalementEnvoye() {
         <p>
           <Leaf size={18} />
           <span>
-            <strong>+{confirme ? 5 : 10} points verts</strong> · {points} au total
+            <strong>+{confirme ? 5 : 10} points</strong> dès que la mairie aura vérifié · {score ? score.solde : 0} disponibles
           </span>
         </p>
         {prochain && (
@@ -84,6 +84,9 @@ export default function SignalementEnvoye() {
       <div className="envoye-pied">
         <Link to={state?.id ? `/mes-signalements/${state.id}` : "/mes-signalements"} className="btn btn-primaire btn-large">
           Suivre mon signalement
+        </Link>
+        <Link to="/recompenses" className="btn btn-secondaire btn-large">
+          Échanger mes points
         </Link>
         <Link to="/" className="btn btn-secondaire btn-large">
           Retour à l'accueil

@@ -9,6 +9,21 @@
   gap: 4px;
 }
 
+.validation-documents {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.validation-document.manquant {
+  background: var(--rouge-clair);
+  color: var(--rouge-fonce);
+}
+
+.validation-document.manquant small {
+  color: var(--rouge-fonce);
+}
+
 .validation-document {
   display: flex;
   align-items: center;

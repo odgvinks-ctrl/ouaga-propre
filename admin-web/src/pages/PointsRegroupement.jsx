@@ -12,7 +12,7 @@ import EtatVide from "../components/EtatVide.jsx";
 import Dialogue from "../components/Dialogue.jsx";
 import "./PointsRegroupement.css";
 
-const vide = { id: "", nom: "", type: typesPoint[0], quartier: quartiers[14], capacite: "", remplissage: 0, position: null, structureId: "" };
+const vide = { id: "", nom: "", type: typesPoint[0], quartier: quartiers[0], capacite: "", remplissage: 0, position: null, structureId: "" };
 
 export default function PointsRegroupement() {
   const [parametres, setParametres] = useSearchParams();
@@ -160,7 +160,7 @@ export default function PointsRegroupement() {
               </label>
               <div className="points-ligne">
                 <label className="champ">
-                  Secteur
+                  Quartier
                   <select name="quartier" value={form.quartier} onChange={handleChange}>
                     {quartiers.map((q) => (
                       <option key={q} value={q}>
@@ -212,7 +212,7 @@ export default function PointsRegroupement() {
             <thead>
               <tr>
                 <th>Point</th>
-                <th>Secteur</th>
+                <th>Quartier</th>
                 <th className="nombre">Capacité</th>
                 <th>Remplissage</th>
                 <th>Gestionnaire</th>

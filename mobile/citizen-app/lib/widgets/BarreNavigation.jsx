@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { House, Map, Camera, MessageCircle, User, LayoutGrid, Inbox, Navigation } from "lucide-react";
+import { House, Truck, Camera, MessageCircle, User, LayoutGrid, Inbox, Navigation } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { useActualisation } from "../providers/useActualisation.js";
 import { compterNonLus } from "../services/messages.js";
@@ -8,7 +8,7 @@ import "./BarreNavigation.css";
 
 const liensCitoyen = [
   { vers: "/", label: "Accueil", icone: House },
-  { vers: "/carte", label: "Carte", icone: Map },
+  { vers: "/collecte", label: "Collecte", icone: Truck },
   { vers: "/signaler", label: "Signaler", icone: Camera, central: true, alerte: true },
   { vers: "/messagerie", label: "Messages", icone: MessageCircle, messages: true },
   { vers: "/profil", label: "Profil", icone: User },

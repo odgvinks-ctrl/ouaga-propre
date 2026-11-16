@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShieldCheck, Upload } from "lucide-react";
+import { ShieldCheck, Upload, Check } from "lucide-react";
 import { signup } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { quartiers } from "../models/quartiers.js";
 import { typesStructure } from "../models/statuts.js";
+import { libellesEnregistrement, piecesRequises } from "../models/documents.js";
 import "./Ecran.css";
 import "./Auth.css";
 import Logo from "../widgets/Logo.jsx";
@@ -13,12 +14,14 @@ const vide = {
   role: "citoyen",
   nom: "",
   telephone: "",
-  secteur: quartiers[14],
+  secteur: quartiers[0],
   password: "",
   type: typesStructure[0],
   responsable: "",
+  numeroCnib: "",
   numeroEnregistrement: "",
-  piece: "",
+  ifu: "",
+  pieces: { identite: "", legal: "", ifu: "", agrement: "" },
 };
 
 export default function Inscription() {
@@ -39,9 +42,9 @@ export default function Inscription() {
     setErreur("");
   }
 
-  function choisirPiece(e) {
+  function choisirPiece(cle, e) {
     const fichier = e.target.files[0];
-    setForm({ ...form, piece: fichier ? fichier.name : "" });
+    setForm({ ...form, pieces: { ...form.pieces, [cle]: fichier ? fichier.name : "" } });
     setErreur("");
   }
 
@@ -120,6 +123,11 @@ export default function Inscription() {
               Nom du responsable
               <input type="text" name="responsable" value={form.responsable} onChange={handleChange} required />
             </label>
+
+            <label className="champ">
+              N° de CNIB ou de passeport du responsable
+              <input type="text" name="numeroCnib" placeholder="Ex. B10458231" value={form.numeroCnib} onChange={handleChange} required />
+            </label>
           </>
         )}
 
@@ -137,7 +145,7 @@ export default function Inscription() {
         </label>
 
         <label className="champ">
-          {structure ? "Secteur principal d'intervention" : "Votre secteur"}
+          {structure ? "Quartier principal d'intervention" : "Votre quartier"}
           <select name="secteur" value={form.secteur} onChange={handleChange}>
             {quartiers.map((q) => (
               <option key={q} value={q}>
@@ -145,31 +153,39 @@ export default function Inscription() {
               </option>
             ))}
           </select>
-          {structure && <span className="champ-aide">Vous pourrez ajouter d'autres secteurs après la validation.</span>}
+          {structure && <span className="champ-aide">Vous pourrez ajouter d'autres quartiers après la validation.</span>}
         </label>
 
         {structure && (
           <>
+            <p className="section-titre">Enregistrement de la structure</p>
             <label className="champ">
-              Numéro d'enregistrement
-              <input
-                type="text"
-                name="numeroEnregistrement"
-                placeholder="RCCM, récépissé ou agrément"
-                value={form.numeroEnregistrement}
-                onChange={handleChange}
-                required
-              />
+              {libellesEnregistrement[form.type]}
+              <input type="text" name="numeroEnregistrement" value={form.numeroEnregistrement} onChange={handleChange} required />
             </label>
 
             <label className="champ">
-              Document officiel
-              <span className="choix-carte">
-                <Upload size={20} />
-                <span>{form.piece || "Photo ou scan du RCCM, du récépissé ou de l'agrément"}</span>
-              </span>
-              <input type="file" accept="image/*,application/pdf" onChange={choisirPiece} hidden />
+              Numéro IFU {form.type === "Entreprise" ? "" : "(facultatif)"}
+              <input type="text" name="ifu" placeholder="Identifiant financier unique" value={form.ifu} onChange={handleChange} />
             </label>
+
+            <p className="section-titre">Documents à joindre</p>
+            <p className="champ-aide">Photos nettes ou scans. L'administration les compare aux numéros ci-dessus.</p>
+            {piecesRequises(form.type).map((piece) => (
+              <label key={piece.cle} className="champ inscription-piece">
+                <span className={form.pieces[piece.cle] ? "choix-carte actif" : "choix-carte"}>
+                  {form.pieces[piece.cle] ? <Check size={20} /> : <Upload size={20} />}
+                  <span>
+                    <strong>
+                      {piece.label}
+                      {!piece.obligatoire && " (facultatif)"}
+                    </strong>
+                    <span>{form.pieces[piece.cle] || piece.aide}</span>
+                  </span>
+                </span>
+                <input type="file" accept="image/*,application/pdf" onChange={(e) => choisirPiece(piece.cle, e)} hidden />
+              </label>
+            ))}
 
             <p className="message message-info">
               <ShieldCheck size={18} /> Votre compte sera vérifié par l'administration avant d'être activé. Cela évite qu'une

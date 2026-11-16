@@ -156,7 +156,7 @@ export default function TableauDeBord() {
 
           <div className="panneau">
             <div className="panneau-entete">
-              <h2>Secteurs les plus touchés</h2>
+              <h2>Quartiers les plus touchés</h2>
             </div>
             {donnees.secteurs.length === 0 && <EtatVide titre="Aucun dépotoir actif" />}
             {donnees.secteurs.map(([secteur, nombre]) => (

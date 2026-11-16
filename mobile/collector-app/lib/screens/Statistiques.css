@@ -70,7 +70,7 @@
 
 .stat-ligne {
   display: grid;
-  grid-template-columns: 90px 1fr 32px;
+  grid-template-columns: 110px 1fr 32px;
   align-items: center;
   gap: 10px;
   font-size: 14px;

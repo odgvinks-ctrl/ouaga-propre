@@ -11,6 +11,7 @@ import CreerSignalement from "./screens/CreerSignalement.jsx";
 import MesSignalements from "./screens/MesSignalements.jsx";
 import SignalementEnvoye from "./screens/SignalementEnvoye.jsx";
 import SuiviSignalement from "./screens/SuiviSignalement.jsx";
+import Recompenses from "./screens/Recompenses.jsx";
 import Structures from "./screens/Structures.jsx";
 import StructureDetail from "./screens/StructureDetail.jsx";
 import DemandeAbonnement from "./screens/DemandeAbonnement.jsx";
@@ -69,6 +70,7 @@ export default function App() {
             <Route path="messagerie" element={<Citoyen><Messagerie /></Citoyen>} />
             <Route path="messagerie/:id" element={<Citoyen><Messagerie /></Citoyen>} />
             <Route path="profil" element={<Citoyen><Profil /></Citoyen>} />
+            <Route path="recompenses" element={<Citoyen><Recompenses /></Citoyen>} />
             <Route path="gestion" element={<Structure><Dashboard /></Structure>} />
             <Route path="gestion/abonnements" element={<Structure><DemandesAbonnements /></Structure>} />
             <Route path="gestion/collectes" element={<Structure><DemandesCollecte /></Structure>} />

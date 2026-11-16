@@ -71,6 +71,7 @@
   font-weight: 700;
   color: #006B32;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .accueil-filtres {
@@ -158,4 +159,24 @@
 
 .accueil-suivi strong {
   font: 700 16px var(--texte);
+}
+
+.accueil-agrandir {
+  position: absolute;
+  right: 12px;
+  bottom: 34px;
+  z-index: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--ligne);
+  background: #FFFFFF;
+  color: var(--encre);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--ombre);
 }

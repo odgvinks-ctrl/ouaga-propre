@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, MapPin, Trash2, Building2 } from "lucide-react";
+import { ChevronRight, MapPin, Trash2, Building2, Gift } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { modifierMonProfil } from "../services/auth.js";
 import { quartiers } from "../models/quartiers.js";
@@ -46,6 +46,11 @@ export default function Profil() {
       </div>
 
       <div className="liste">
+        <Link to="/recompenses" className="element element-lien">
+          <Gift size={20} />
+          <strong>Mes points et cadeaux</strong>
+          <ChevronRight size={20} />
+        </Link>
         <Link to="/mes-signalements" className="element element-lien">
           <MapPin size={20} />
           <strong>Mes signalements</strong>
@@ -69,7 +74,7 @@ export default function Profil() {
           <input type="text" name="nom" value={form.nom} onChange={handleChange} required />
         </label>
         <label className="champ">
-          Mon secteur
+          Mon quartier
           <select name="secteur" value={form.secteur} onChange={handleChange}>
             {quartiers.map((q) => (
               <option key={q} value={q}>

@@ -1,0 +1,91 @@
+.recompenses-solde {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--rayon);
+  background: var(--vert);
+  color: #FFFFFF;
+}
+
+.recompenses-solde strong {
+  display: block;
+  font: 800 26px var(--titre);
+}
+
+.recompenses-solde small {
+  font-size: 13px;
+  color: #E6F3EC;
+}
+
+.recompenses-regles ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.recompenses-cadeau > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.groupe-ligne.recompenses-cadeau > .recompenses-icone {
+  flex: none;
+}
+
+.recompenses-cadeau strong {
+  display: block;
+  font-size: 15px;
+}
+
+.recompenses-cadeau small {
+  display: block;
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.recompenses-cadeau .recompenses-cout {
+  margin-top: 2px;
+  color: var(--vert-fonce);
+  font-weight: 700;
+}
+
+.recompenses-cadeau .btn {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.recompenses-icone {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+}
+
+.recompenses-icone.bon {
+  background: var(--jaune-clair);
+  color: var(--encre);
+}
+
+.recompenses-manque {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--encre-douce);
+  white-space: nowrap;
+}
+
+.recompenses-code {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--jaune-clair);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}

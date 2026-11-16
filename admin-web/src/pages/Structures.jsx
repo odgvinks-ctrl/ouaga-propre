@@ -73,7 +73,7 @@ export default function Structures() {
         </div>
         <label className="recherche">
           <Search size={18} />
-          <input type="search" placeholder="Nom, responsable, secteur..." value={recherche} onChange={(e) => setRecherche(e.target.value)} aria-label="Rechercher une structure" />
+          <input type="search" placeholder="Nom, responsable, quartier..." value={recherche} onChange={(e) => setRecherche(e.target.value)} aria-label="Rechercher une structure" />
         </label>
       </div>
 
@@ -87,7 +87,7 @@ export default function Structures() {
             <thead>
               <tr>
                 <th>Structure</th>
-                <th>Secteurs</th>
+                <th>Quartiers</th>
                 <th className="nombre">Abonnés</th>
                 <th className="nombre">Demandes</th>
                 <th className="nombre">Collectes 30 j</th>

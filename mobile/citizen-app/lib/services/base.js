@@ -1,4 +1,4 @@
-const CLE = "ouaga-propre-base-v3";
+const CLE = "ouaga-propre-base-v5";
 let secours = null;
 
 export const delai = (ms = 150) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -28,15 +28,15 @@ function graine() {
 
   const comptes = [
     { ...compte("admin", "Administration FASO NEERE", "70000000", "admin", "actif", ""), password: "admin1234" },
-    compte("mariam", "Mariam Ouédraogo", "70112233", "citoyen", "actif", "Secteur 15"),
-    compte("awa", "Awa Kaboré", "70445566", "citoyen", "actif", "Secteur 15"),
-    compte("issouf", "Issouf Sawadogo", "76554433", "citoyen", "actif", "Secteur 16"),
-    compte("fatim", "Fatimata Kaboré", "70998877", "citoyen", "actif", "Secteur 15"),
-    compte("moussa", "Moussa Traoré", "78112244", "citoyen", "actif", "Secteur 17"),
-    compte("ramassage-plus", "GIE Ramassage Plus", "70223344", "structure", "actif", "Secteur 15"),
-    compte("rues-propres", "Association Rues Propres", "71889900", "structure", "actif", "Secteur 22"),
-    compte("collecte-express", "Collecte Express SARL", "75667788", "structure", "actif", "Secteur 10"),
-    compte("nouvelle-aube", "GIE Nouvelle Aube", "78990011", "structure", "en_attente", "Secteur 28"),
+    compte("mariam", "Mariam Ouédraogo", "70112233", "citoyen", "actif", "Paspanga"),
+    compte("awa", "Awa Kaboré", "70445566", "citoyen", "actif", "Paspanga"),
+    compte("issouf", "Issouf Sawadogo", "76554433", "citoyen", "actif", "Dapoya"),
+    compte("fatim", "Fatimata Kaboré", "70998877", "citoyen", "actif", "Paspanga"),
+    compte("moussa", "Moussa Traoré", "78112244", "citoyen", "actif", "Koulouba"),
+    compte("ramassage-plus", "GIE Ramassage Plus", "70223344", "structure", "actif", "Paspanga"),
+    compte("rues-propres", "Association Rues Propres", "71889900", "structure", "actif", "Tanghin"),
+    compte("collecte-express", "Collecte Express SARL", "75667788", "structure", "actif", "Gounghin"),
+    compte("nouvelle-aube", "GIE Nouvelle Aube", "78990011", "structure", "en_attente", "Wemtenga"),
   ];
 
   const structures = [
@@ -46,9 +46,12 @@ function graine() {
       responsable: "Boukary Zongo",
       whatsapp: "70223344",
       numeroEnregistrement: "GIE-OUA-2021-0148",
-      piece: "recepisse-gie.pdf",
+      piece: "attestation-gie.pdf",
+      numeroCnib: "B10458231",
+      ifu: "00045821K",
+      pieces: { identite: "cnib-boukary-zongo.jpg", legal: "attestation-gie.pdf", ifu: "attestation-ifu.pdf", agrement: "convention-mairie.pdf" },
       description: "Pré-collecte des ordures ménagères en tricycle, 6 jours sur 7.",
-      quartiers: ["Secteur 15", "Secteur 16", "Secteur 17"],
+      quartiers: ["Paspanga", "Dapoya", "Koulouba"],
       formules: [
         { id: "rp-standard", nom: "Standard", prix: 2000, frequence: "2 passages par semaine" },
         { id: "rp-demande", nom: "À la demande", prix: 1500, frequence: "4 collectes par mois" },
@@ -61,8 +64,11 @@ function graine() {
       whatsapp: "71889900",
       numeroEnregistrement: "ASSO-OUA-2019-0532",
       piece: "recepisse-association.pdf",
+      numeroCnib: "B07714502",
+      ifu: "",
+      pieces: { identite: "cnib-salimata-ilboudo.jpg", legal: "recepisse-association.pdf", ifu: "", agrement: "" },
       description: "Association de femmes du quartier : collecte et curage des caniveaux.",
-      quartiers: ["Secteur 22", "Secteur 23"],
+      quartiers: ["Tanghin", "Nonsin"],
       formules: [{ id: "rpr-standard", nom: "Standard", prix: 1500, frequence: "2 passages par semaine" }],
     },
     {
@@ -72,8 +78,11 @@ function graine() {
       whatsapp: "75667788",
       numeroEnregistrement: "BF-OUA-2020-B-1123",
       piece: "rccm.pdf",
+      numeroCnib: "B11290874",
+      ifu: "00067215T",
+      pieces: { identite: "cnib-salif-compaore.jpg", legal: "rccm.pdf", ifu: "attestation-ifu.pdf", agrement: "" },
       description: "Collecte par camion benne pour ménages, cours communes et commerces.",
-      quartiers: ["Secteur 10", "Secteur 15", "Secteur 30"],
+      quartiers: ["Gounghin", "Paspanga", "Dassasgho"],
       formules: [
         { id: "ce-standard", nom: "Standard", prix: 2500, frequence: "2 passages par semaine" },
         { id: "ce-premium", nom: "Premium", prix: 4000, frequence: "3 passages par semaine" },
@@ -85,19 +94,22 @@ function graine() {
       responsable: "Rasmata Nikiéma",
       whatsapp: "78990011",
       numeroEnregistrement: "GIE-OUA-2026-0091",
-      piece: "recepisse.jpg",
+      piece: "attestation-gie.jpg",
+      numeroCnib: "B12844016",
+      ifu: "",
+      pieces: { identite: "cnib-rasmata-nikiema.jpg", legal: "attestation-gie.jpg", ifu: "", agrement: "" },
       description: "",
-      quartiers: ["Secteur 28"],
+      quartiers: ["Wemtenga"],
       formules: [],
     },
   ];
 
   const signalements = [
-    { id: "s1", auteurId: "mariam", type: "depotoir", taille: "moyen", description: "Tas d'ordures derrière le marché.", quartier: "Secteur 15", position: { lat: 12.3721, lng: -1.5152, precision: 12 }, photo: "photo-s1.jpg", statut: "transmis", structureId: "ramassage-plus", date: ilYA(60 * 26) },
-    { id: "s2", auteurId: "mariam", type: "caniveau", taille: "grand", description: "Caniveau bouché devant l'école.", quartier: "Secteur 15", position: { lat: 12.3709, lng: -1.5168, precision: 9 }, photo: "photo-s2.jpg", statut: "a_verifier", structureId: null, date: ilYA(90) },
-    { id: "s3", auteurId: "awa", type: "depotoir", taille: "grand", description: "Dépôt de gravats et plastiques.", quartier: "Secteur 16", position: { lat: 12.3655, lng: -1.5101, precision: 15 }, photo: "photo-s3.jpg", statut: "pris_en_charge", structureId: "ramassage-plus", date: ilYA(60 * 50) },
-    { id: "s4", auteurId: "issouf", type: "caniveau", taille: "moyen", description: "Eau stagnante, odeur forte.", quartier: "Secteur 22", position: { lat: 12.3588, lng: -1.4987, precision: 20 }, photo: "photo-s4.jpg", statut: "transmis", structureId: "rues-propres", date: ilYA(60 * 8) },
-    { id: "s5", auteurId: "mariam", type: "depotoir", taille: "petit", description: "", quartier: "Secteur 15", position: { lat: 12.3732, lng: -1.5141, precision: 10 }, photo: "photo-s5.jpg", statut: "nettoye", structureId: "ramassage-plus", date: ilYA(60 * 24 * 6) },
+    { id: "s1", auteurId: "mariam", type: "depotoir", taille: "moyen", description: "Tas d'ordures derrière le marché.", quartier: "Paspanga", position: { lat: 12.3721, lng: -1.5152, precision: 12 }, photo: "photo-s1.jpg", statut: "transmis", structureId: "ramassage-plus", date: ilYA(60 * 26) },
+    { id: "s2", auteurId: "mariam", type: "caniveau", taille: "grand", description: "Caniveau bouché devant l'école.", quartier: "Paspanga", position: { lat: 12.3709, lng: -1.5168, precision: 9 }, photo: "photo-s2.jpg", statut: "a_verifier", structureId: null, date: ilYA(90) },
+    { id: "s3", auteurId: "awa", type: "depotoir", taille: "grand", description: "Dépôt de gravats et plastiques.", quartier: "Dapoya", position: { lat: 12.3655, lng: -1.5101, precision: 15 }, photo: "photo-s3.jpg", statut: "pris_en_charge", structureId: "ramassage-plus", date: ilYA(60 * 50) },
+    { id: "s4", auteurId: "issouf", type: "caniveau", taille: "moyen", description: "Eau stagnante, odeur forte.", quartier: "Tanghin", position: { lat: 12.3588, lng: -1.4987, precision: 20 }, photo: "photo-s4.jpg", statut: "transmis", structureId: "rues-propres", date: ilYA(60 * 8) },
+    { id: "s5", auteurId: "mariam", type: "depotoir", taille: "petit", description: "", quartier: "Paspanga", position: { lat: 12.3732, lng: -1.5141, precision: 10 }, photo: "photo-s5.jpg", statut: "nettoye", structureId: "ramassage-plus", date: ilYA(60 * 24 * 6) },
   ];
 
   const etapes = ["a_verifier", "verifie", "transmis", "pris_en_charge", "nettoye"];
@@ -110,11 +122,11 @@ function graine() {
   });
 
   const abonnements = [
-    { id: "a1", citoyenId: "mariam", structureId: "ramassage-plus", formuleId: "rp-standard", quartier: "Secteur 15", repere: "Portail bleu après la boutique", position: { lat: 12.3718, lng: -1.5160 }, paiement: "orange_money", statut: "accepte", motifRefus: "", date: ilYA(60 * 24 * 20) },
-    { id: "a2", citoyenId: "awa", structureId: "ramassage-plus", formuleId: "rp-demande", quartier: "Secteur 15", repere: "Mur ocre, face au moulin", paiement: "especes", statut: "en_attente", motifRefus: "", date: ilYA(45) },
-    { id: "a3", citoyenId: "issouf", structureId: "ramassage-plus", formuleId: "rp-standard", quartier: "Secteur 16", repere: "Cour commune, 3 familles", paiement: "moov_money", statut: "en_attente", motifRefus: "", date: ilYA(130) },
-    { id: "a4", citoyenId: "fatim", structureId: "ramassage-plus", formuleId: "rp-standard", quartier: "Secteur 15", repere: "Porte verte près de la mosquée", position: { lat: 12.3735, lng: -1.5138 }, paiement: "orange_money", statut: "accepte", motifRefus: "", date: ilYA(60 * 24 * 40) },
-    { id: "a5", citoyenId: "moussa", structureId: "ramassage-plus", formuleId: "rp-demande", quartier: "Secteur 17", repere: "Cour avec le grand neem", position: { lat: 12.3692, lng: -1.5121 }, paiement: "especes", statut: "accepte", motifRefus: "", date: ilYA(60 * 24 * 15) },
+    { id: "a1", citoyenId: "mariam", structureId: "ramassage-plus", formuleId: "rp-standard", quartier: "Paspanga", repere: "Portail bleu après la boutique", position: { lat: 12.3718, lng: -1.5160 }, paiement: "orange_money", statut: "accepte", motifRefus: "", date: ilYA(60 * 24 * 20) },
+    { id: "a2", citoyenId: "awa", structureId: "ramassage-plus", formuleId: "rp-demande", quartier: "Paspanga", repere: "Mur ocre, face au moulin", paiement: "especes", statut: "en_attente", motifRefus: "", date: ilYA(45) },
+    { id: "a3", citoyenId: "issouf", structureId: "ramassage-plus", formuleId: "rp-standard", quartier: "Dapoya", repere: "Cour commune, 3 familles", paiement: "moov_money", statut: "en_attente", motifRefus: "", date: ilYA(130) },
+    { id: "a4", citoyenId: "fatim", structureId: "ramassage-plus", formuleId: "rp-standard", quartier: "Paspanga", repere: "Porte verte près de la mosquée", position: { lat: 12.3735, lng: -1.5138 }, paiement: "orange_money", statut: "accepte", motifRefus: "", date: ilYA(60 * 24 * 40) },
+    { id: "a5", citoyenId: "moussa", structureId: "ramassage-plus", formuleId: "rp-demande", quartier: "Koulouba", repere: "Cour avec le grand neem", position: { lat: 12.3692, lng: -1.5121 }, paiement: "especes", statut: "accepte", motifRefus: "", date: ilYA(60 * 24 * 15) },
   ];
 
   const passe = (jours, heure) => {
@@ -184,7 +196,7 @@ function graine() {
     { id: "e4", structureId: "collecte-express", nom: "Salif Compaoré", role: "Chauffeur", telephone: "75667789", vehiculeId: "v4" },
   ];
 
-  return { comptes, structures, signalements, abonnements, collectes, conversations, vehicules, equipes };
+  return { comptes, structures, signalements, abonnements, collectes, conversations, vehicules, equipes, echanges: [] };
 }
 
 export function lireBase() {

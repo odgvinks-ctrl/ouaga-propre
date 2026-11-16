@@ -12,13 +12,14 @@ export default function Layout() {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [ouvert, setOuvert] = useState(false);
-  const [compteurs, setCompteurs] = useState({ signalements: 0, structures: 0 });
+  const [compteurs, setCompteurs] = useState({ signalements: 0, structures: 0, echanges: 0 });
 
   function charger() {
     const base = lireBase();
     setCompteurs({
       signalements: base.signalements.filter((s) => s.statut === "a_verifier").length,
       structures: base.comptes.filter((c) => c.role === "structure" && c.statut === "en_attente").length,
+      echanges: (base.echanges || []).filter((e) => e.statut === "en_attente").length,
     });
   }
 

@@ -181,7 +181,7 @@ export default function Statistiques() {
       </div>
 
       <div className="stats-bloc">
-        <span className="surtitre">Collectes par secteur</span>
+        <span className="surtitre">Collectes par quartier</span>
         {secteurs.length === 0 && <p className="element-meta">Pas encore de collecte faite.</p>}
         {secteurs.map(([secteur, nombre]) => (
           <div key={secteur} className="stat-ligne">

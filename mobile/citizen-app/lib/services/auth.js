@@ -1,4 +1,5 @@
 import { lireBase, ecrireBase, delai, comptePublic, nouvelId } from "./base.js";
+import { piecesRequises } from "../models/documents.js";
 
 const CLE_SESSION = "ouaga-propre-session";
 
@@ -73,11 +74,18 @@ export async function signup(form) {
   if (structure && !form.responsable.trim()) {
     throw new Error("Indiquez le nom du responsable.");
   }
-  if (structure && !form.numeroEnregistrement.trim()) {
-    throw new Error("Le numéro d'enregistrement (RCCM, récépissé ou agrément) est obligatoire.");
+  if (structure && form.numeroCnib.trim().length < 6) {
+    throw new Error("Indiquez le numéro de la CNIB ou du passeport du responsable.");
   }
-  if (structure && !form.piece) {
-    throw new Error("Ajoutez une photo ou un scan du document officiel.");
+  if (structure && !form.numeroEnregistrement.trim()) {
+    throw new Error("Le numéro d'enregistrement de la structure est obligatoire.");
+  }
+  if (structure && form.type === "Entreprise" && !form.ifu.trim()) {
+    throw new Error("Le numéro IFU est obligatoire pour une entreprise.");
+  }
+  if (structure) {
+    const manquante = piecesRequises(form.type).find((p) => p.obligatoire && !form.pieces[p.cle]);
+    if (manquante) throw new Error(`Ajoutez le document : ${manquante.label.toLowerCase()}.`);
   }
 
   const base = lireBase();
@@ -104,7 +112,10 @@ export async function signup(form) {
       responsable: form.responsable.trim(),
       whatsapp: telephone,
       numeroEnregistrement: form.numeroEnregistrement.trim(),
-      piece: form.piece,
+      numeroCnib: form.numeroCnib.trim().toUpperCase(),
+      ifu: form.ifu.trim().toUpperCase(),
+      piece: form.pieces.legal,
+      pieces: form.pieces,
       description: "",
       quartiers: [form.secteur],
       formules: [],

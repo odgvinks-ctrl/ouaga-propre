@@ -14,7 +14,7 @@ export default function Messagerie() {
     <section className="ecran">
       <div>
         <h1>Messagerie</h1>
-        <p className="ecran-sous-titre">Les questions de vos abonnés et des citoyens de vos secteurs.</p>
+        <p className="ecran-sous-titre">Les questions de vos abonnés et des citoyens de vos quartiers.</p>
       </div>
       <ListeConversations moi={user.id} base="/gestion/messagerie" vide="Aucun message pour le moment." />
     </section>

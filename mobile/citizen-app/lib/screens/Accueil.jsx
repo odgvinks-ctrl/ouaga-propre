@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Camera, Truck, WifiOff, Leaf, Building2, ChevronRight } from "lucide-react";
+import { Camera, Truck, WifiOff, Leaf, Building2, ChevronRight, Maximize2 } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { useReseau } from "../providers/useReseau.js";
 import { useActualisation } from "../providers/useActualisation.js";
@@ -58,14 +58,11 @@ export default function Accueil() {
   const visibles = points.filter((p) => !filtre || p.type === filtre);
   const rang = dernier ? rangEtape(dernier.statut) : -1;
 
-  let collecteTexte = "Trouver une structure";
-  let collecteLien = "/structures";
+  let collecteTexte = "Choisir une structure et s'abonner";
   if (actif) {
-    collecteLien = "/collecte";
     collecteTexte = prochaine ? `Passage le ${dateCourte(prochaine.datePrevue)}` : "Demander un passage";
   } else if (enAttente) {
-    collecteLien = "/collecte";
-    collecteTexte = "Demande en attente";
+    collecteTexte = "Demande d'abonnement en attente";
   }
 
   return (
@@ -82,11 +79,15 @@ export default function Accueil() {
             <strong>Bonjour {prenom(user.nom)}</strong>
           </div>
           {score && (
-            <span className="accueil-points">
-              <Leaf size={15} /> {score.points} pts
-            </span>
+            <Link to="/recompenses" className="accueil-points">
+              <Leaf size={15} /> {score.solde} pts
+            </Link>
           )}
         </header>
+
+        <Link to="/carte" className="accueil-agrandir">
+          <Maximize2 size={16} /> Carte en grand
+        </Link>
 
         <div className="filtres accueil-filtres">
           <button type="button" className={filtre === "" ? "actif" : ""} onClick={() => setFiltre("")}>
@@ -116,7 +117,7 @@ export default function Accueil() {
           <Camera size={20} /> Signaler un dépotoir ou un caniveau
         </Link>
 
-        <Link to={collecteLien} className="groupe groupe-ligne accueil-collecte">
+        <Link to="/collecte" className="groupe groupe-ligne accueil-collecte">
           <span className="accueil-collecte-icone">
             {actif || enAttente ? <Truck size={20} /> : <Building2 size={20} />}
           </span>

@@ -74,7 +74,7 @@ export default function Utilisateurs() {
         </div>
         <label className="recherche">
           <Search size={18} />
-          <input type="search" placeholder="Nom, téléphone, secteur..." value={recherche} onChange={(e) => setRecherche(e.target.value)} aria-label="Rechercher un utilisateur" />
+          <input type="search" placeholder="Nom, téléphone, quartier..." value={recherche} onChange={(e) => setRecherche(e.target.value)} aria-label="Rechercher un utilisateur" />
         </label>
       </div>
 
@@ -90,7 +90,7 @@ export default function Utilisateurs() {
                 <th>Nom</th>
                 <th>Téléphone</th>
                 <th>Rôle</th>
-                <th>Secteur</th>
+                <th>Quartier</th>
                 <th className="nombre">Signalements</th>
                 <th>Abonnement</th>
                 <th>Statut</th>

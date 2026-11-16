@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Trash2 } from "lucide-react";
+import { Trash2, ChevronRight, Building2 } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { useActualisation } from "../providers/useActualisation.js";
 import { getMesAbonnements } from "../services/abonnements.js";
 import { demanderCollecte, getMesCollectes } from "../services/collectes.js";
+import { getStructures, prixMinimum } from "../services/structures.js";
 import { statutsAbonnement, statutsCollecte, volumes } from "../models/statuts.js";
-import { dateCourte, dateHeure, prix } from "../services/format.js";
+import { dateCourte, dateHeure, prix, initiales } from "../services/format.js";
 import Badge from "../widgets/Badge.jsx";
+import EtatVide from "../widgets/EtatVide.jsx";
 import "./Ecran.css";
+import "./DemandeCollecte.css";
 
 export default function DemandeCollecte() {
   const { user } = useAuth();
@@ -17,6 +20,7 @@ export default function DemandeCollecte() {
   const [params] = useSearchParams();
   const [abonnements, setAbonnements] = useState([]);
   const [collectes, setCollectes] = useState([]);
+  const [structures, setStructures] = useState([]);
   const [abonnementId, setAbonnementId] = useState(params.get("abonnement") || "");
   const [volume, setVolume] = useState("moyen");
   const [chargement, setChargement] = useState(true);
@@ -25,9 +29,10 @@ export default function DemandeCollecte() {
   const [succes, setSucces] = useState("");
 
   async function charger() {
-    const [a, c] = await Promise.all([getMesAbonnements(user.id), getMesCollectes(user.id)]);
+    const [a, c, s] = await Promise.all([getMesAbonnements(user.id), getMesCollectes(user.id), getStructures(user.secteur)]);
     setAbonnements(a);
     setCollectes(c);
+    setStructures(s);
     const acceptes = a.filter((x) => x.statut === "accepte");
     setAbonnementId((actuel) => (acceptes.some((x) => x.id === actuel) ? actuel : acceptes[0]?.id || ""));
     setChargement(false);
@@ -52,24 +57,59 @@ export default function DemandeCollecte() {
 
   const acceptes = abonnements.filter((a) => a.statut === "accepte");
 
+  function etatDemande(structureId) {
+    return abonnements.find((a) => a.structureId === structureId && a.statut !== "refuse");
+  }
+
+  const choixStructures = (
+    <>
+      <div className="collecte-titre">
+        <p className="section-titre">{acceptes.length ? "Autres structures de mon quartier" : `Structures à ${user.secteur || "Ouagadougou"}`}</p>
+        <Link to="/structures">Tous les quartiers</Link>
+      </div>
+      {!chargement && structures.length === 0 && (
+        <EtatVide icone={Building2} titre="Aucune structure dans votre quartier" texte="Consultez les structures des quartiers voisins.">
+          <Link to="/structures" className="btn btn-secondaire">
+            Voir toutes les structures
+          </Link>
+        </EtatVide>
+      )}
+      <div className="groupe">
+        {structures.map((s) => {
+          const demande = etatDemande(s.id);
+          const minimum = prixMinimum(s);
+          return (
+            <Link key={s.id} to={`/structures/${s.id}`} className="groupe-ligne collecte-structure">
+              <span className="logo-structure">{initiales(s.nom)}</span>
+              <span>
+                <strong>{s.nom}</strong>
+                <small>{minimum !== null ? `À partir de ${prix(minimum)} par mois` : "Tarifs pas encore publiés"}</small>
+              </span>
+              {demande ? <Badge statut={demande.statut} liste={statutsAbonnement} /> : <span className="collecte-choisir">Choisir</span>}
+              <ChevronRight size={18} />
+            </Link>
+          );
+        })}
+      </div>
+    </>
+  );
+
   return (
     <section className="ecran">
-      <h1>Demande de collecte</h1>
+      <div>
+        <h1>Ma collecte</h1>
+        <p className="ecran-sous-titre">
+          {acceptes.length
+            ? "Demandez un passage quand votre poubelle est pleine."
+            : "Choisissez une structure de pré-collecte et abonnez-vous : elle viendra vider votre poubelle à domicile."}
+        </p>
+      </div>
 
-      {state?.envoye && <p className="message message-ok">Votre demande d'abonnement est envoyée à la structure.</p>}
+      {state?.envoye && <p className="message message-ok">Votre demande d'abonnement est envoyée. La structure vous répond directement.</p>}
       {succes && <p className="message message-ok">{succes}</p>}
       {chargement && <p className="message message-vide">Chargement...</p>}
 
-      {!chargement && acceptes.length === 0 && (
-        <>
-          <p className="message message-attention">
-            La collecte à domicile est réservée aux abonnés : c'est l'abonnement qui paie la tournée du pré-collecteur.
-          </p>
-          <Link to="/structures" className="btn btn-primaire btn-large">
-            Trouver une structure
-          </Link>
-        </>
-      )}
+      {!chargement && acceptes.length === 0 && choixStructures}
 
       {acceptes.length > 0 && (
         <div className="element">
@@ -86,7 +126,9 @@ export default function DemandeCollecte() {
               </select>
             </label>
           ) : (
-            <p className="element-meta">Avec {acceptes[0].structureNom}</p>
+            <p className="element-meta">
+              Avec {acceptes[0].structureNom} · formule {acceptes[0].formule.nom}
+            </p>
           )}
           <div className="champ">
             Quantité de déchets
@@ -105,39 +147,48 @@ export default function DemandeCollecte() {
         </div>
       )}
 
-      <p className="section-titre">Mes collectes</p>
-      {!chargement && collectes.length === 0 && <p className="message message-vide">Aucune collecte demandée.</p>}
-      <div className="liste">
-        {collectes.map((c) => (
-          <article key={c.id} className="element">
-            <div className="element-haut">
-              <h3>{c.structureNom}</h3>
-              <Badge statut={c.statut} liste={statutsCollecte} />
-            </div>
-            <p className="element-meta">
-              Volume {volumes[c.volume].toLowerCase()} · demandé le {dateCourte(c.date)}
-            </p>
-            {c.statut === "planifiee" && <p className="message message-info">Passage prévu le {dateHeure(c.datePrevue)}</p>}
-          </article>
-        ))}
-      </div>
+      {abonnements.length > 0 && (
+        <>
+          <p className="section-titre">Mes abonnements</p>
+          <div className="liste">
+            {abonnements.map((a) => (
+              <article key={a.id} className="element">
+                <div className="element-haut">
+                  <h3>{a.structureNom}</h3>
+                  <Badge statut={a.statut} liste={statutsAbonnement} />
+                </div>
+                <p className="element-meta">
+                  {a.formule.nom} · {prix(a.formule.prix)} par mois · demandé le {dateCourte(a.date)}
+                </p>
+                {a.statut === "en_attente" && <p className="element-meta">La structure doit accepter votre demande.</p>}
+                {a.statut === "refuse" && a.motifRefus && <p className="message message-erreur">{a.motifRefus}</p>}
+              </article>
+            ))}
+          </div>
+        </>
+      )}
 
-      <p className="section-titre">Mes abonnements</p>
-      {!chargement && abonnements.length === 0 && <p className="message message-vide">Aucune demande d'abonnement.</p>}
-      <div className="liste">
-        {abonnements.map((a) => (
-          <article key={a.id} className="element">
-            <div className="element-haut">
-              <h3>{a.structureNom}</h3>
-              <Badge statut={a.statut} liste={statutsAbonnement} />
-            </div>
-            <p className="element-meta">
-              {a.formule.nom} · {prix(a.formule.prix)} par mois · demandé le {dateCourte(a.date)}
-            </p>
-            {a.statut === "refuse" && a.motifRefus && <p className="message message-erreur">{a.motifRefus}</p>}
-          </article>
-        ))}
-      </div>
+      {collectes.length > 0 && (
+        <>
+          <p className="section-titre">Mes collectes</p>
+          <div className="liste">
+            {collectes.map((c) => (
+              <article key={c.id} className="element">
+                <div className="element-haut">
+                  <h3>{c.structureNom}</h3>
+                  <Badge statut={c.statut} liste={statutsCollecte} />
+                </div>
+                <p className="element-meta">
+                  Volume {volumes[c.volume].toLowerCase()} · demandé le {dateCourte(c.date)}
+                </p>
+                {c.statut === "planifiee" && <p className="message message-info">Passage prévu le {dateHeure(c.datePrevue)}</p>}
+              </article>
+            ))}
+          </div>
+        </>
+      )}
+
+      {!chargement && acceptes.length > 0 && choixStructures}
     </section>
   );
 }

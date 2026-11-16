@@ -25,7 +25,7 @@ function enrichir(base, s) {
 export async function creerSignalement(auteurId, { type, taille, description, quartier, position, photo }) {
   await delai();
   if (!photo) throw new Error("Ajoutez une photo du lieu.");
-  if (!quartier) throw new Error("Choisissez le secteur.");
+  if (!quartier) throw new Error("Choisissez le quartier.");
   const base = lireBase();
   const maintenant = new Date().toISOString();
   const signalement = {
@@ -110,11 +110,19 @@ export async function confirmerSignalement(id, citoyenId) {
 export async function getMesPoints(citoyenId) {
   await delai(80);
   const base = lireBase();
-  const miens = base.signalements.filter((s) => s.auteurId === citoyenId && s.statut !== "rejete");
-  const confirmes = base.signalements.filter((s) => (s.confirmations || []).includes(citoyenId)).length;
-  const nettoyes = miens.filter((s) => s.statut === "nettoye").length;
+  const miens = base.signalements.filter((s) => s.auteurId === citoyenId);
+  const valides = miens.filter((s) => !["a_verifier", "rejete"].includes(s.statut));
+  const enVerification = miens.filter((s) => s.statut === "a_verifier").length;
+  const confirmes = base.signalements.filter((s) => (s.confirmations || []).includes(citoyenId) && s.statut !== "rejete").length;
+  const nettoyes = valides.filter((s) => s.statut === "nettoye").length;
+  const gagnes = valides.length * 10 + nettoyes * 5 + confirmes * 5;
+  const depenses = (base.echanges || [])
+    .filter((e) => e.citoyenId === citoyenId && e.statut !== "refuse")
+    .reduce((total, e) => total + e.cout, 0);
   return {
-    points: miens.length * 10 + nettoyes * 5 + confirmes * 5,
+    points: gagnes,
+    solde: gagnes - depenses,
+    enAttente: enVerification * 10,
     signales: miens.length,
     nettoyes,
     confirmes,

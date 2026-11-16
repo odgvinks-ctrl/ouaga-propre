@@ -28,7 +28,7 @@ export default function ZonesIntervention() {
     try {
       const ordonnes = quartiers.filter((q) => choisis.includes(q));
       await enregistrerQuartiers(user.id, ordonnes);
-      setSucces("Secteurs enregistrés. Les citoyens de ces secteurs vous voient maintenant.");
+      setSucces("Quartiers enregistrés. Les citoyens de ces quartiers vous voient maintenant.");
     } catch (err) {
       setErreur(err.message);
     } finally {
@@ -39,7 +39,7 @@ export default function ZonesIntervention() {
   return (
     <div className="formulaire">
       <p className="ecran-sous-titre">
-        {choisis.length} secteur(s) choisi(s). Vous recevez les alertes et les demandes de ces secteurs.
+        {choisis.length} quartier(s) choisi(s). Vous recevez les alertes et les demandes de ces quartiers.
       </p>
 
       <div className="grille-secteurs">
@@ -48,11 +48,10 @@ export default function ZonesIntervention() {
             key={q}
             type="button"
             aria-pressed={choisis.includes(q)}
-            aria-label={q}
             className={choisis.includes(q) ? "actif" : ""}
             onClick={() => basculer(q)}
           >
-            {q.replace("Secteur ", "")}
+            {q}
           </button>
         ))}
       </div>

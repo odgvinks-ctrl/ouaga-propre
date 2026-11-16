@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { FileText, Phone, ShieldCheck, Ban } from "lucide-react";
+import { FileText, FileX, Phone, ShieldCheck, Ban } from "lucide-react";
 import { useActualisation } from "../hooks/useActualisation.js";
 import { listerStructures, validerStructure, refuserStructure } from "../services/structures.js";
+import { piecesRequises, libellesEnregistrement } from "@modeles/documents.js";
 import EtatVide from "../components/EtatVide.jsx";
 import Dialogue from "../components/Dialogue.jsx";
 import "./ValidationStructures.css";
 
-const controles = [
-  { cle: "registre", label: "Numéro d'enregistrement vérifié au registre (RCCM, récépissé ou agrément)" },
-  { cle: "document", label: "Document lisible, au nom de la structure" },
-  { cle: "telephone", label: "Responsable joint par téléphone" },
-];
+function controlesPour(structure) {
+  const liste = [
+    { cle: "identite", label: "Pièce d'identité lisible, au même nom que le responsable et au même numéro" },
+    { cle: "legal", label: `${libellesEnregistrement[structure.type] || "Numéro d'enregistrement"} vérifié et document au nom de la structure` },
+  ];
+  if (structure.ifu || structure.type === "Entreprise") liste.push({ cle: "ifu", label: "Numéro IFU vérifié auprès des impôts" });
+  liste.push({ cle: "telephone", label: "Responsable joint par téléphone" });
+  return liste;
+}
 
-const motifs = ["Numéro d'enregistrement introuvable", "Document illisible ou incomplet", "Responsable injoignable"];
+const motifs = ["Numéro d'enregistrement introuvable", "Pièce d'identité illisible ou au mauvais nom", "Document manquant ou incomplet", "Responsable injoignable"];
 
 const onglets = [
   { cle: "en_attente", label: "En attente" },
@@ -41,6 +46,7 @@ export default function ValidationStructures() {
 
   const visibles = structures.filter((s) => s.statut === onglet);
   const courant = structures.find((s) => s.id === selection) || null;
+  const controles = courant ? controlesPour(courant) : [];
   const toutCoche = controles.every((c) => coches[c.cle]);
 
   useEffect(() => {
@@ -112,7 +118,7 @@ export default function ValidationStructures() {
                     <th>Structure</th>
                     <th>Responsable</th>
                     <th>Enregistrement</th>
-                    <th>Secteur</th>
+                    <th>Quartier</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -152,18 +158,31 @@ export default function ValidationStructures() {
                     <Phone size={14} /> {courant.telephone}
                   </a>
                 </dd>
-                <dt>N° d'enregistrement</dt>
+                <dt>Pièce d'identité</dt>
+                <dd>{courant.numeroCnib || "Non renseignée"}</dd>
+                <dt>{libellesEnregistrement[courant.type] || "N° d'enregistrement"}</dt>
                 <dd>{courant.numeroEnregistrement}</dd>
-                <dt>Secteurs demandés</dt>
+                <dt>IFU</dt>
+                <dd>{courant.ifu || "Non renseigné"}</dd>
+                <dt>Quartiers demandés</dt>
                 <dd>{courant.quartiers.join(", ")}</dd>
               </dl>
 
-              <div className="validation-document">
-                <FileText size={22} />
-                <div>
-                  <strong>{courant.piece || "Aucun document"}</strong>
-                  <small>Document officiel transmis à l'inscription</small>
-                </div>
+              <div className="validation-documents">
+                <p className="surtitre">Documents fournis</p>
+                {piecesRequises(courant.type).map((p) => {
+                  const fichier = (courant.pieces || {})[p.cle] || (p.cle === "legal" ? courant.piece : "");
+                  if (!fichier && !p.obligatoire) return null;
+                  return (
+                    <div key={p.cle} className={fichier ? "validation-document" : "validation-document manquant"}>
+                      {fichier ? <FileText size={20} /> : <FileX size={20} />}
+                      <div>
+                        <strong>{p.label}</strong>
+                        <small>{fichier || "Document obligatoire non fourni"}</small>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               {courant.statut === "refuse" && courant.motifRefus && <p className="message message-erreur">Motif du refus : {courant.motifRefus}</p>}
@@ -193,7 +212,7 @@ export default function ValidationStructures() {
                       <Ban size={16} /> Refuser
                     </button>
                   </div>
-                  {!toutCoche && <p className="champ-aide">Cochez les trois contrôles pour pouvoir valider.</p>}
+                  {!toutCoche && <p className="champ-aide">Cochez tous les contrôles pour pouvoir valider.</p>}
                 </>
               )}
             </>

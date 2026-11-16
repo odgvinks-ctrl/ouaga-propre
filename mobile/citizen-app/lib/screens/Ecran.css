@@ -611,13 +611,14 @@
 }
 
 .grille-secteurs {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .grille-secteurs button {
-  min-height: 44px;
+  min-height: 40px;
+  padding: 0 12px;
   border: 1px solid #C3CCC6;
   border-radius: var(--rayon-petit);
   background: #FFFFFF;

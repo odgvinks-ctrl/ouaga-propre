@@ -110,7 +110,7 @@ export default function Signalements() {
       <div className="page-entete">
         <div>
           <h1>Signalements</h1>
-          <p className="page-sous-titre">Vérifiez chaque signalement citoyen, puis transmettez-le à la structure du secteur ou rejetez-le.</p>
+          <p className="page-sous-titre">Vérifiez chaque signalement citoyen, puis transmettez-le à la structure du quartier ou rejetez-le.</p>
         </div>
       </div>
 
@@ -129,7 +129,7 @@ export default function Signalements() {
           <Search size={18} />
           <input
             type="search"
-            placeholder="Secteur, auteur, description..."
+            placeholder="Quartier, auteur, description..."
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
             aria-label="Rechercher un signalement"
@@ -274,7 +274,7 @@ export default function Signalements() {
                     <select value={choix} onChange={(e) => setChoix(e.target.value)}>
                       {proposees.map((s) => (
                         <option key={s.id} value={s.id}>
-                          {s.nom} {s.quartiers.includes(courant.quartier) ? `· couvre ${courant.quartier}` : "· hors secteur"}
+                          {s.nom} {s.quartiers.includes(courant.quartier) ? `· couvre ${courant.quartier}` : "· hors quartier"}
                         </option>
                       ))}
                     </select>

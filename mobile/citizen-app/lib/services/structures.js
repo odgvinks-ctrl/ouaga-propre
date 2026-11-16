@@ -51,7 +51,7 @@ export async function modifierProfil(id, { type, responsable, whatsapp, descript
 
 export async function enregistrerQuartiers(id, quartiers) {
   await delai();
-  if (!quartiers.length) throw new Error("Choisissez au moins un secteur.");
+  if (!quartiers.length) throw new Error("Choisissez au moins un quartier.");
   return modifierStructure(id, (s) => ({ ...s, quartiers }));
 }
 

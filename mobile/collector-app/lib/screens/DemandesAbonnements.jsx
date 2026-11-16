@@ -13,7 +13,7 @@ import "./DemandesAbonnements.css";
 
 const SEUIL = 110;
 
-const motifs = ["Secteur trop éloigné de nos tournées", "Plus de place dans nos tournées", "Repère trop vague, appelez-nous"];
+const motifs = ["Quartier trop éloigné de nos tournées", "Plus de place dans nos tournées", "Repère trop vague, appelez-nous"];
 
 function depuis(iso) {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);

@@ -10,7 +10,7 @@ import "@citoyen/screens/Ecran.css";
 
 const onglets = [
   { cle: "infos", label: "Informations" },
-  { cle: "secteurs", label: "Secteurs" },
+  { cle: "secteurs", label: "Quartiers" },
   { cle: "tarifs", label: "Tarifs" },
 ];
 

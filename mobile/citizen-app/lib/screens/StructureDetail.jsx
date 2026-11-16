@@ -77,7 +77,7 @@ export default function StructureDetail() {
           </span>
           <span>
             <strong>{structure.quartiers.length}</strong>
-            <small>Secteurs</small>
+            <small>Quartiers</small>
           </span>
           <span>
             <strong>{structure.type}</strong>

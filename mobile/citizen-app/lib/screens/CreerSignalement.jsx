@@ -288,7 +288,7 @@ export default function CreerSignalement() {
         </div>
 
         <label className="champ">
-          Secteur
+          Quartier
           <select name="quartier" value={form.quartier} onChange={handleChange}>
             {quartiers.map((q) => (
               <option key={q} value={q}>

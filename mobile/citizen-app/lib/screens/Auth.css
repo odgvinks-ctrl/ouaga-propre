@@ -88,3 +88,46 @@
   background: var(--rouge-clair);
   color: var(--rouge-fonce);
 }
+
+.inscription-piece .choix-carte {
+  align-items: center;
+  cursor: pointer;
+}
+
+.inscription-piece .choix-carte > svg {
+  flex: none;
+}
+
+.inscription-piece .choix-carte span span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.validation-piece {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.validation-piece svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--vert-fonce);
+}
+
+.validation-piece span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.validation-piece small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--encre-douce);
+}

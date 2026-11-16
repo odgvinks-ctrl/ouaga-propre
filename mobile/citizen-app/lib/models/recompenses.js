@@ -28,3 +28,30 @@ export const etapesSignalement = [
 export function rangEtape(statut) {
   return etapesSignalement.findIndex((e) => e.statut === statut);
 }
+
+export const POINTS_SIGNALEMENT = 10;
+
+export const operateurs = ["Orange", "Moov Africa", "Telecel"];
+
+export const categoriesCadeau = {
+  unites: "Unités",
+  mega: "Internet",
+  sms: "SMS",
+  bon: "Bons de réduction",
+};
+
+export const cadeaux = [
+  { cle: "sms-100", categorie: "sms", label: "100 SMS", detail: "Valables 7 jours", cout: 20 },
+  { cle: "mega-500", categorie: "mega", label: "500 Mo d'internet", detail: "Valables 7 jours", cout: 35 },
+  { cle: "unites-500", categorie: "unites", label: "500 F d'unités", detail: "Crédit d'appel", cout: 40 },
+  { cle: "mega-1000", categorie: "mega", label: "1 Go d'internet", detail: "Valable 30 jours", cout: 60 },
+  { cle: "unites-1000", categorie: "unites", label: "1 000 F d'unités", detail: "Crédit d'appel", cout: 75 },
+  { cle: "bon-commerce", categorie: "bon", label: "Bon de 10 %", detail: "Chez les commerçants partenaires de la mairie", cout: 30 },
+  { cle: "bon-abonnement", categorie: "bon", label: "Bon de 1 000 F", detail: "Sur votre abonnement à la pré-collecte", cout: 50 },
+];
+
+export const statutsEchange = {
+  en_attente: { label: "En préparation", classe: "statut-attente" },
+  envoye: { label: "Envoyé", classe: "statut-ok" },
+  refuse: { label: "Refusé, points rendus", classe: "statut-refus" },
+};

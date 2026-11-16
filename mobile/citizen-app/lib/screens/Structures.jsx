@@ -30,13 +30,13 @@ export default function Structures() {
     <section className="ecran">
       <div>
         <h1>Structures de pré-collecte</h1>
-        <p className="ecran-sous-titre">GIE, entreprises et associations qui ramassent les ordures dans votre secteur.</p>
+        <p className="ecran-sous-titre">GIE, entreprises et associations qui ramassent les ordures dans votre quartier.</p>
       </div>
 
       <label className="champ">
-        Secteur
+        Quartier
         <select value={quartier} onChange={(e) => setQuartier(e.target.value)}>
-          <option value="">Tous les secteurs</option>
+          <option value="">Tous les quartiers</option>
           {quartiers.map((q) => (
             <option key={q} value={q}>
               {q}
@@ -48,7 +48,7 @@ export default function Structures() {
       {erreur && <p className="message message-erreur">{erreur}</p>}
       {chargement && <p className="message message-vide">Chargement...</p>}
       {!chargement && structures.length === 0 && !erreur && (
-        <EtatVide icone={Building2} titre="Personne dans ce secteur" texte="Aucune structure ne couvre encore ce secteur. Essayez un secteur voisin." />
+        <EtatVide icone={Building2} titre="Personne dans ce quartier" texte="Aucune structure ne couvre encore ce quartier. Essayez un quartier voisin." />
       )}
 
       <div className="liste">

@@ -90,7 +90,7 @@ export default function DemandeAbonnement() {
         </div>
 
         <label className="champ">
-          Secteur de votre domicile
+          Quartier de votre domicile
           <select name="quartier" value={form.quartier} onChange={handleChange}>
             {structure.quartiers.map((q) => (
               <option key={q} value={q}>

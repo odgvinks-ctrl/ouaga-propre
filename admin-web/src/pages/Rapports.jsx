@@ -25,14 +25,14 @@ const exports = [
   {
     cle: "signalements",
     titre: "Signalements",
-    description: "Tous les signalements avec statut, secteur, position et structure.",
+    description: "Tous les signalements avec statut, quartier, position et structure.",
     lancer: ({ base, nom }) =>
       telechargerCsv("signalements.csv", [
         { label: "Identifiant", valeur: (s) => s.id },
         { label: "Date", valeur: (s) => jour(s.date) },
         { label: "Type", valeur: (s) => typesSignalement[s.type] },
         { label: "Taille", valeur: (s) => volumes[s.taille] },
-        { label: "Secteur", valeur: (s) => s.quartier },
+        { label: "Quartier", valeur: (s) => s.quartier },
         { label: "Latitude", valeur: (s) => s.position?.lat },
         { label: "Longitude", valeur: (s) => s.position?.lng },
         { label: "Statut", valeur: (s) => label(statutsSignalement, s.statut) },
@@ -49,7 +49,7 @@ const exports = [
         { label: "Date", valeur: (s) => jour(s.date) },
         { label: "Type", valeur: (s) => typesSignalement[s.type] },
         { label: "Taille", valeur: (s) => volumes[s.taille] },
-        { label: "Secteur", valeur: (s) => s.quartier },
+        { label: "Quartier", valeur: (s) => s.quartier },
         { label: "Latitude", valeur: (s) => (s.position ? s.position.lat.toFixed(4) : "") },
         { label: "Longitude", valeur: (s) => (s.position ? s.position.lng.toFixed(4) : "") },
         { label: "Statut", valeur: (s) => label(statutsSignalement, s.statut) },
@@ -58,7 +58,7 @@ const exports = [
   {
     cle: "structures",
     titre: "Structures de pré-collecte",
-    description: "Identité, enregistrement, secteurs couverts et statut.",
+    description: "Identité, enregistrement, quartiers couverts et statut.",
     lancer: ({ base }) =>
       telechargerCsv("structures.csv", [
         { label: "Nom", valeur: (s) => (base.comptes.find((c) => c.id === s.id) || {}).nom },
@@ -66,7 +66,7 @@ const exports = [
         { label: "Responsable", valeur: (s) => s.responsable },
         { label: "Téléphone", valeur: (s) => (base.comptes.find((c) => c.id === s.id) || {}).telephone },
         { label: "Enregistrement", valeur: (s) => s.numeroEnregistrement },
-        { label: "Secteurs", valeur: (s) => s.quartiers.join(", ") },
+        { label: "Quartiers", valeur: (s) => s.quartiers.join(", ") },
         { label: "Statut", valeur: (s) => (base.comptes.find((c) => c.id === s.id) || {}).statut },
       ], base.structures),
   },
@@ -79,7 +79,7 @@ const exports = [
         { label: "Date", valeur: (a) => jour(a.date) },
         { label: "Citoyen", valeur: (a) => nom(a.citoyenId) },
         { label: "Structure", valeur: (a) => nom(a.structureId) },
-        { label: "Secteur", valeur: (a) => a.quartier },
+        { label: "Quartier", valeur: (a) => a.quartier },
         { label: "Statut", valeur: (a) => label(statutsAbonnement, a.statut) },
       ], base.abonnements),
   },
@@ -104,7 +104,7 @@ const exports = [
       telechargerCsv("points-regroupement.csv", [
         { label: "Nom", valeur: (p) => p.nom },
         { label: "Type", valeur: (p) => p.type },
-        { label: "Secteur", valeur: (p) => p.quartier },
+        { label: "Quartier", valeur: (p) => p.quartier },
         { label: "Capacité (m3)", valeur: (p) => p.capacite },
         { label: "Remplissage (%)", valeur: (p) => p.remplissage },
         { label: "Latitude", valeur: (p) => p.position.lat },
@@ -184,14 +184,14 @@ export default function Rapports() {
 
           <div className="grille-deux">
             <div>
-              <p className="surtitre">Par secteur</p>
+              <p className="surtitre">Par quartier</p>
               {rapport.secteurs.length === 0 ? (
                 <EtatVide titre="Aucun signalement sur la période" />
               ) : (
                 <table className="tableau">
                   <thead>
                     <tr>
-                      <th>Secteur</th>
+                      <th>Quartier</th>
                       <th className="nombre">Reçus</th>
                       <th className="nombre">Rejetés</th>
                       <th className="nombre">Nettoyés</th>

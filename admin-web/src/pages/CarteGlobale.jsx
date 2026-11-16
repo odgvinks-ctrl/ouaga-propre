@@ -88,7 +88,7 @@ export default function CarteGlobale() {
           ))}
         </fieldset>
         <label className="champ">
-          Secteur
+          Quartier
           <select value={secteur} onChange={(e) => setSecteur(e.target.value)}>
             <option value="">Toute la commune</option>
             {quartiers.map((q) => (
@@ -188,7 +188,7 @@ export default function CarteGlobale() {
               <dl className="liste-cles">
                 <dt>Type</dt>
                 <dd>{choisi.type}</dd>
-                <dt>Secteur</dt>
+                <dt>Quartier</dt>
                 <dd>{choisi.quartier}</dd>
                 <dt>Capacité</dt>
                 <dd>{choisi.capacite} m³</dd>

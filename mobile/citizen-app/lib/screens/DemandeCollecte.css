@@ -1,0 +1,45 @@
+.collecte-titre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.collecte-titre .section-titre {
+  margin: 0;
+}
+
+.collecte-titre a {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.collecte-structure > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.groupe-ligne.collecte-structure > .logo-structure {
+  flex: none;
+}
+
+.collecte-structure strong {
+  display: block;
+  font-size: 15px;
+}
+
+.collecte-structure small {
+  display: block;
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.collecte-choisir {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--vert);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+}

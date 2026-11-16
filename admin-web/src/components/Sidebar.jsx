@@ -10,6 +10,7 @@ import {
   SlidersHorizontal,
   GitCompare,
   FileDown,
+  Gift,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../hooks/AuthContext.jsx";
@@ -32,6 +33,7 @@ const groupes = [
       { vers: "/validation", label: "Validation des structures", icone: ShieldCheck, compteur: "structures" },
       { vers: "/structures", label: "Structures", icone: Building2 },
       { vers: "/utilisateurs", label: "Utilisateurs", icone: Users },
+      { vers: "/recompenses", label: "Récompenses", icone: Gift, compteur: "echanges" },
     ],
   },
   {
