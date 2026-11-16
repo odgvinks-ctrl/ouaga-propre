@@ -14,6 +14,11 @@ export function piecesRequises(type) {
       obligatoire: true,
     },
     { cle: "ifu", label: "Attestation IFU", aide: "Identifiant financier unique", obligatoire: type === "Entreprise" },
-    { cle: "agrement", label: "Autorisation ou convention avec la mairie", aide: "Si vous en avez une", obligatoire: false },
+    {
+      cle: "autorisation",
+      label: "Autorisation de pré-collecte de la mairie",
+      aide: "Document délivré par la mairie qui vous autorise à collecter les ordures chez les habitants",
+      obligatoire: true,
+    },
   ];
 }

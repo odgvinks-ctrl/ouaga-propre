@@ -77,3 +77,15 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.canal-ussd {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--encre);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: 1px;
+}

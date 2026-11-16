@@ -79,3 +79,8 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.texte-manquant {
+  color: var(--rouge);
+  font-weight: 600;
+}

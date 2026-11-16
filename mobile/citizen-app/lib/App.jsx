@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./providers/AuthContext.jsx";
 import Layout from "./widgets/Layout.jsx";
 import RouteProtegee from "./widgets/RouteProtegee.jsx";
+import ToucheRetour from "./widgets/ToucheRetour.jsx";
 import Connexion from "./screens/Connexion.jsx";
 import Inscription from "./screens/Inscription.jsx";
 import Validation from "./screens/Validation.jsx";
@@ -55,6 +56,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ToucheRetour />
         <Routes>
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />

@@ -58,11 +58,7 @@ export default function StructureDetail() {
 
   return (
     <section className="ecran fiche">
-      <div className="fiche-bandeau">
-        <Link to="/structures" className="fiche-retour">
-          <ArrowLeft size={18} /> Structures
-        </Link>
-      </div>
+      <div className="fiche-bandeau"></div>
 
       <div className="fiche-carte">
         <div className="fiche-identite">

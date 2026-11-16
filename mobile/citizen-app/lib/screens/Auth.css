@@ -131,3 +131,91 @@
   white-space: nowrap;
   color: var(--encre-douce);
 }
+
+.auth-retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  min-height: 40px;
+  padding: 0 10px 0 6px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font: 700 14px var(--texte);
+  cursor: pointer;
+}
+
+.inscription-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inscription-conditions details {
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  background: var(--fond);
+}
+
+.inscription-conditions summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 14px;
+  color: var(--vert-fonce);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.inscription-conditions summary::-webkit-details-marker {
+  display: none;
+}
+
+.inscription-conditions ol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 4px 16px 16px 34px;
+}
+
+.inscription-conditions li strong {
+  font-size: 15px;
+}
+
+.inscription-conditions li p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--encre-douce);
+}
+
+.inscription-accord {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.inscription-accord:has(input:checked) {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+}
+
+.inscription-accord input {
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  flex: none;
+  accent-color: var(--vert);
+}

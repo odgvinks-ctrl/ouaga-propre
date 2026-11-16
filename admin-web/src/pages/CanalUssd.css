@@ -1,0 +1,269 @@
+.ussd-grille {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.ussd-colonne-telephone,
+.ussd-colonne-infos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ussd-numeros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ussd-numero {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--ligne);
+  border-radius: 8px;
+  background: var(--carte);
+  color: var(--encre);
+  font: 600 12px var(--texte);
+  cursor: pointer;
+}
+
+.ussd-numero.actif {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+}
+
+.ussd-telephone {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 20px;
+  border-radius: 20px;
+  background: var(--encre);
+  box-shadow: 0 12px 28px rgba(32, 43, 37, 0.25);
+}
+
+.ussd-haut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #C9D3CD;
+  font: 600 12px var(--texte);
+}
+
+.ussd-onglets {
+  display: flex;
+  gap: 4px;
+}
+
+.ussd-onglets button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #C9D3CD;
+  font: 600 12px var(--texte);
+  cursor: pointer;
+}
+
+.ussd-onglets button.actif {
+  background: #36443C;
+  color: #FFFFFF;
+}
+
+.ussd-onglets b {
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--rouge);
+  color: #FFFFFF;
+  font-size: 11px;
+}
+
+.ussd-ecran {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  height: 250px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #DDE8D9;
+  color: #17211B;
+  overflow-y: auto;
+}
+
+.ussd-texte {
+  margin: 0;
+  font: 500 14px/1.45 "Courier New", monospace;
+  white-space: pre-line;
+}
+
+.ussd-vide {
+  margin: auto 0;
+  text-align: center;
+  font: 500 14px/1.5 "Courier New", monospace;
+  color: #4F5B54;
+}
+
+.ussd-composition {
+  margin: 0;
+  text-align: center;
+  font: 700 24px "Courier New", monospace;
+  letter-spacing: 0.08em;
+}
+
+.ussd-reponse {
+  display: flex;
+  gap: 6px;
+}
+
+.ussd-reponse input {
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid #9DB09A;
+  border-radius: 6px;
+  background: #FFFFFF;
+  font: 600 14px "Courier New", monospace;
+}
+
+.ussd-reponse button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--vert);
+  color: #FFFFFF;
+  font: 700 13px var(--texte);
+  cursor: pointer;
+}
+
+.ussd-sms {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ussd-bulle {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #FFFFFF;
+}
+
+.ussd-bulle p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ussd-bulle small {
+  color: var(--encre-douce);
+  font-size: 11px;
+}
+
+.ussd-commandes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.ussd-commandes button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 0;
+  border-radius: 20px;
+  color: #FFFFFF;
+  font: 600 13px var(--texte);
+  cursor: pointer;
+}
+
+.ussd-appel {
+  background: var(--vert);
+}
+
+.ussd-effacer {
+  background: #36443C;
+}
+
+.ussd-raccrocher {
+  background: var(--rouge);
+}
+
+.ussd-clavier {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ussd-clavier button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: #36443C;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.ussd-clavier button:hover,
+.ussd-commandes button:hover {
+  filter: brightness(1.12);
+}
+
+.ussd-clavier strong {
+  font: 700 18px var(--titre);
+  line-height: 1;
+}
+
+.ussd-clavier small {
+  min-height: 12px;
+  color: #AEBBB3;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ussd-titre {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.ussd-points {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--encre-douce);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ussd-points strong {
+  color: var(--encre);
+}
+
+@media (max-width: 960px) {
+  .ussd-grille {
+    grid-template-columns: 1fr;
+  }
+
+  .ussd-telephone {
+    max-width: 360px;
+  }
+}

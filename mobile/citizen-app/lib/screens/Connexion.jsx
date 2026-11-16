@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { login } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import Logo from "../widgets/Logo.jsx";
@@ -13,6 +14,11 @@ export default function Connexion() {
   const { enregistrer } = useAuth();
   const navigate = useNavigate();
   const { state } = useLocation();
+
+  function retour() {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate("/", { replace: true });
+  }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,6 +46,10 @@ export default function Connexion() {
   return (
     <section className="auth">
       <form className="auth-carte" onSubmit={handleSubmit}>
+        <button type="button" className="auth-retour" onClick={retour}>
+          <ArrowLeft size={18} />
+          Retour
+        </button>
         <div className="auth-logo">
           <Logo hauteur={110} />
         </div>

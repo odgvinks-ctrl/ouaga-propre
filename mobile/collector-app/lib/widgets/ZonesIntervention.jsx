@@ -16,7 +16,7 @@ export default function ZonesIntervention() {
   }, [user.id]);
 
   function basculer(quartier) {
-    setChoisis((actuels) =>
+    setChoisis((actuels) =>+
       actuels.includes(quartier) ? actuels.filter((q) => q !== quartier) : [...actuels, quartier]
     );
     setErreur("");

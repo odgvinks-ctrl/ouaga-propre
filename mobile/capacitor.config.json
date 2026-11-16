@@ -1,5 +1,9 @@
 {
   "appId": "bf.ouagapropre.app",
   "appName": "FASO NEERE",
-  "webDir": "dist"
+  "webDir": "dist",
+  "backgroundColor": "#FFFFFF",
+  "android": {
+    "allowMixedContent": false
+  }
 }

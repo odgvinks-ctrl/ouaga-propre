@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShieldCheck, Upload, Check } from "lucide-react";
+import { ShieldCheck, Upload, Check, ArrowLeft, FileText } from "lucide-react";
 import { signup } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { quartiers } from "../models/quartiers.js";
 import { typesStructure } from "../models/statuts.js";
 import { libellesEnregistrement, piecesRequises } from "../models/documents.js";
+import { COMMISSION, conditionsPartenariat } from "../models/conditions.js";
 import "./Ecran.css";
 import "./Auth.css";
 import Logo from "../widgets/Logo.jsx";
@@ -21,7 +22,9 @@ const vide = {
   numeroCnib: "",
   numeroEnregistrement: "",
   ifu: "",
-  pieces: { identite: "", legal: "", ifu: "", agrement: "" },
+  numeroAutorisation: "",
+  pieces: { identite: "", legal: "", ifu: "", autorisation: "" },
+  conditionsAcceptees: false,
 };
 
 export default function Inscription() {
@@ -31,6 +34,11 @@ export default function Inscription() {
   const { enregistrer } = useAuth();
   const navigate = useNavigate();
   const { state } = useLocation();
+
+  function retour() {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate("/connexion", { replace: true });
+  }
   const structure = form.role === "structure";
 
   function handleChange(e) {
@@ -40,6 +48,11 @@ export default function Inscription() {
 
   function choisirRole(role) {
     setForm({ ...form, role });
+    setErreur("");
+  }
+
+  function accepter(e) {
+    setForm({ ...form, conditionsAcceptees: e.target.checked });
     setErreur("");
   }
 
@@ -66,6 +79,10 @@ export default function Inscription() {
   return (
     <section className="auth">
       <form className="auth-carte" onSubmit={handleSubmit}>
+        <button type="button" className="auth-retour" onClick={retour}>
+          <ArrowLeft size={18} />
+          Retour
+        </button>
         <div className="auth-logo">
           <Logo hauteur={64} />
         </div>
@@ -170,6 +187,19 @@ export default function Inscription() {
               <input type="text" name="ifu" placeholder="Identifiant financier unique" value={form.ifu} onChange={handleChange} />
             </label>
 
+            <label className="champ">
+              Numéro de l'autorisation de pré-collecte
+              <input
+                type="text"
+                name="numeroAutorisation"
+                placeholder="Inscrit sur le document de la mairie"
+                value={form.numeroAutorisation}
+                onChange={handleChange}
+                required
+              />
+              <span className="champ-aide">Sans autorisation de la mairie, vous ne pouvez pas proposer d'abonnements aux habitants.</span>
+            </label>
+
             <p className="section-titre">Documents à joindre</p>
             <p className="champ-aide">Photos nettes ou scans. L'administration les compare aux numéros ci-dessus.</p>
             {piecesRequises(form.type).map((piece) => (
@@ -207,9 +237,40 @@ export default function Inscription() {
           />
         </label>
 
+        {structure && (
+          <div className="inscription-conditions">
+            <p className="section-titre">Conditions de partenariat</p>
+            <details>
+              <summary>
+                <FileText size={18} /> Lire les conditions et la politique de confidentialité
+              </summary>
+              <ol>
+                {conditionsPartenariat.map((article) => (
+                  <li key={article.titre}>
+                    <strong>{article.titre}</strong>
+                    <p>{article.texte}</p>
+                  </li>
+                ))}
+              </ol>
+            </details>
+            <label className="inscription-accord">
+              <input type="checkbox" checked={form.conditionsAcceptees} onChange={accepter} />
+              <span>
+                J'ai lu et j'accepte les conditions de partenariat, dont la commission de <strong>{COMMISSION} %</strong> sur chaque transaction
+                effectuée à travers FASO NEERE.
+              </span>
+            </label>
+            {!form.conditionsAcceptees && (
+              <p className="champ-aide">
+                Si vous n'êtes pas d'accord, vous ne pouvez pas inscrire votre structure. Vous pouvez quand même utiliser l'application comme citoyen.
+              </p>
+            )}
+          </div>
+        )}
+
         {erreur && <p className="message message-erreur">{erreur}</p>}
 
-        <button type="submit" className="btn btn-primaire btn-large" disabled={chargement}>
+        <button type="submit" className="btn btn-primaire btn-large" disabled={chargement || (structure && !form.conditionsAcceptees)}>
           {chargement ? "Création du compte..." : structure ? "Envoyer ma demande" : "Créer mon compte"}
         </button>
 

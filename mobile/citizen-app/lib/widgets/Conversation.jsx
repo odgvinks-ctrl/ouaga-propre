@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Phone, Send } from "lucide-react";
+import { Phone, Send } from "lucide-react";
 import { useActualisation } from "../providers/useActualisation.js";
 import { getConversation, envoyerMessage } from "../services/messages.js";
 import { dateHeure } from "../services/format.js";
 import "./Conversation.css";
 
-export default function Conversation({ id, moi, retour }) {
+export default function Conversation({ id, moi }) {
   const [conversation, setConversation] = useState(null);
   const [texte, setTexte] = useState("");
   const [erreur, setErreur] = useState("");
@@ -47,9 +46,6 @@ export default function Conversation({ id, moi, retour }) {
   return (
     <section className="ecran conversation">
       <div className="conversation-entete">
-        <Link to={retour} className="ecran-retour">
-          <ArrowLeft size={18} /> Messages
-        </Link>
         <h1>{conversation ? conversation.autreNom : "Messages"}</h1>
         {conversation?.autreTelephone && (
           <a href={`tel:${conversation.autreTelephone}`} className="btn btn-secondaire">

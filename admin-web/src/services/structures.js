@@ -47,6 +47,9 @@ function changerCompte(id, changement) {
 
 export async function validerStructure(id) {
   await delai();
+  const fiche = lireBase().structures.find((s) => s.id === id) || {};
+  if (!(fiche.pieces || {}).autorisation) throw new Error("Impossible de valider : l'autorisation de pré-collecte de la mairie manque.");
+  if (!fiche.conditions) throw new Error("Impossible de valider : la structure n'a pas accepté les conditions de partenariat.");
   changerCompte(id, { statut: "actif", motifRefus: "", dateValidation: new Date().toISOString() });
 }
 

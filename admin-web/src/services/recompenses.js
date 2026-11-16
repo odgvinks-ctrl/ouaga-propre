@@ -9,8 +9,8 @@ export async function listerEchanges() {
       const signalements = base.signalements.filter((s) => s.auteurId === e.citoyenId);
       return {
         ...e,
-        citoyenNom: citoyen.nom || "Citoyen",
-        citoyenTelephone: citoyen.telephone || "",
+        citoyenNom: citoyen.nom || (String(e.citoyenId).startsWith("ussd-") ? "Téléphone simple (USSD)" : "Citoyen"),
+        citoyenTelephone: citoyen.telephone || e.numero || "",
         valides: signalements.filter((s) => !["a_verifier", "rejete"].includes(s.statut)).length,
         rejetes: signalements.filter((s) => s.statut === "rejete").length,
       };

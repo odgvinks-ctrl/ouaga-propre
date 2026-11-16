@@ -169,7 +169,10 @@ export default function Signalements() {
                           </small>
                         </td>
                         <td>{dateCourte(s.date)}</td>
-                        <td>{s.auteurNom}</td>
+                        <td>
+                          {s.auteurNom}
+                          {s.canal === "ussd" && <span className="canal-ussd">USSD</span>}
+                        </td>
                         <td>
                           <span className="fiabilite">
                             <i style={{ background: n.couleur }}></i>

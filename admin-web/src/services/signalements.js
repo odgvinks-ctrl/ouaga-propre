@@ -22,6 +22,10 @@ function fiabilite(base, s) {
     raisons.push("Pas de position");
   }
   if (String(s.auteurId).startsWith("invite-")) raisons.push("Envoyé sans compte");
+  if (s.canal === "ussd") {
+    score += 10;
+    raisons.push("Envoyé par USSD : numéro connu, mais ni photo ni GPS, à vérifier sur place");
+  }
   const confirmations = (s.confirmations || []).length;
   if (confirmations) {
     score += Math.min(20, confirmations * 10);
@@ -41,6 +45,13 @@ function fiabilite(base, s) {
   return { score: Math.max(0, Math.min(100, score)), raisons };
 }
 
+function nomAuteur(s, auteur) {
+  if (auteur.nom) return auteur.nom;
+  if (String(s.auteurId).startsWith("ussd-")) return "Téléphone simple (USSD)";
+  if (String(s.auteurId).startsWith("invite-")) return "Anonyme (sans compte)";
+  return "Citoyen";
+}
+
 function enrichir(base, s) {
   const auteur = base.comptes.find((c) => c.id === s.auteurId) || {};
   const structure = base.comptes.find((c) => c.id === s.structureId) || {};
@@ -48,8 +59,8 @@ function enrichir(base, s) {
     ...s,
     historique: s.historique || [{ statut: s.statut, date: s.date }],
     confirmations: s.confirmations || [],
-    auteurNom: auteur.nom || (String(s.auteurId).startsWith("invite-") ? "Anonyme (sans compte)" : "Citoyen"),
-    auteurTelephone: auteur.telephone || "",
+    auteurNom: nomAuteur(s, auteur),
+    auteurTelephone: auteur.telephone || s.telephone || "",
     structureNom: structure.nom || "",
     fiabilite: fiabilite(base, s),
   };

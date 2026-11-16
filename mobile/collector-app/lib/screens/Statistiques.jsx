@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { useAuth } from "@citoyen/providers/AuthContext.jsx";
 import { useActualisation } from "@citoyen/providers/useActualisation.js";
 import { getDemandesStructure } from "@citoyen/services/abonnements.js";
@@ -84,14 +83,7 @@ export default function Statistiques() {
 
   return (
     <section className="ecran">
-      <div className="tete-ecran">
-        <Link to="/gestion" className="bouton-retour">
-          <ArrowLeft size={18} /> Retour
-        </Link>
-        <div>
-          <h1>Statistiques</h1>
-        </div>
-      </div>
+      <h1>Statistiques</h1>
       <div className="stats-periode">
         {[7, 30].map((p) => (
           <button key={p} type="button" aria-pressed={periode === p} className={periode === p ? "actif" : ""} onClick={() => setPeriode(p)}>

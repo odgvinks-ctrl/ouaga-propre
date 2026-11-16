@@ -14,6 +14,7 @@ import ParametresSimulation from "./pages/ParametresSimulation.jsx";
 import ComparaisonScenarios from "./pages/ComparaisonScenarios.jsx";
 import Rapports from "./pages/Rapports.jsx";
 import Recompenses from "./pages/Recompenses.jsx";
+import CanalUssd from "./pages/CanalUssd.jsx";
 import NonTrouve from "./pages/NonTrouve.jsx";
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="structures" element={<Structures />} />
             <Route path="utilisateurs" element={<Utilisateurs />} />
             <Route path="recompenses" element={<Recompenses />} />
+            <Route path="ussd" element={<CanalUssd />} />
             <Route path="simulation" element={<ParametresSimulation />} />
             <Route path="scenarios" element={<ComparaisonScenarios />} />
             <Route path="rapports" element={<Rapports />} />

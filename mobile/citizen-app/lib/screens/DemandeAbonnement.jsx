@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Lock } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Lock } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { getStructure } from "../services/structures.js";
 import { demanderAbonnement } from "../services/abonnements.js";
@@ -58,11 +58,8 @@ export default function DemandeAbonnement() {
 
   return (
     <section className="ecran">
-      <Link to={`/structures/${id}`} className="ecran-retour">
-        <ArrowLeft size={18} /> {structure.nom}
-      </Link>
-
       <div>
+        <span className="element-meta">{structure.nom}</span>
         <h1>Demander un abonnement</h1>
         <p className="ecran-sous-titre">La structure reçoit votre demande et vous répond directement.</p>
       </div>

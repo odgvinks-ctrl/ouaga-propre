@@ -63,16 +63,11 @@ export default function SuiviSignalement() {
 
   return (
     <section className="ecran">
-      <div className="tete-ecran">
-        <Link to="/mes-signalements" className="bouton-retour">
-          <ArrowLeft size={18} /> Retour
-        </Link>
-        <div>
-          <span className="element-meta">Signalé le {dateCourte(signalement.date)}</span>
-          <h1 className="suivi-titre">
-            {typesSignalement[signalement.type]} · {signalement.quartier}
-          </h1>
-        </div>
+      <div>
+        <span className="element-meta">Signalé le {dateCourte(signalement.date)}</span>
+        <h1 className="suivi-titre">
+          {typesSignalement[signalement.type]} · {signalement.quartier}
+        </h1>
       </div>
 
       <div className="suivi-photos">

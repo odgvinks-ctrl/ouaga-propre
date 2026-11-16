@@ -4,6 +4,7 @@ import { FileText, FileX, Phone, ShieldCheck, Ban } from "lucide-react";
 import { useActualisation } from "../hooks/useActualisation.js";
 import { listerStructures, validerStructure, refuserStructure } from "../services/structures.js";
 import { piecesRequises, libellesEnregistrement } from "@modeles/documents.js";
+import { dateCourte } from "@donnees/format.js";
 import EtatVide from "../components/EtatVide.jsx";
 import Dialogue from "../components/Dialogue.jsx";
 import "./ValidationStructures.css";
@@ -14,11 +15,12 @@ function controlesPour(structure) {
     { cle: "legal", label: `${libellesEnregistrement[structure.type] || "Numéro d'enregistrement"} vérifié et document au nom de la structure` },
   ];
   if (structure.ifu || structure.type === "Entreprise") liste.push({ cle: "ifu", label: "Numéro IFU vérifié auprès des impôts" });
+  liste.push({ cle: "autorisation", label: "Autorisation de pré-collecte authentique, numéro confirmé par le service d'assainissement de la mairie" });
   liste.push({ cle: "telephone", label: "Responsable joint par téléphone" });
   return liste;
 }
 
-const motifs = ["Numéro d'enregistrement introuvable", "Pièce d'identité illisible ou au mauvais nom", "Document manquant ou incomplet", "Responsable injoignable"];
+const motifs = ["Autorisation de pré-collecte de la mairie absente ou invalide", "Numéro d'enregistrement introuvable", "Pièce d'identité illisible ou au mauvais nom", "Document manquant ou incomplet", "Responsable injoignable"];
 
 const onglets = [
   { cle: "en_attente", label: "En attente" },
@@ -164,6 +166,14 @@ export default function ValidationStructures() {
                 <dd>{courant.numeroEnregistrement}</dd>
                 <dt>IFU</dt>
                 <dd>{courant.ifu || "Non renseigné"}</dd>
+                <dt>Autorisation mairie</dt>
+                <dd className={courant.numeroAutorisation ? "" : "texte-manquant"}>{courant.numeroAutorisation || "Non renseignée"}</dd>
+                <dt>Conditions</dt>
+                <dd className={courant.conditions ? "" : "texte-manquant"}>
+                  {courant.conditions
+                    ? `Acceptées le ${dateCourte(courant.conditions.date)} · commission ${courant.conditions.commission} %`
+                    : "Non acceptées"}
+                </dd>
                 <dt>Quartiers demandés</dt>
                 <dd>{courant.quartiers.join(", ")}</dd>
               </dl>

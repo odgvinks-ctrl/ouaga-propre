@@ -1,9 +1,10 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut, LogIn, ArrowLeft } from "lucide-react";
 import BarreNavigation from "./BarreNavigation.jsx";
 import StatutReseau from "./StatutReseau.jsx";
 import Logo from "./Logo.jsx";
 import { useAuth } from "../providers/AuthContext.jsx";
+import { parent } from "./navigation.js";
 import "./Layout.css";
 
 const sansEntete = ["/", "/signaler", "/signaler/envoye", "/gestion", "/gestion/tournee"];
@@ -16,6 +17,11 @@ export default function Layout() {
   const entete = !sansEntete.includes(pathname);
   const navigation = !sansNavigation.includes(pathname);
 
+  function retour() {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate(parent(pathname), { replace: true });
+  }
+
   function quitter() {
     logout();
     navigate("/connexion");
@@ -25,9 +31,12 @@ export default function Layout() {
     <div className="appli">
       {entete && (
         <header className="appli-entete">
+          <button type="button" className="appli-retour" onClick={retour}>
+            <ArrowLeft size={18} />
+            Retour
+          </button>
           <div className="appli-marque">
-            <Logo hauteur={38} />
-            <small>{user?.role === "structure" ? user.nom : "Espace citoyen"}</small>
+            <Logo hauteur={34} />
           </div>
           <StatutReseau />
           {user ? (

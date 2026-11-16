@@ -1,5 +1,6 @@
 import { lireBase, ecrireBase, delai, comptePublic, nouvelId } from "./base.js";
 import { piecesRequises } from "../models/documents.js";
+import { COMMISSION, VERSION_CONDITIONS } from "../models/conditions.js";
 import { idAppareil } from "./invite.js";
 
 const CLE_SESSION = "ouaga-propre-session";
@@ -42,11 +43,18 @@ export async function chargerMoi() {
   return compte && compte.statut !== "suspendu" ? comptePublic(compte) : null;
 }
 
-function rattacherSignalementsInvite(base, citoyenId) {
+function rattacherSignalementsInvite(base, citoyenId, telephone) {
   const invite = idAppareil();
+  const ussd = `ussd-${telephone}`;
   let nombre = 0;
+  (base.echanges || []).forEach((e) => {
+    if (e.citoyenId === ussd) {
+      e.citoyenId = citoyenId;
+      nombre += 1;
+    }
+  });
   base.signalements.forEach((s) => {
-    if (s.auteurId === invite) {
+    if (s.auteurId === invite || s.auteurId === ussd) {
       s.auteurId = citoyenId;
       nombre += 1;
     }
@@ -72,7 +80,7 @@ export async function login({ telephone, password }) {
   }
   if (compte.role === "citoyen") {
     const base = lireBase();
-    if (rattacherSignalementsInvite(base, compte.id)) ecrireBase(base);
+    if (rattacherSignalementsInvite(base, compte.id, compte.telephone)) ecrireBase(base);
   }
   ecrireSession(compte.id);
   return comptePublic(compte);
@@ -103,6 +111,12 @@ export async function signup(form) {
   }
   if (structure && form.type === "Entreprise" && !form.ifu.trim()) {
     throw new Error("Le numéro IFU est obligatoire pour une entreprise.");
+  }
+  if (structure && form.numeroAutorisation.trim().length < 4) {
+    throw new Error("Indiquez le numéro de l'autorisation de pré-collecte délivrée par la mairie.");
+  }
+  if (structure && !form.conditionsAcceptees) {
+    throw new Error(`Acceptez les conditions de partenariat (commission de ${COMMISSION} %) pour créer un compte structure.`);
   }
   if (structure) {
     const manquante = piecesRequises(form.type).find((p) => p.obligatoire && !form.pieces[p.cle]);
@@ -137,13 +151,15 @@ export async function signup(form) {
       ifu: form.ifu.trim().toUpperCase(),
       piece: form.pieces.legal,
       pieces: form.pieces,
+      numeroAutorisation: form.numeroAutorisation.trim().toUpperCase(),
+      conditions: { version: VERSION_CONDITIONS, commission: COMMISSION, date: new Date().toISOString() },
       description: "",
       quartiers: [form.secteur],
       formules: [],
     });
   }
 
-  if (!structure) rattacherSignalementsInvite(base, id);
+  if (!structure) rattacherSignalementsInvite(base, id, telephone);
   ecrireBase(base);
   ecrireSession(id);
   return comptePublic(compte);

@@ -20,7 +20,7 @@
 .appli-marque {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
   flex: 1;
   min-width: 0;
 }
@@ -35,6 +35,21 @@
   white-space: nowrap;
   font-size: 12px;
   color: var(--encre-douce);
+}
+
+.appli-retour {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 0 10px 0 6px;
+  flex: none;
+  border: 0;
+  border-radius: 10px;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font: 700 14px var(--texte);
+  cursor: pointer;
 }
 
 .appli-quitter {

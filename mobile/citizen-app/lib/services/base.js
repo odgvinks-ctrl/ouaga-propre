@@ -1,4 +1,4 @@
-const CLE = "ouaga-propre-base-v5";
+const CLE = "ouaga-propre-base-v6";
 let secours = null;
 
 export const delai = (ms = 150) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -49,7 +49,9 @@ function graine() {
       piece: "attestation-gie.pdf",
       numeroCnib: "B10458231",
       ifu: "00045821K",
-      pieces: { identite: "cnib-boukary-zongo.jpg", legal: "attestation-gie.pdf", ifu: "attestation-ifu.pdf", agrement: "convention-mairie.pdf" },
+      pieces: { identite: "cnib-boukary-zongo.jpg", legal: "attestation-gie.pdf", ifu: "attestation-ifu.pdf", autorisation: "autorisation-mairie-0148.pdf" },
+      numeroAutorisation: "CO/SG/DPAS-2021-0148",
+      conditions: { version: "2026-11", commission: 10, date: ilYA(60 * 24 * 300) },
       description: "Pré-collecte des ordures ménagères en tricycle, 6 jours sur 7.",
       quartiers: ["Paspanga", "Dapoya", "Koulouba"],
       formules: [
@@ -66,7 +68,9 @@ function graine() {
       piece: "recepisse-association.pdf",
       numeroCnib: "B07714502",
       ifu: "",
-      pieces: { identite: "cnib-salimata-ilboudo.jpg", legal: "recepisse-association.pdf", ifu: "", agrement: "" },
+      pieces: { identite: "cnib-salimata-ilboudo.jpg", legal: "recepisse-association.pdf", ifu: "", autorisation: "autorisation-mairie-0532.jpg" },
+      numeroAutorisation: "CO/SG/DPAS-2019-0532",
+      conditions: { version: "2026-11", commission: 10, date: ilYA(60 * 24 * 250) },
       description: "Association de femmes du quartier : collecte et curage des caniveaux.",
       quartiers: ["Tanghin", "Nonsin"],
       formules: [{ id: "rpr-standard", nom: "Standard", prix: 1500, frequence: "2 passages par semaine" }],
@@ -80,7 +84,9 @@ function graine() {
       piece: "rccm.pdf",
       numeroCnib: "B11290874",
       ifu: "00067215T",
-      pieces: { identite: "cnib-salif-compaore.jpg", legal: "rccm.pdf", ifu: "attestation-ifu.pdf", agrement: "" },
+      pieces: { identite: "cnib-salif-compaore.jpg", legal: "rccm.pdf", ifu: "attestation-ifu.pdf", autorisation: "autorisation-mairie-1123.pdf" },
+      numeroAutorisation: "CO/SG/DPAS-2020-1123",
+      conditions: { version: "2026-11", commission: 10, date: ilYA(60 * 24 * 200) },
       description: "Collecte par camion benne pour ménages, cours communes et commerces.",
       quartiers: ["Gounghin", "Paspanga", "Dassasgho"],
       formules: [
@@ -97,7 +103,9 @@ function graine() {
       piece: "attestation-gie.jpg",
       numeroCnib: "B12844016",
       ifu: "",
-      pieces: { identite: "cnib-rasmata-nikiema.jpg", legal: "attestation-gie.jpg", ifu: "", agrement: "" },
+      pieces: { identite: "cnib-rasmata-nikiema.jpg", legal: "attestation-gie.jpg", ifu: "", autorisation: "autorisation-mairie-0091.jpg" },
+      numeroAutorisation: "CO/SG/DPAS-2026-0091",
+      conditions: { version: "2026-11", commission: 10, date: ilYA(60 * 24 * 1) },
       description: "",
       quartiers: ["Wemtenga"],
       formules: [],

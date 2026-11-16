@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite --port 5174",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "android": "vite build && npx cap sync android",
+    "icones": "capacitor-assets generate --android"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.1.2",
     "@capacitor/camera": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "@capacitor/geolocation": "^7.0.0",
@@ -25,6 +28,8 @@
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
     "@vitejs/plugin-react": "^6.1.1",
     "vite": "^8.3.0"
   }

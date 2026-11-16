@@ -11,6 +11,7 @@ import {
   GitCompare,
   FileDown,
   Gift,
+  Smartphone,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../hooks/AuthContext.jsx";
@@ -30,6 +31,7 @@ const groupes = [
     titre: "Gestion",
     liens: [
       { vers: "/signalements", label: "Signalements", icone: Camera, compteur: "signalements" },
+      { vers: "/ussd", label: "Canal USSD et SMS", icone: Smartphone },
       { vers: "/validation", label: "Validation des structures", icone: ShieldCheck, compteur: "structures" },
       { vers: "/structures", label: "Structures", icone: Building2 },
       { vers: "/utilisateurs", label: "Utilisateurs", icone: Users },
