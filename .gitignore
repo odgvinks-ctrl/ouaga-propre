@@ -4,4 +4,4 @@ dist/
 __pycache__/
 *.pyc
 .env
-frontend/app_mobile/android/
+mobile/android/

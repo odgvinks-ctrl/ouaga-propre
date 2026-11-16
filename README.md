@@ -1,49 +1,64 @@
-# Ouaga Clean 360
+# Ouaga Propre
 
 Outil libre d'aide à la décision pour l'assainissement de Ouagadougou : signalement des dépotoirs et caniveaux bouchés, structures de pré-collecte, abonnements et collectes, tournées optimisées, simulation multi-agents.
 
 ## Structure
 
 ```
-OUAGA-CLEAN-360/
+ouaga-propre/
 │
-├── frontend/
-│   ├── app_mobile/          # Application Android unifiée : citoyens et structures de pré-collecte
-│   └── dashboard_web/       # Tableau de bord de l'administration
+├── mobile/                     # Une seule application Android (React + Vite + Capacitor)
+│   ├── citizen-app/lib/        # Citoyens + éléments communs (connexion, inscription, services)
+│   │   ├── screens/
+│   │   ├── widgets/
+│   │   ├── services/
+│   │   ├── models/
+│   │   ├── providers/
+│   │   └── maps/
+│   └── collector-app/lib/      # Structures de pré-collecte et agents terrain
+│       ├── screens/
+│       ├── widgets/
+│       ├── services/
+│       ├── models/
+│       ├── providers/
+│       └── maps/
+│
+├── admin-web/                  # Tableau de bord de l'administration (React + Vite)
+│   └── src/
+│       ├── pages/
+│       ├── components/
+│       ├── services/
+│       ├── hooks/
+│       └── maps/
 │
 ├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── models/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── security/
-│   │   ├── optimization/
-│   │   ├── simulation/
-│   │   └── database/
-│   ├── tests/
-│   └── requirements.txt
+│   └── app/
+│       ├── api/
+│       ├── models/
+│       ├── schemas/
+│       ├── services/
+│       ├── optimization/
+│       ├── simulation/
+│       ├── security/
+│       └── database/
 │
 ├── data/
-│   ├── osm/
-│   ├── reports/
-│   └── reference/
-│
 ├── simulation/
 ├── documentation/
-├── scripts/
-├── docker-compose.yml
-├── LICENSE
-└── README.md
+└── docker/
 ```
+
+Dans `mobile/`, les écrans des structures importent le code commun avec l'alias `@citoyen` (défini dans `vite.config.js`).
 
 ## Lancer l'application mobile
 
 ```
-cd frontend/app_mobile
+cd mobile
 npm install
 npm run dev
 ```
+
+Comptes de démonstration (mot de passe demo1234) : citoyen 70112233, structure 70223344, structure en attente 78990011.
 
 Générer l'APK Android :
 
@@ -54,10 +69,10 @@ npx cap sync android
 npx cap open android
 ```
 
-## Lancer le tableau de bord web
+## Lancer le tableau de bord admin
 
 ```
-cd frontend/dashboard_web
+cd admin-web
 npm install
 npm run dev
 ```

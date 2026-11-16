@@ -1,0 +1,47 @@
+.accueil-hors-ligne {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.accueil-action {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 92px;
+  padding: 18px;
+  border-radius: 16px;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.accueil-signaler {
+  background: var(--laterite);
+}
+
+.accueil-structures {
+  background: var(--bleu);
+}
+
+.accueil-action-icone {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.accueil-action strong {
+  display: block;
+  font: 800 20px var(--titre);
+}
+
+.accueil-action small {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  opacity: 0.9;
+}
