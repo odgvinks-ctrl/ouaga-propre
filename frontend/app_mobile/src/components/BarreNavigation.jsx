@@ -1,19 +1,31 @@
-import { NavLink } from "react-router-dom";
-import { House, Camera, Trash2, RefreshCw } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { House, Camera, Building2, ClipboardList, RefreshCw, Inbox, Truck, Bell, User } from "lucide-react";
 import "./BarreNavigation.css";
 
-const liens = [
+const liensCitoyen = [
   { vers: "/", label: "Accueil", icone: House },
   { vers: "/signaler", label: "Signaler", icone: Camera },
-  { vers: "/collecte", label: "Collecte", icone: Trash2 },
+  { vers: "/structures", label: "Structures", icone: Building2 },
+  { vers: "/demandes", label: "Mes demandes", icone: ClipboardList },
   { vers: "/envois", label: "Mes envois", icone: RefreshCw },
 ];
 
+const liensStructure = [
+  { vers: "/gestion", label: "Accueil", icone: House },
+  { vers: "/gestion/demandes", label: "Demandes", icone: Inbox },
+  { vers: "/gestion/collectes", label: "Collectes", icone: Truck },
+  { vers: "/gestion/alertes", label: "Alertes", icone: Bell },
+  { vers: "/gestion/profil", label: "Profil", icone: User },
+];
+
 export default function BarreNavigation() {
+  const { pathname } = useLocation();
+  const liens = pathname.startsWith("/gestion") ? liensStructure : liensCitoyen;
+
   return (
     <nav className="barre-nav" aria-label="Navigation">
       {liens.map(({ vers, label, icone: Icone }) => (
-        <NavLink key={vers} to={vers} end={vers === "/"} className="barre-nav-lien">
+        <NavLink key={vers} to={vers} end={vers === "/" || vers === "/gestion"} className="barre-nav-lien">
           <Icone size={22} />
           {label}
         </NavLink>

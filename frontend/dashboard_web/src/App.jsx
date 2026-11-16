@@ -7,6 +7,7 @@ import Moderation from "./pages/Moderation.jsx";
 import PlanGestion from "./pages/PlanGestion.jsx";
 import SimulateurOuaga from "./pages/SimulateurOuaga.jsx";
 import Abonnements from "./pages/Abonnements.jsx";
+import Structures from "./pages/Structures.jsx";
 import Collectes from "./pages/Collectes.jsx";
 import Interventions from "./pages/Interventions.jsx";
 import Ressources from "./pages/Ressources.jsx";
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="signalements" element={<Moderation />} />
           <Route path="plan" element={<PlanGestion />} />
           <Route path="simulateur" element={<SimulateurOuaga />} />
+          <Route path="structures" element={<Structures />} />
           <Route path="abonnements" element={<Abonnements />} />
           <Route path="collectes" element={<Collectes />} />
           <Route path="interventions" element={<Interventions />} />

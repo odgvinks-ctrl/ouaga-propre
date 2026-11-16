@@ -1,33 +1,40 @@
-# Ouaga Propre
+# Ouaga Clean 360
 
-Outil libre d'aide à la décision pour l'assainissement de Ouagadougou : signalement des dépotoirs, abonnements et collectes, tournées optimisées, simulation multi-agents.
+Outil libre d'aide à la décision pour l'assainissement de Ouagadougou : signalement des dépotoirs et caniveaux bouchés, structures de pré-collecte, abonnements et collectes, tournées optimisées, simulation multi-agents.
 
 ## Structure
 
 ```
-ouaga-propre/
-├── backend_api/                # Serveur Python FastAPI
-│   ├── app/
-│   │   ├── routes/             # Endpoints REST (signalements, flotte, simu, abonnements, collectes)
-│   │   ├── security/           # Détection des signalements piégés
-│   │   └── models/             # Modèles SQLAlchemy / GeoAlchemy2
-├── engine_simulation/          # Moteur IA & Recherche Opérationnelle
-│   ├── osm_graph/              # Extraction carte Ouaga et pistes saison des pluies
-│   ├── vrp_optimizer.py        # Calcul des tournées avec Google OR-Tools
-│   └── multi_agent_model.py    # Simulation Mesa (4 types d'acteurs)
-├── database/                   # Scripts SQL (PostgreSQL + PostGIS)
+OUAGA-CLEAN-360/
+│
 ├── frontend/
-│   ├── dashboard_web/          # Tableau de bord mairie (React + Vite)
-│   └── app_mobile/             # Application Android unifiée (React + Vite + Capacitor)
-└── docker-compose.yml
-```
-
-## Lancer le tableau de bord web
-
-```
-cd frontend/dashboard_web
-npm install
-npm run dev
+│   ├── app_mobile/          # Application Android unifiée : citoyens et structures de pré-collecte
+│   └── dashboard_web/       # Tableau de bord de l'administration
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   ├── security/
+│   │   ├── optimization/
+│   │   ├── simulation/
+│   │   └── database/
+│   ├── tests/
+│   └── requirements.txt
+│
+├── data/
+│   ├── osm/
+│   ├── reports/
+│   └── reference/
+│
+├── simulation/
+├── documentation/
+├── scripts/
+├── docker-compose.yml
+├── LICENSE
+└── README.md
 ```
 
 ## Lancer l'application mobile
@@ -46,3 +53,15 @@ npx cap add android
 npx cap sync android
 npx cap open android
 ```
+
+## Lancer le tableau de bord web
+
+```
+cd frontend/dashboard_web
+npm install
+npm run dev
+```
+
+## Licence
+
+MIT

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutGrid, Map as IconeCarte, Route as IconeTournee, ChartLine, Inbox, Trash2, Sparkles, Users, Truck, User, FileText } from "lucide-react";
+import { LayoutGrid, Map as IconeCarte, Route as IconeTournee, ChartLine, Inbox, Trash2, Sparkles, Users, Truck, User, FileText, Building2 } from "lucide-react";
 import "./Sidebar.css";
 
 const groupes = [
@@ -18,6 +18,7 @@ const groupes = [
       { vers: "/signalements", label: "Signalements", icone: Inbox },
       { vers: "/collectes", label: "Collectes", icone: Trash2 },
       { vers: "/interventions", label: "Interventions brigade", icone: Sparkles },
+      { vers: "/structures", label: "Structures de pré-collecte", icone: Building2 },
       { vers: "/abonnements", label: "Abonnements", icone: Users },
       { vers: "/ressources", label: "Ressources", icone: Truck },
     ],
