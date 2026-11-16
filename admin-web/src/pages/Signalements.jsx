@@ -219,7 +219,8 @@ export default function Signalements() {
               <dl className="liste-cles">
                 <dt>Auteur</dt>
                 <dd>
-                  {courant.auteurNom} · {courant.auteurTelephone}
+                  {courant.auteurNom}
+                  {courant.auteurTelephone && ` · ${courant.auteurTelephone}`}
                 </dd>
                 <dt>Reçu le</dt>
                 <dd>{dateHeure(courant.date)}</dd>

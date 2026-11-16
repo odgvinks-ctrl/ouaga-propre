@@ -21,6 +21,7 @@ function fiabilite(base, s) {
   } else {
     raisons.push("Pas de position");
   }
+  if (String(s.auteurId).startsWith("invite-")) raisons.push("Envoyé sans compte");
   const confirmations = (s.confirmations || []).length;
   if (confirmations) {
     score += Math.min(20, confirmations * 10);
@@ -47,7 +48,7 @@ function enrichir(base, s) {
     ...s,
     historique: s.historique || [{ statut: s.statut, date: s.date }],
     confirmations: s.confirmations || [],
-    auteurNom: auteur.nom || "Citoyen",
+    auteurNom: auteur.nom || (String(s.auteurId).startsWith("invite-") ? "Anonyme (sans compte)" : "Citoyen"),
     auteurTelephone: auteur.telephone || "",
     structureNom: structure.nom || "",
     fiabilite: fiabilite(base, s),
