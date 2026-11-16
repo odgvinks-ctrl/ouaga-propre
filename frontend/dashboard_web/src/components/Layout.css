@@ -1,0 +1,11 @@
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 100vh;
+}
+
+.layout-contenu {
+  flex: 999 1 560px;
+  min-width: 0;
+  padding: 28px 32px 40px;
+}

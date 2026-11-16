@@ -1,0 +1,26 @@
+.appli {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  font-size: 16px;
+}
+
+.appli-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  font-family: var(--titre);
+  font-size: 19px;
+}
+
+.appli-contenu {
+  flex: 1;
+  padding: 0 16px 16px;
+}
+
+.ecran h1 {
+  font-size: 24px;
+}

@@ -1,0 +1,96 @@
+:root {
+  --laterite: #A2441F;
+  --laterite-clair: #F6E3D8;
+  --ocre: #C98A1C;
+  --ocre-clair: #FBEFD5;
+  --vert: #2E6B3A;
+  --vert-clair: #E3EFE2;
+  --bleu: #17375E;
+  --bleu-clair: #E6EDF5;
+  --brique: #8E1B1B;
+  --brique-clair: #F9E1DE;
+  --sable: #F7F1E8;
+  --carte: #FFFFFF;
+  --ligne: #E4D9C8;
+  --encre: #1F1A16;
+  --encre-douce: #5C5248;
+  --titre: "Archivo", sans-serif;
+  --texte: "Public Sans", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--sable);
+  color: var(--encre);
+  font-family: var(--texte);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--titre);
+}
+
+a {
+  color: var(--bleu);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font: 600 15px var(--texte);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primaire {
+  background: var(--bleu);
+  color: #FFFFFF;
+}
+
+.btn-signaler {
+  background: var(--laterite);
+  color: #FFFFFF;
+}
+
+.btn-secondaire {
+  background: #FFFFFF;
+  color: var(--encre);
+  border-color: #CDBFA9;
+}
+
+.carte {
+  background: var(--carte);
+  border: 1px solid var(--ligne);
+  border-radius: 14px;
+}
+
+.statut-reseau {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font: 600 13px var(--texte);
+}
+
+.statut-reseau.en-ligne {
+  background: var(--vert-clair);
+  color: #245B2F;
+}
+
+.statut-reseau.hors-ligne {
+  background: var(--ocre-clair);
+  color: #6E4604;
+}
