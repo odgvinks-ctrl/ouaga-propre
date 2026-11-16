@@ -1,0 +1,117 @@
+.simulation {
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 1.4fr);
+}
+
+.simulation-parametres fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0 0 16px;
+  border: 0;
+  border-bottom: 1px solid var(--ligne);
+}
+
+.simulation-parametres fieldset:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.simulation-parametres legend {
+  padding: 0 0 8px;
+}
+
+.simulation-curseur span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.simulation-curseur strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.simulation-curseur input {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--vert);
+}
+
+.simulation-interrupteur {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--ligne);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.simulation-interrupteur:has(input:checked) {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+}
+
+.simulation-interrupteur input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--vert);
+}
+
+.simulation-interrupteur span {
+  display: flex;
+  flex-direction: column;
+}
+
+.simulation-interrupteur small {
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.simulation-resultats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.simulation-principal {
+  border-left-width: 6px;
+}
+
+.simulation-principal.ok {
+  border-left-color: var(--vert);
+}
+
+.simulation-principal.attente {
+  border-left-color: var(--jaune);
+}
+
+.simulation-principal.alerte {
+  border-left-color: var(--rouge);
+}
+
+.simulation-principal > strong {
+  font: 800 44px var(--titre);
+  line-height: 1;
+}
+
+.simulation-principal .barre-progression {
+  height: 12px;
+  border-radius: 6px;
+}
+
+.simulation-goulot {
+  font-weight: 700;
+}
+
+.simulation-recommandations {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.simulation-enregistrer .btn {
+  align-self: flex-start;
+}

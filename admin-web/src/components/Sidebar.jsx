@@ -1,5 +1,19 @@
 import { NavLink } from "react-router-dom";
-import { LayoutGrid, Map as IconeCarte, Route as IconeTournee, ChartLine, Inbox, Trash2, Sparkles, Users, Truck, User, FileText, Building2 } from "lucide-react";
+import {
+  LayoutGrid,
+  Map as IconeCarte,
+  MapPin,
+  Camera,
+  ShieldCheck,
+  Building2,
+  Users,
+  SlidersHorizontal,
+  GitCompare,
+  FileDown,
+  LogOut,
+} from "lucide-react";
+import { useAuth } from "../hooks/AuthContext.jsx";
+import Logo from "./Logo.jsx";
 import "./Sidebar.css";
 
 const groupes = [
@@ -7,52 +21,61 @@ const groupes = [
     titre: "Pilotage",
     liens: [
       { vers: "/", label: "Tableau de bord", icone: LayoutGrid },
-      { vers: "/carte", label: "Carte opérationnelle", icone: IconeCarte },
-      { vers: "/plan", label: "Plan de gestion", icone: IconeTournee },
-      { vers: "/simulateur", label: "Simulateur Ouaga", icone: ChartLine },
+      { vers: "/carte", label: "Carte globale", icone: IconeCarte },
+      { vers: "/points", label: "Points de regroupement", icone: MapPin },
     ],
   },
   {
-    titre: "Opérations",
+    titre: "Gestion",
     liens: [
-      { vers: "/signalements", label: "Signalements", icone: Inbox },
-      { vers: "/collectes", label: "Collectes", icone: Trash2 },
-      { vers: "/interventions", label: "Interventions brigade", icone: Sparkles },
-      { vers: "/structures", label: "Structures de pré-collecte", icone: Building2 },
-      { vers: "/abonnements", label: "Abonnements", icone: Users },
-      { vers: "/ressources", label: "Ressources", icone: Truck },
+      { vers: "/signalements", label: "Signalements", icone: Camera, compteur: "signalements" },
+      { vers: "/validation", label: "Validation des structures", icone: ShieldCheck, compteur: "structures" },
+      { vers: "/structures", label: "Structures", icone: Building2 },
+      { vers: "/utilisateurs", label: "Utilisateurs", icone: Users },
     ],
   },
   {
-    titre: "Administration",
+    titre: "Aide à la décision",
     liens: [
-      { vers: "/utilisateurs", label: "Utilisateurs", icone: User },
-      { vers: "/rapports", label: "Rapports et open data", icone: FileText },
+      { vers: "/simulation", label: "Paramètres de simulation", icone: SlidersHorizontal },
+      { vers: "/scenarios", label: "Comparaison de scénarios", icone: GitCompare },
+      { vers: "/rapports", label: "Rapports et exports", icone: FileDown },
     ],
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ ouvert, compteurs, onNaviguer, onQuitter }) {
+  const { user } = useAuth();
+
   return (
-    <nav className="sidebar" aria-label="Menu principal">
+    <nav className={ouvert ? "sidebar ouvert" : "sidebar"} aria-label="Menu principal">
       <div className="sidebar-logo">
-        <span className="sidebar-marque">OP</span>
-        <div>
-          <strong>Ouaga Propre</strong>
-          <small>Commune de Ouagadougou</small>
-        </div>
+        <Logo hauteur={56} />
+        <small>Administration</small>
       </div>
-      {groupes.map((groupe) => (
-        <div key={groupe.titre} className="sidebar-groupe">
-          <p className="sidebar-titre">{groupe.titre}</p>
-          {groupe.liens.map(({ vers, label, icone: Icone }) => (
-            <NavLink key={vers} to={vers} end={vers === "/"} className="sidebar-lien">
-              <Icone size={20} />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+      <div className="sidebar-groupes">
+        {groupes.map((groupe) => (
+          <div key={groupe.titre} className="sidebar-groupe">
+            <p className="sidebar-titre">{groupe.titre}</p>
+            {groupe.liens.map(({ vers, label, icone: Icone, compteur }) => (
+              <NavLink key={vers} to={vers} end={vers === "/"} className="sidebar-lien" onClick={onNaviguer}>
+                <Icone size={19} />
+                <span>{label}</span>
+                {compteur && compteurs[compteur] > 0 && <b className="compteur a-traiter">{compteurs[compteur]}</b>}
+              </NavLink>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="sidebar-compte">
+        <div>
+          <strong>{user?.nom}</strong>
+          <small>Administrateur</small>
         </div>
-      ))}
+        <button type="button" className="btn btn-secondaire btn-petit" onClick={onQuitter}>
+          <LogOut size={16} /> Quitter
+        </button>
+      </div>
     </nav>
   );
 }

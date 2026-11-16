@@ -1,0 +1,46 @@
+.comparaison-case {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--vert);
+}
+
+.comparaison-barre {
+  display: grid;
+  grid-template-columns: minmax(140px, 260px) 1fr 56px;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.comparaison-barre .barre-progression {
+  height: 14px;
+  border-radius: 7px;
+}
+
+.comparaison-barre strong {
+  text-align: right;
+}
+
+.comparaison th i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 2px;
+  vertical-align: 0;
+}
+
+.comparaison td.comparaison-meilleur {
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font-weight: 800;
+}
+
+.comparaison-separation td {
+  background: #F7F9F8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--encre-douce);
+}

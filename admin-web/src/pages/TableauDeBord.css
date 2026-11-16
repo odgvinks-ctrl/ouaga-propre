@@ -1,0 +1,47 @@
+.tableau-colonne {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.tableau-liste {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tableau-liste li + li {
+  border-top: 1px solid #EDF0EE;
+}
+
+.tableau-liste a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  color: var(--encre);
+  text-decoration: none;
+}
+
+.tableau-liste a:hover strong {
+  color: var(--vert-fonce);
+  text-decoration: underline;
+}
+
+.tableau-liste small {
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.tableau-secteur {
+  display: grid;
+  grid-template-columns: 90px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.tableau-secteur strong {
+  text-align: right;
+}

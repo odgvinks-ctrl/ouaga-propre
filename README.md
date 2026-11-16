@@ -71,11 +71,28 @@ npx cap open android
 
 ## Lancer le tableau de bord admin
 
+Ouvrir deux terminaux.
+
+Terminal 1 :
+
 ```
 cd admin-web
 npm install
 npm run dev
 ```
+
+Terminal 2 :
+
+```
+cd mobile
+npm run dev
+```
+
+Puis ouvrir `http://localhost:5174` pour l'application mobile et `http://localhost:5174/admin` pour l'administration. Les deux passent par la même adresse : en mode démonstration (sans backend), ils partagent donc les mêmes données. Un signalement envoyé depuis le mobile apparaît tout de suite chez l'administrateur.
+
+Compte administrateur de démonstration : 70000000, mot de passe admin1234.
+
+Dans `admin-web/`, les alias `@donnees` et `@modeles` pointent vers les services et modèles du mobile, pour lire la même base locale. Quand le backend sera prêt, seuls les fichiers de `services/` changeront pour appeler l'API avec `requete()`.
 
 ## Licence
 

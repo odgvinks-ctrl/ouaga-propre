@@ -37,7 +37,7 @@ export function deconnecter() {
 export async function chargerMoi() {
   await delai();
   const compte = lireBase().comptes.find((c) => c.id === lireSession());
-  return compte ? comptePublic(compte) : null;
+  return compte && compte.statut !== "suspendu" ? comptePublic(compte) : null;
 }
 
 export async function login({ telephone, password }) {
@@ -48,6 +48,9 @@ export async function login({ telephone, password }) {
   }
   if (compte.role === "admin") {
     throw new Error("Les comptes administrateur se connectent sur le tableau de bord web.");
+  }
+  if (compte.statut === "suspendu") {
+    throw new Error("Ce compte est suspendu. Contactez la mairie pour le réactiver.");
   }
   ecrireSession(compte.id);
   return comptePublic(compte);

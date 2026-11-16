@@ -1,0 +1,79 @@
+.fiabilite {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.fiabilite i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(32, 43, 37, 0.3);
+}
+
+.signalement-detail {
+  position: sticky;
+  top: 20px;
+}
+
+.signalement-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  border-radius: 10px;
+  background: #2F3A33;
+  color: #E9EDEA;
+  font-size: 13px;
+}
+
+.signalement-fiabilite {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--fond);
+}
+
+.signalement-fiabilite ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.signalement-fiabilite .champ-aide svg {
+  vertical-align: -2px;
+}
+
+.signalement-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ligne);
+}
+
+.signalement-historique {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.signalement-historique li {
+  margin-bottom: 6px;
+}
+
+.signalement-historique small {
+  display: block;
+  color: var(--encre-douce);
+}
+
+.signalement-rejet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

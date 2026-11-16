@@ -90,7 +90,7 @@ export default function SuiviSignalement() {
 
       {rejete ? (
         <p className="message message-erreur">
-          Ce signalement n'a pas été retenu par la mairie (photo peu claire ou lieu déjà traité).
+          Ce signalement n'a pas été retenu par la mairie{signalement.motifRejet ? ` : ${signalement.motifRejet}.` : "."}
         </p>
       ) : (
         <ol className="suivi-frise">

@@ -1,0 +1,12 @@
+.structures-taux {
+  display: grid;
+  grid-template-columns: 90px auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.structures-panne {
+  display: block;
+  font-size: 12px;
+  color: var(--rouge-fonce);
+}

@@ -1,0 +1,34 @@
+.rapport .tableau {
+  border: 1px solid var(--ligne);
+  border-radius: var(--rayon);
+  margin-top: 8px;
+}
+
+.rapports-exports {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rapports-exports li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.rapports-exports li + li {
+  border-top: 1px solid #EDF0EE;
+}
+
+.rapports-exports div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rapports-exports small {
+  font-size: 13px;
+  color: var(--encre-douce);
+}

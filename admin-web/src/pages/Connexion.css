@@ -1,0 +1,46 @@
+.connexion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+.connexion-carte {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+  background: #FFFFFF;
+  border: 1px solid var(--ligne);
+  border-radius: var(--rayon);
+}
+
+.connexion-carte h1 {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.connexion-carte .btn {
+  min-height: 48px;
+  font-size: 15px;
+}
+
+.connexion-demo {
+  padding: 10px 12px;
+  border: 1px dashed #C3CCC6;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--encre-douce);
+}
+
+.connexion-demo summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.connexion-demo dl {
+  margin-top: 10px;
+}

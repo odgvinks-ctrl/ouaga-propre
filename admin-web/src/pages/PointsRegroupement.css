@@ -1,0 +1,39 @@
+.points-carte {
+  padding: 10px;
+}
+
+.points-carte .message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.points-formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.points-ligne {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.points-formulaire input[type="range"] {
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  accent-color: var(--vert);
+}
+
+.points-formulaire input[type="range"]:focus {
+  box-shadow: none;
+}
+
+.points-remplissage {
+  display: grid;
+  grid-template-columns: 100px auto;
+  align-items: center;
+  gap: 10px;
+}

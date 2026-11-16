@@ -1,41 +1,47 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./hooks/AuthContext.jsx";
 import Layout from "./components/Layout.jsx";
+import RouteProtegee from "./components/RouteProtegee.jsx";
 import Connexion from "./pages/Connexion.jsx";
 import TableauDeBord from "./pages/TableauDeBord.jsx";
-import CarteOperationnelle from "./pages/CarteOperationnelle.jsx";
-import Moderation from "./pages/Moderation.jsx";
-import PlanGestion from "./pages/PlanGestion.jsx";
-import SimulateurOuaga from "./pages/SimulateurOuaga.jsx";
-import Abonnements from "./pages/Abonnements.jsx";
+import CarteGlobale from "./pages/CarteGlobale.jsx";
+import PointsRegroupement from "./pages/PointsRegroupement.jsx";
+import Signalements from "./pages/Signalements.jsx";
+import ValidationStructures from "./pages/ValidationStructures.jsx";
 import Structures from "./pages/Structures.jsx";
-import Collectes from "./pages/Collectes.jsx";
-import Interventions from "./pages/Interventions.jsx";
-import Ressources from "./pages/Ressources.jsx";
 import Utilisateurs from "./pages/Utilisateurs.jsx";
+import ParametresSimulation from "./pages/ParametresSimulation.jsx";
+import ComparaisonScenarios from "./pages/ComparaisonScenarios.jsx";
 import Rapports from "./pages/Rapports.jsx";
 import NonTrouve from "./pages/NonTrouve.jsx";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="connexion" element={<Connexion />} />
-        <Route element={<Layout />}>
-          <Route index element={<TableauDeBord />} />
-          <Route path="carte" element={<CarteOperationnelle />} />
-          <Route path="signalements" element={<Moderation />} />
-          <Route path="plan" element={<PlanGestion />} />
-          <Route path="simulateur" element={<SimulateurOuaga />} />
-          <Route path="structures" element={<Structures />} />
-          <Route path="abonnements" element={<Abonnements />} />
-          <Route path="collectes" element={<Collectes />} />
-          <Route path="interventions" element={<Interventions />} />
-          <Route path="ressources" element={<Ressources />} />
-          <Route path="utilisateurs" element={<Utilisateurs />} />
-          <Route path="rapports" element={<Rapports />} />
-          <Route path="*" element={<NonTrouve />} />
-        </Route>
-      </Routes>
+    <BrowserRouter basename="/admin">
+      <AuthProvider>
+        <Routes>
+          <Route path="connexion" element={<Connexion />} />
+          <Route
+            element={
+              <RouteProtegee>
+                <Layout />
+              </RouteProtegee>
+            }
+          >
+            <Route index element={<TableauDeBord />} />
+            <Route path="carte" element={<CarteGlobale />} />
+            <Route path="points" element={<PointsRegroupement />} />
+            <Route path="signalements" element={<Signalements />} />
+            <Route path="validation" element={<ValidationStructures />} />
+            <Route path="structures" element={<Structures />} />
+            <Route path="utilisateurs" element={<Utilisateurs />} />
+            <Route path="simulation" element={<ParametresSimulation />} />
+            <Route path="scenarios" element={<ComparaisonScenarios />} />
+            <Route path="rapports" element={<Rapports />} />
+            <Route path="*" element={<NonTrouve />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
