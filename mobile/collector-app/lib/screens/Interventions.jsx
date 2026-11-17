@@ -6,7 +6,7 @@ import { getSignalementsStructure, changerStatutSignalement } from "@citoyen/ser
 import { statutsSignalement, typesSignalement, volumes } from "@citoyen/models/statuts.js";
 import { dateCourte } from "@citoyen/services/format.js";
 import Badge from "@citoyen/widgets/Badge.jsx";
-import FeuilleConfirmation from "@citoyen/widgets/FeuilleConfirmation.jsx";
+import FeuillePhotoPreuve from "@citoyen/widgets/FeuillePhotoPreuve.jsx";
 import "@citoyen/screens/Ecran.css";
 
 function lienCarte(position) {
@@ -28,7 +28,6 @@ export default function Interventions() {
   useActualisation(charger, user.id);
 
   async function changer(signalement, statut) {
-    setAConfirmer(null);
     try {
       await changerStatutSignalement(signalement.id, statut);
       setErreur("");
@@ -36,6 +35,13 @@ export default function Interventions() {
     } catch (err) {
       setErreur(err.message);
     }
+  }
+
+  async function cloturer(photo) {
+    await changerStatutSignalement(aConfirmer.id, "nettoye", photo);
+    setAConfirmer(null);
+    setErreur("");
+    await charger();
   }
 
   const alertes = signalements.filter((s) => s.statut === "transmis");
@@ -57,6 +63,7 @@ export default function Interventions() {
           {s.quartier} · signalé le {dateCourte(s.date)}
         </p>
         {s.description && <p className="element-meta">{s.description}</p>}
+        {s.statut === "nettoye" && /^(data:|https?:)/.test(s.photoApres) && <img className="photo-preuve" src={s.photoApres} alt="Le lieu après nettoyage" />}
         {s.position && s.statut !== "nettoye" && (
           <a href={lienCarte(s.position)} target="_blank" rel="noreferrer noopener" className="element-meta">
             <MapPin size={14} /> Voir sur la carte
@@ -110,12 +117,12 @@ export default function Interventions() {
       {terminees.length > 0 && <p className="section-titre">Terminées</p>}
       <div className="liste">{terminees.map((s) => carte(s, null))}</div>
       {aConfirmer && (
-        <FeuilleConfirmation
-          titre="Le lieu est-il nettoyé ?"
-          texte="Le citoyen qui a signalé ce dépotoir sera informé que le lieu est propre."
-          libelle="Confirmer le nettoyage"
+        <FeuillePhotoPreuve
+          titre="Photo du lieu nettoyé"
+          texte="Prenez le même endroit que sur la photo du signalement. Le citoyen et la mairie verront l'avant et l'après."
+          libelle="Clôturer le nettoyage"
           onAnnuler={() => setAConfirmer(null)}
-          onConfirmer={() => changer(aConfirmer, "nettoye")}
+          onConfirmer={cloturer}
         />
       )}
     </section>

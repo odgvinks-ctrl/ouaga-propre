@@ -1,0 +1,59 @@
+.editeur-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editeur-photo-image {
+  display: block;
+  width: 100%;
+  max-height: 52vh;
+  object-fit: contain;
+  border-radius: 14px;
+  background: #101512;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.editeur-photo-aide {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #EAF5EE;
+  color: #1D4D33;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.editeur-photo-aide svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.editeur-photo-aide p {
+  margin: 0;
+}
+
+.editeur-photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.editeur-photo-etat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #4F5B54;
+  font-size: 13px;
+}
+
+.editeur-photo-actions .btn {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+}

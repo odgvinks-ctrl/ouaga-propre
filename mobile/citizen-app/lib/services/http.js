@@ -23,6 +23,12 @@ export function ecrireJeton(jeton) {
   }
 }
 
+export function erreurReseau() {
+  const erreur = new Error("Impossible de joindre le serveur. Vérifie ta connexion.");
+  erreur.horsLigne = true;
+  return erreur;
+}
+
 export async function requeteFormulaire(chemin, champs) {
   let reponse;
   try {
@@ -57,7 +63,7 @@ export async function requete(chemin, { methode = "GET", corps, auth = true } = 
       body: corps !== undefined ? JSON.stringify(corps) : undefined,
     });
   } catch {
-    throw new Error("Impossible de joindre le serveur. Vérifie ta connexion.");
+    throw erreurReseau();
   }
 
   if (reponse.status === 204) return null;

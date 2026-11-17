@@ -1,0 +1,33 @@
+.feuille-preuve {
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.feuille-preuve .editeur-photo-image {
+  max-height: 40vh;
+}
+
+.preuve-capture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 180px;
+  padding: 16px;
+  border: 2px dashed #C3CCC6;
+  border-radius: var(--rayon);
+  background: #FFFFFF;
+  color: var(--encre);
+  text-align: center;
+  cursor: pointer;
+}
+
+.preuve-capture strong {
+  font: 700 16px var(--texte);
+}
+
+.preuve-capture small {
+  color: #4F5B54;
+  font-size: 13px;
+}

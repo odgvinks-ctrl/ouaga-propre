@@ -659,3 +659,15 @@
   gap: 8px;
   width: 100%;
 }
+
+.element-attente {
+  border-style: dashed;
+}
+
+.photo-preuve {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: var(--rayon-petit);
+}

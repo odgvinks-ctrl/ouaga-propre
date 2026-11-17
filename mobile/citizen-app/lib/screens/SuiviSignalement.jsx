@@ -72,13 +72,25 @@ export default function SuiviSignalement() {
 
       <div className="suivi-photos">
         <div className="suivi-photo avant">
-          <Camera size={30} />
-          <small>{signalement.photo}</small>
+          {/^(data:|https?:)/.test(signalement.photo) ? (
+            <img src={signalement.photo} alt="Le lieu avant le nettoyage" />
+          ) : (
+            <>
+              <Camera size={30} />
+              <small>{signalement.photo}</small>
+            </>
+          )}
           <span>Avant</span>
         </div>
         <div className={nettoye ? "suivi-photo apres fait" : "suivi-photo apres"}>
-          {nettoye ? <Check size={30} /> : <Clock size={28} />}
-          <small>{nettoye ? "Lieu nettoyé" : "Photo après nettoyage"}</small>
+          {nettoye && /^(data:|https?:)/.test(signalement.photoApres) ? (
+            <img src={signalement.photoApres} alt="Le lieu après le nettoyage" />
+          ) : (
+            <>
+              {nettoye ? <Check size={30} /> : <Clock size={28} />}
+              <small>{nettoye ? "Lieu nettoyé" : "Photo après nettoyage"}</small>
+            </>
+          )}
           <span>Après</span>
         </div>
       </div>

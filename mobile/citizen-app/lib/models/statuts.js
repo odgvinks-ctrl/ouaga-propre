@@ -1,4 +1,5 @@
 export const statutsSignalement = {
+  attente_envoi: { label: "En attente de réseau", classe: "statut-attente" },
   a_verifier: { label: "En vérification", classe: "statut-attente" },
   verifie: { label: "Vérifié", classe: "statut-ok" },
   transmis: { label: "Transmis à une structure", classe: "statut-info" },

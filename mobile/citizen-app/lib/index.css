@@ -122,3 +122,8 @@ a {
   background: var(--jaune);
   color: var(--encre);
 }
+
+.statut-reseau:not(.hors-ligne) {
+  background: #EAF5EE;
+  color: #1D4D33;
+}

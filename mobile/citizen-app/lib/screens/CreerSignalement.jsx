@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -20,6 +20,8 @@ import { quartiers } from "../models/quartiers.js";
 import { detecterQuartier } from "../services/localisation.js";
 import { typesSignalement } from "../models/statuts.js";
 import ChoixPosition from "../maps/ChoixPosition.jsx";
+import EditeurPhoto from "../widgets/EditeurPhoto.jsx";
+import { preparerPhoto, flouter, exporterPhoto } from "../services/photos.js";
 import "./Ecran.css";
 import "./Signaler.css";
 
@@ -39,8 +41,9 @@ export default function CreerSignalement() {
   const navigate = useNavigate();
   const [etape, setEtape] = useState(0);
   const [form, setForm] = useState({ type: "depotoir", taille: "moyen", description: "", quartier: user?.secteur || quartiers[0] });
-  const [photo, setPhoto] = useState(null);
-  const [apercu, setApercu] = useState("");
+  const [source, setSource] = useState(null);
+  const [zones, setZones] = useState([]);
+  const [lecture, setLecture] = useState(false);
   const [gps, setGps] = useState(null);
   const [etatGps, setEtatGps] = useState("recherche");
   const [position, setPosition] = useState(null);
@@ -73,12 +76,6 @@ export default function CreerSignalement() {
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (apercu) URL.revokeObjectURL(apercu);
-    };
-  }, [apercu]);
-
-  useEffect(() => {
     if (!position) return;
     detecterQuartier(position).then((trouve) => {
       if (!trouve) return;
@@ -96,12 +93,20 @@ export default function CreerSignalement() {
     setErreur("");
   }
 
-  function choisirPhoto(e) {
+  async function choisirPhoto(e) {
     const fichier = e.target.files[0];
+    e.target.value = "";
     if (!fichier) return;
-    setPhoto(fichier);
-    setApercu(URL.createObjectURL(fichier));
-    setErreur("");
+    setLecture(true);
+    try {
+      setSource(await preparerPhoto(fichier));
+      setZones([]);
+      setErreur("");
+    } catch (err) {
+      setErreur(err.message);
+    } finally {
+      setLecture(false);
+    }
   }
 
   function deplacer(centre) {
@@ -134,8 +139,9 @@ export default function CreerSignalement() {
     e.preventDefault();
     setChargement(true);
     try {
-      const signalement = await creerSignalement(auteurId, { ...form, position, photo: photo ? photo.name : "" });
-      navigate("/signaler/envoye", { state: { id: signalement.id } });
+      const photo = exporterPhoto(flouter(source, zones));
+      const signalement = await creerSignalement(auteurId, { ...form, position, photo: photo.image, empreinte: photo.empreinte, floute: zones.length > 0 });
+      navigate("/signaler/envoye", { state: { id: signalement.id, attente: signalement.statut === "attente_envoi" } });
     } catch (err) {
       setErreur(err.message);
     } finally {
@@ -144,6 +150,7 @@ export default function CreerSignalement() {
   }
 
   const doublon = !ignorer && doublons[0];
+  const apercu = useMemo(() => (source && etape === 2 ? flouter(source, zones).toDataURL("image/jpeg", 0.5) : ""), [source, zones, etape]);
 
   const entete = (
     <header className={etape === 1 ? "signaler-entete flottant" : "signaler-entete"}>
@@ -169,19 +176,20 @@ export default function CreerSignalement() {
       <section className="signaler">
         {entete}
         <div className="signaler-corps">
-          <label className={apercu ? "signaler-photo pleine" : "signaler-photo"}>
-            {apercu ? (
-              <img src={apercu} alt="Photo du signalement" />
-            ) : (
+          {source ? (
+            <EditeurPhoto source={source} zones={zones} setZones={setZones} />
+          ) : (
+            <label className="signaler-photo">
               <span>
                 <Camera size={40} />
-                <strong>Touchez pour prendre la photo</strong>
+                <strong>{lecture ? "Préparation de la photo..." : "Touchez pour prendre la photo"}</strong>
                 <small>Montrez bien le tas ou le caniveau</small>
               </span>
-            )}
-            <input type="file" accept="image/*" capture="environment" onChange={choisirPhoto} hidden />
-          </label>
-          {apercu && (
+              <input type="file" accept="image/*" capture="environment" onChange={choisirPhoto} hidden />
+            </label>
+          )}
+          {erreur && <p className="message message-erreur">{erreur}</p>}
+          {source && (
             <label className="btn btn-secondaire">
               <RotateCcw size={18} /> Reprendre la photo
               <input type="file" accept="image/*" capture="environment" onChange={choisirPhoto} hidden />
@@ -189,7 +197,7 @@ export default function CreerSignalement() {
           )}
         </div>
         <footer className="signaler-pied">
-          <button type="button" className="btn btn-signaler btn-large" disabled={!photo} onClick={() => setEtape(1)}>
+          <button type="button" className="btn btn-signaler btn-large" disabled={!source} onClick={() => setEtape(1)}>
             Continuer <ChevronRight size={20} />
           </button>
         </footer>

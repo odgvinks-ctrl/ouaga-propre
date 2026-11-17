@@ -204,10 +204,35 @@ export default function Signalements() {
 
               {message && <p className="message message-ok">{message}</p>}
 
-              <div className="signalement-photo">
-                <Camera size={22} />
-                <span>{courant.photo || "Aucune photo"}</span>
-              </div>
+              {/^(data:|https?:)/.test(courant.photo) ? (
+                <a className="signalement-image" href={courant.photo} target="_blank" rel="noreferrer">
+                  <img src={courant.photo} alt={`Photo du signalement à ${courant.quartier}`} />
+                  {courant.floute && <span>Visages et plaques floutés</span>}
+                </a>
+              ) : (
+                <div className="signalement-photo">
+                  <Camera size={22} />
+                  <span>{courant.photo || "Aucune photo"}</span>
+                </div>
+              )}
+
+              {/^(data:|https?:)/.test(courant.photoApres) && (
+                <a className="signalement-image" href={courant.photoApres} target="_blank" rel="noreferrer">
+                  <img src={courant.photoApres} alt={`Le lieu nettoyé à ${courant.quartier}`} />
+                  <span>Après nettoyage</span>
+                </a>
+              )}
+
+              {courant.photoReutilisee?.length > 0 && (
+                <p className="message message-erreur">
+                  Possible piège : la même photo a déjà servi pour {courant.photoReutilisee.length} autre(s) signalement(s) (
+                  {courant.photoReutilisee
+                    .slice(0, 3)
+                    .map((x) => `${x.quartier}, ${new Date(x.date).toLocaleDateString("fr-FR")}`)
+                    .join(" ; ")}
+                  {courant.photoReutilisee.length > 3 ? " ..." : ""}).
+                </p>
+              )}
 
               {courant.position && (
                 <CarteOuaga hauteur={180} cadrage={[[courant.position.lat, courant.position.lng]]}>

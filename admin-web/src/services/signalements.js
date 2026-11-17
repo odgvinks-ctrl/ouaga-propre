@@ -58,6 +58,9 @@ function convertirSignalement(signalement) {
     type: String(signalement.type_signalement || "DEPOTOIR_SAUVAGE").toLowerCase().includes("caniveau") ? "caniveau" : "depotoir",
     taille: "moyen",
     photo: signalement.photo_url || "",
+    empreinte: signalement.photo_empreinte || "",
+    floute: Boolean(signalement.photo_floutee),
+    photoApres: signalement.photo_apres_url || "",
     statut,
     date: signalement.created_at,
     position: { lat: signalement.latitude, lng: signalement.longitude },
@@ -137,14 +140,45 @@ function enrichir(base, s) {
   };
 }
 
+const SEUIL_RESSEMBLANCE = 6;
+
+export function ecartEmpreintes(a, b) {
+  if (!a || !b || a.length !== b.length) return 64;
+  let ecart = 0;
+  for (let i = 0; i < a.length; i++) {
+    let difference = parseInt(a[i], 16) ^ parseInt(b[i], 16);
+    while (difference) {
+      ecart += difference & 1;
+      difference >>= 1;
+    }
+  }
+  return ecart;
+}
+
+function controlerPhotos(liste) {
+  return liste.map((s) => {
+    const raisons = [...s.fiabilite.raisons];
+    let score = s.fiabilite.score;
+    if (s.floute) raisons.push("Visages ou plaques floutés par l'auteur");
+    const copies = s.empreinte
+      ? liste.filter((x) => x.id !== s.id && x.empreinte && ecartEmpreintes(s.empreinte, x.empreinte) <= SEUIL_RESSEMBLANCE)
+      : [];
+    if (copies.length) {
+      score -= 40;
+      raisons.push(`Photo identique à ${copies.length} autre(s) signalement(s) : possible piège`);
+    }
+    return { ...s, photoReutilisee: copies.map((x) => ({ id: x.id, quartier: x.quartier, date: x.date })), fiabilite: { score: Math.max(0, Math.min(100, score)), raisons } };
+  });
+}
+
 export async function listerSignalements() {
   if (apiActive) {
     const resultat = await requete("/api/v1/signalements/admin");
-    return resultat.data.map(convertirSignalement);
+    return controlerPhotos(resultat.data.map(convertirSignalement));
   }
   await delai();
   const base = lireBase();
-  return base.signalements.map((s) => enrichir(base, s)).sort((a, b) => b.date.localeCompare(a.date));
+  return controlerPhotos(base.signalements.map((s) => enrichir(base, s))).sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function structuresDuSecteur(structures, quartier) {

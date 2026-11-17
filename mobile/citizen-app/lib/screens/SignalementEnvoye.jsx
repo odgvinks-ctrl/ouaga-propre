@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { CircleCheck, Leaf } from "lucide-react";
+import { CircleCheck, CloudUpload, Leaf } from "lucide-react";
 import { useAuth } from "../providers/AuthContext.jsx";
 import { useActualisation } from "../providers/useActualisation.js";
 import { getMesPoints } from "../services/signalements.js";
@@ -19,6 +19,7 @@ export default function SignalementEnvoye() {
   const { state } = useLocation();
   const [score, setScore] = useState(null);
   const confirme = state?.confirme;
+  const attente = state?.attente;
 
   async function charger() {
     if (user) setScore(await getMesPoints(user.id));
@@ -33,10 +34,12 @@ export default function SignalementEnvoye() {
   return (
     <section className="ecran envoye">
       <div className="envoye-entete">
-        <CircleCheck size={40} strokeWidth={2} />
-        <h1>{confirme ? "Confirmation enregistrée" : "Signalement envoyé"}</h1>
+        {attente ? <CloudUpload size={40} strokeWidth={2} /> : <CircleCheck size={40} strokeWidth={2} />}
+        <h1>{confirme ? "Confirmation enregistrée" : attente ? "Signalement enregistré" : "Signalement envoyé"}</h1>
         <p className="ecran-sous-titre">
-          {confirme
+          {attente
+            ? "Pas de réseau pour l'instant. Votre signalement est gardé sur le téléphone et partira tout seul dès que le réseau revient."
+            : confirme
             ? "Ce dépotoir était déjà signalé. Votre confirmation aide la mairie à le traiter en priorité."
             : user
               ? "Merci. Il partira automatiquement si le réseau est coupé."
@@ -101,7 +104,7 @@ export default function SignalementEnvoye() {
       )}
 
       <div className="envoye-pied">
-        <Link to={state?.id ? `/mes-signalements/${state.id}` : "/mes-signalements"} className="btn btn-primaire btn-large">
+        <Link to={state?.id && !attente ? `/mes-signalements/${state.id}` : "/mes-signalements"} className="btn btn-primaire btn-large">
           Suivre mon signalement
         </Link>
         {user && (

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Printer, FileDown } from "lucide-react";
 import { useActualisation } from "../hooks/useActualisation.js";
 import { getRapport, donneesExport } from "../services/rapports.js";
-import { telechargerCsv } from "../services/exports.js";
+import { telechargerCsv, telechargerGeoJson } from "../services/exports.js";
 import { statutsSignalement, typesSignalement, volumes, statutsAbonnement, statutsCollecte } from "@modeles/statuts.js";
 import { dateCourte } from "@donnees/format.js";
 import EtatVide from "../components/EtatVide.jsx";
@@ -54,6 +54,38 @@ const exports = [
         { label: "Longitude", valeur: (s) => (s.position ? s.position.lng.toFixed(4) : "") },
         { label: "Statut", valeur: (s) => label(statutsSignalement, s.statut) },
       ], base.signalements.filter((s) => s.statut !== "rejete")),
+  },
+  {
+    cle: "geojson",
+    titre: "Carte open data (GeoJSON, licence ODbL)",
+    description: "Dépotoirs, caniveaux et points de regroupement, sans donnée personnelle. S'ouvre dans QGIS, uMap ou geojson.io.",
+    lancer: ({ base }) =>
+      telechargerGeoJson("faso-neere-open-data.geojson", [
+        ...base.signalements
+          .filter((s) => s.statut !== "rejete")
+          .map((s) => ({
+            position: s.position ? { lat: Number(s.position.lat.toFixed(4)), lng: Number(s.position.lng.toFixed(4)) } : null,
+            proprietes: {
+              categorie: "signalement",
+              type: typesSignalement[s.type],
+              taille: volumes[s.taille] || "",
+              quartier: s.quartier,
+              statut: label(statutsSignalement, s.statut),
+              date: jour(s.date),
+            },
+          })),
+        ...(base.pointsRegroupement || []).map((p) => ({
+          position: p.position,
+          proprietes: {
+            categorie: "point de regroupement",
+            nom: p.nom,
+            type: p.type,
+            quartier: p.quartier,
+            capacite_m3: p.capacite,
+            remplissage_pct: p.remplissage,
+          },
+        })),
+      ]),
   },
   {
     cle: "structures",
@@ -241,8 +273,8 @@ export default function Rapports() {
 
       <div className="panneau non-imprime">
         <div className="panneau-entete">
-          <h2>Exports CSV</h2>
-          <span className="champ-aide">Séparateur point-virgule, ouvrable dans Excel</span>
+          <h2>Exports</h2>
+          <span className="champ-aide">CSV ouvrables dans Excel · GeoJSON sous licence ODbL</span>
         </div>
         <ul className="rapports-exports">
           {exports.map((e) => (

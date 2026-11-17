@@ -8,6 +8,7 @@ import { volumes } from "@citoyen/models/statuts.js";
 import { lienWhatsapp } from "@citoyen/services/format.js";
 import EtatVide from "@citoyen/widgets/EtatVide.jsx";
 import CarteTournee from "../maps/CarteTournee.jsx";
+import FeuillePhotoPreuve from "@citoyen/widgets/FeuillePhotoPreuve.jsx";
 import "@citoyen/screens/Ecran.css";
 import "./Tournee.css";
 
@@ -22,6 +23,7 @@ export default function Tournee() {
   const [envoi, setEnvoi] = useState(false);
   const [annonce, setAnnonce] = useState("");
   const [erreur, setErreur] = useState("");
+  const [preuve, setPreuve] = useState(false);
 
   async function charger() {
     setTournee(await getTournee(user.id));
@@ -131,7 +133,7 @@ export default function Tournee() {
               type="button"
               className="tournee-faite"
               disabled={envoi}
-              onClick={() => agir(() => terminerCollecte(courant.id), "Collecte enregistrée")}
+              onClick={() => setPreuve(true)}
             >
               <Check size={24} strokeWidth={3} />
               Collecte faite
@@ -147,6 +149,19 @@ export default function Tournee() {
           </>
         )}
       </div>
+      {preuve && courant && (
+        <FeuillePhotoPreuve
+          titre="Photo après la collecte"
+          texte="Montrez la poubelle vidée ou le lieu propre. Elle sert de preuve au citoyen."
+          libelle="Collecte faite"
+          onAnnuler={() => setPreuve(false)}
+          onConfirmer={async (photo) => {
+            await terminerCollecte(courant.id, photo);
+            setPreuve(false);
+            await agir(async () => {}, "Collecte enregistrée");
+          }}
+        />
+      )}
     </section>
   );
 }

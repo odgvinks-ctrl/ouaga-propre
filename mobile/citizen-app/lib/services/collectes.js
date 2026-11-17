@@ -2,6 +2,7 @@ import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
 import { apiActive, requete } from "./http.js";
 import { idMaStructure } from "./structures.js";
 import { getMesAbonnements } from "./abonnements.js";
+import { envoyerPhoto, miniature } from "./photos.js";
 
 function versDate(valeur) {
   if (!valeur) return null;
@@ -25,6 +26,7 @@ async function convertirCollecte(c, abonnements = []) {
     quartier: c.quartier || abonnement?.quartier || "",
     repere: c.repere || abonnement?.repere || "",
     position: c.latitude && c.longitude ? { lat: c.latitude, lng: c.longitude } : null,
+    photoPreuve: c.photo_preuve_url || "",
   };
 }
 
@@ -120,10 +122,14 @@ export async function planifierCollecte(id, datePrevue) {
   return changer(id, { statut: "planifiee", datePrevue: new Date(datePrevue).toISOString() });
 }
 
-export async function terminerCollecte(id) {
-  if (apiActive) return convertirCollecte(await requete(`/api/v1/collectes/${id}/terminer`, { methode: "PATCH" }));
+export async function terminerCollecte(id, photoPreuve) {
+  if (!photoPreuve) throw new Error("Prenez une photo après la collecte pour la valider.");
+  if (apiActive) {
+    const adresse = await envoyerPhoto(photoPreuve);
+    return convertirCollecte(await requete(`/api/v1/collectes/${id}/terminer`, { methode: "PATCH", corps: { photo_preuve_url: adresse } }));
+  }
   await delai();
-  return changer(id, { statut: "faite" });
+  return changer(id, { statut: "faite", photoPreuve: await miniature(photoPreuve, 800) });
 }
 
 export async function reporterCollecte(id) {

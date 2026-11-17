@@ -3,6 +3,7 @@ import { Phone } from "lucide-react";
 import { useAuth } from "@citoyen/providers/AuthContext.jsx";
 import { useActualisation } from "@citoyen/providers/useActualisation.js";
 import { getCollectesStructure, planifierCollecte, terminerCollecte } from "@citoyen/services/collectes.js";
+import FeuillePhotoPreuve from "@citoyen/widgets/FeuillePhotoPreuve.jsx";
 import { statutsCollecte, volumes } from "@citoyen/models/statuts.js";
 import { dateCourte, dateHeure } from "@citoyen/services/format.js";
 import Badge from "@citoyen/widgets/Badge.jsx";
@@ -21,6 +22,7 @@ export default function DemandesCollecte() {
   const [dates, setDates] = useState({});
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
+  const [aTerminer, setATerminer] = useState(null);
 
   async function charger() {
     setCollectes(await getCollectesStructure(user.id));
@@ -99,7 +101,7 @@ export default function DemandesCollecte() {
             <p className="element-meta">
               {dateHeure(c.datePrevue)} · {c.quartier} · {c.repere}
             </p>
-            <button type="button" className="btn btn-valider" onClick={() => agir(() => terminerCollecte(c.id))}>
+            <button type="button" className="btn btn-valider" onClick={() => setATerminer(c)}>
               Poubelle vidée
             </button>
           </article>
@@ -115,9 +117,23 @@ export default function DemandesCollecte() {
               <Badge statut={c.statut} liste={statutsCollecte} />
             </div>
             <p className="element-meta">{dateCourte(c.datePrevue)}</p>
+            {/^(data:|https?:)/.test(c.photoPreuve) && <img className="photo-preuve" src={c.photoPreuve} alt="Preuve de la collecte" />}
           </article>
         ))}
       </div>
+      {aTerminer && (
+        <FeuillePhotoPreuve
+          titre="Photo après la collecte"
+          texte="Montrez la poubelle vidée ou le lieu propre. Elle sert de preuve au citoyen."
+          libelle="Poubelle vidée"
+          onAnnuler={() => setATerminer(null)}
+          onConfirmer={async (photo) => {
+            await terminerCollecte(aTerminer.id, photo);
+            setATerminer(null);
+            await agir(async () => {});
+          }}
+        />
+      )}
     </section>
   );
 }

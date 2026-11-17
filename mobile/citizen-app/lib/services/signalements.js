@@ -1,5 +1,7 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
 import { apiActive, lireJeton, requete } from "./http.js";
+import { envoyerPhoto, miniature } from "./photos.js";
+import { ajouterEnvoi, listerEnvois, reseauDisponible, traiterEnvoi } from "./sync.js";
 
 const actifs = ["a_verifier", "verifie", "transmis", "pris_en_charge"];
 const CLE_SUIVI = "ouaga-propre-suivi-signalements";
@@ -22,6 +24,8 @@ function convertirSignalement(signalement) {
       : "depotoir",
     taille: "moyen",
     photo: signalement.photo_url || "",
+    empreinte: signalement.photo_empreinte || "",
+    photoApres: signalement.photo_apres_url || "",
     statut: statutsFrontend[signalement.statut] || "a_verifier",
     date: signalement.created_at,
     position: { lat: signalement.latitude, lng: signalement.longitude },
@@ -90,23 +94,50 @@ function enrichir(base, s) {
   };
 }
 
-export async function creerSignalement(auteurId, { type, taille, description, quartier, position, photo }) {
+async function envoyerSignalement({ corps, photo }) {
+  const adresse = photo ? await envoyerPhoto(photo) : null;
+  const resultat = await requete("/api/v1/signalements/", { methode: "POST", corps: { ...corps, photo_url: adresse } });
+  enregistrerReferenceSuivi(resultat.id, resultat.tracking_reference);
+  return convertirSignalement(resultat);
+}
+
+traiterEnvoi("signalement", envoyerSignalement);
+
+async function mettreEnAttente(envoi, apercu) {
+  const id = await ajouterEnvoi("signalement", "/api/v1/signalements/", envoi, apercu);
+  return { ...apercu, id: `attente-${id}`, statut: "attente_envoi" };
+}
+
+export async function getSignalementsEnAttente() {
+  if (!apiActive) return [];
+  const envois = await listerEnvois("signalement");
+  return envois.map((e) => ({ ...e.apercu, id: `attente-${e.id}`, statut: "attente_envoi", erreurEnvoi: e.statut === "echec" ? e.erreur : "" }));
+}
+
+export async function creerSignalement(auteurId, { type, taille, description, quartier, position, photo, empreinte = "", floute = false }) {
   if (!photo) throw new Error("Ajoutez une photo du lieu.");
   if (!quartier) throw new Error("Choisissez le quartier.");
   if (apiActive) {
-    const resultat = await requete("/api/v1/signalements/", {
-      methode: "POST",
+    const envoi = {
+      photo,
       corps: {
         type_signalement: type === "caniveau" ? "CANIVEAU_OBSTRUE" : "DEPOTOIR_SAUVAGE",
         description: description.trim(),
-        photo_url: photo,
         latitude: position?.lat ?? 12.3714,
         longitude: position?.lng ?? -1.5197,
         quartier,
+        photo_empreinte: empreinte,
+        photo_floutee: floute,
       },
-    });
-    enregistrerReferenceSuivi(resultat.id, resultat.tracking_reference);
-    return convertirSignalement(resultat);
+    };
+    const apercu = { type, taille, quartier, description: description.trim(), position, photo: await miniature(photo, 320), date: new Date().toISOString() };
+    if (!(await reseauDisponible())) return mettreEnAttente(envoi, apercu);
+    try {
+      return await envoyerSignalement(envoi);
+    } catch (err) {
+      if (err.horsLigne) return mettreEnAttente(envoi, apercu);
+      throw err;
+    }
   }
   await delai();
   const base = lireBase();
@@ -119,7 +150,9 @@ export async function creerSignalement(auteurId, { type, taille, description, qu
     description: description.trim(),
     quartier,
     position,
-    photo,
+    photo: await miniature(photo, 800),
+    empreinte,
+    floute,
     statut: "a_verifier",
     structureId: null,
     historique: [{ statut: "a_verifier", date: maintenant }],
@@ -133,8 +166,14 @@ export async function creerSignalement(auteurId, { type, taille, description, qu
 
 export async function getMesSignalements(auteurId) {
   if (apiActive) {
-    const liste = lireJeton() ? (await requete("/api/v1/signalements/me")).data.map(convertirSignalement) : await getSignalementsSuivis();
-    return liste.sort((a, b) => b.date.localeCompare(a.date));
+    const attente = await getSignalementsEnAttente();
+    let liste = [];
+    try {
+      liste = lireJeton() ? (await requete("/api/v1/signalements/me")).data.map(convertirSignalement) : await getSignalementsSuivis();
+    } catch (err) {
+      if (!err.horsLigne || attente.length === 0) throw err;
+    }
+    return [...attente, ...liste].sort((a, b) => b.date.localeCompare(a.date));
   }
   await delai();
   const base = lireBase();
@@ -182,13 +221,16 @@ export async function getSignalementsStructure(structureId) {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function changerStatutSignalement(id, statut) {
+export async function changerStatutSignalement(id, statut, photoApres = "") {
+  if (statut === "nettoye" && !photoApres) throw new Error("Prenez une photo du lieu nettoyé pour clôturer.");
   if (apiActive) {
     const statutApi = { pris_en_charge: "pris_en_charge", nettoye: "nettoye" }[statut];
     if (!statutApi) throw new Error("Ce changement de statut n'est pas disponible.");
+    const corps = { statut: statutApi };
+    if (photoApres) corps.photo_apres_url = await envoyerPhoto(photoApres);
     return convertirSignalement(await requete(`/api/v1/signalements/${id}/structure-statut`, {
       methode: "PATCH",
-      corps: { statut: statutApi },
+      corps,
     }));
   }
   await delai();
@@ -196,6 +238,7 @@ export async function changerStatutSignalement(id, statut) {
   const signalement = base.signalements.find((s) => s.id === id);
   if (!signalement) throw new Error("Signalement introuvable.");
   signalement.statut = statut;
+  if (photoApres) signalement.photoApres = await miniature(photoApres, 800);
   signalement.historique = [...(signalement.historique || []), { statut, date: new Date().toISOString() }];
   ecrireBase(base);
   return signalement;
