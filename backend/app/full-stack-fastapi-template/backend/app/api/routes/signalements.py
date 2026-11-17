@@ -56,6 +56,7 @@ class SignalementStatusUpdate(SQLModel):
 
 class SignalementStructureStatusUpdate(SQLModel):
     statut: str
+    photo_apres_url: str | None = Field(default=None, max_length=2048)
 
 
 class SignalementAssignment(SQLModel):
@@ -233,7 +234,11 @@ def update_structure_signalement_status(
     expected = transitions.get(signalement.statut)
     if not expected or status_in.statut != expected[0]:
         raise HTTPException(status_code=409, detail="Transition de statut non autorisée.")
+    if status_in.statut == "nettoye" and not status_in.photo_apres_url:
+        raise HTTPException(status_code=400, detail="Une photo de preuve est obligatoire pour clôturer le nettoyage.")
     signalement.statut = expected[1]
+    if status_in.photo_apres_url:
+        signalement.photo_apres_url = status_in.photo_apres_url
     session.add(signalement)
     session.commit()
     session.refresh(signalement)

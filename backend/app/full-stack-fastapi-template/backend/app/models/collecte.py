@@ -27,6 +27,7 @@ class CollecteUpdate(SQLModel):
     description: str | None = Field(default=None, max_length=500)
     adresse: str | None = Field(default=None, max_length=255)
     volume: str | None = Field(default=None, max_length=40)
+    photo_preuve_url: str | None = Field(default=None, max_length=2048)
 
 
 class Collecte(CollecteBase, table=True):
@@ -35,6 +36,7 @@ class Collecte(CollecteBase, table=True):
     structure_id: uuid.UUID = Field(index=True, foreign_key="structurecollecte.id")
     date: datetime = Field(default_factory=get_datetime_utc)
     created_at: datetime = Field(default_factory=get_datetime_utc)
+    photo_preuve_url: str | None = Field(default=None, max_length=2048)
 
 
 class CollectePublic(CollecteBase):
@@ -43,6 +45,7 @@ class CollectePublic(CollecteBase):
     structure_id: uuid.UUID
     date: datetime
     created_at: datetime
+    photo_preuve_url: str | None = Field(default=None, max_length=2048)
     citoyen_nom: str | None = None
     citoyen_telephone: str | None = None
     quartier: str | None = None
@@ -51,4 +54,4 @@ class CollectePublic(CollecteBase):
 
 class CollectesPublic(SQLModel):
     data: list[CollectePublic]
-    count: int
+    count: int

@@ -75,6 +75,8 @@ class Settings(BaseSettings):
 
     LOAD_DEMO_DATA: bool = True
     DEMO_PASSWORD: str = "demo12345"
+    PHOTO_STORAGE_DIR: Path = Path("photos")
+    PHOTO_MAX_SIZE_BYTES: int = 3 * 1024 * 1024
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr

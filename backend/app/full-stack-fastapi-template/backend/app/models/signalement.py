@@ -29,12 +29,15 @@ class SignalementBase(SQLModel):
 
 
 class SignalementCreate(SignalementBase):
-    pass
+    photo_empreinte: str | None = Field(default=None, min_length=16, max_length=16)
+    photo_floutee: bool = False
 
 
 class SignalementUpdate(SQLModel):
     description: str | None = Field(default=None, max_length=2000)
     photo_url: str | None = Field(default=None, max_length=2048)
+    photo_empreinte: str | None = Field(default=None, min_length=16, max_length=16)
+    photo_floutee: bool | None = None
     adresse: str | None = Field(default=None, max_length=255)
     quartier: str | None = Field(default=None, max_length=120)
 
@@ -85,6 +88,9 @@ class Signalement(SignalementBase, table=True):
 
     score_confiance: float | None = None
     categorie_detectee: str | None = None
+    photo_empreinte: str | None = Field(default=None, max_length=16)
+    photo_floutee: bool = Field(default=False)
+    photo_apres_url: str | None = Field(default=None, max_length=2048)
 
 
 class SignalementPublic(SignalementBase):
@@ -93,6 +99,9 @@ class SignalementPublic(SignalementBase):
     created_at: datetime
     structure_id: uuid.UUID | None = None
     motif_rejet: str | None = None
+    photo_empreinte: str | None = Field(default=None, max_length=16)
+    photo_floutee: bool = False
+    photo_apres_url: str | None = Field(default=None, max_length=2048)
 
 
 class SignalementAdmin(SignalementPublic):

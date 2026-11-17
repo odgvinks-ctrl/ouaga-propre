@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta, timezone
+import uuid
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
-from sqlmodel import func, select
+from fastapi import APIRouter, Body, HTTPException, Query
+from sqlmodel import Field, SQLModel, func, select
 
 from app.api.deps import CurrentUser, SessionDep, get_accessible_structure
 from app.models import (
@@ -17,6 +18,10 @@ from app.models import (
 )
 
 router = APIRouter(prefix="/collectes", tags=["Collectes"])
+
+
+class TerminerCollecteRequest(SQLModel):
+    photo_preuve_url: str | None = Field(default=None, max_length=2048)
 
 
 @router.post("/", response_model=CollectePublic)
@@ -46,7 +51,7 @@ def create_collecte(
         raise HTTPException(status_code=404, detail="Structure non valide.")
     collecte = Collecte.model_validate(
         data,
-        update={"citoyen_id": current_user.id, "structure_id": abonnement.structure_id, "date": datetime.now(timezone.utc)},
+        update={"citoyen_id": current_user.id, "structure_id": abonnement.structure_id, "date": datetime.now(UTC)},
     )
     session.add(collecte)
     session.commit()
@@ -144,13 +149,17 @@ def terminer_collecte(
     *,
     session: SessionDep,
     current_user: CurrentUser,
-    collecte_id: str,
+    collecte_id: uuid.UUID,
+    data: TerminerCollecteRequest | None = Body(default=None),
 ) -> Any:
     collecte = session.get(Collecte, collecte_id)
     if not collecte:
         raise HTTPException(status_code=404, detail="Collecte introuvable.")
     get_accessible_structure(session, current_user, str(collecte.structure_id))
+    if not data or not data.photo_preuve_url:
+        raise HTTPException(status_code=400, detail="Une photo de preuve est obligatoire pour terminer la collecte.")
     collecte.statut = "faite"
+    collecte.photo_preuve_url = data.photo_preuve_url
     session.add(collecte)
     session.commit()
     session.refresh(collecte)
@@ -169,7 +178,7 @@ def reporter_collecte(
     if not collecte:
         raise HTTPException(status_code=404, detail="Collecte introuvable.")
     get_accessible_structure(session, current_user, str(collecte.structure_id))
-    nouvelle_date = datetime.now(timezone.utc).replace(hour=9, minute=0, second=0, microsecond=0)
+    nouvelle_date = datetime.now(UTC).replace(hour=9, minute=0, second=0, microsecond=0)
     nouvelle_date += timedelta(days=max(jours, 1))
     collecte.date_prevue = nouvelle_date
     session.add(collecte)
