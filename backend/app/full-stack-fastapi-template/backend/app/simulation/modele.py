@@ -167,7 +167,7 @@ class Ville:
         proche.tonnes += tonnes
 
     def jour(self, numero: int) -> dict:
-        self.jour_courant = {cle: 0 for cle in COMPTEURS}
+        self.jour_courant = dict.fromkeys(COMPTEURS, 0)
         self.servis_du_jour = set()
         for menage in self.menages:
             menage.step(self, numero)
@@ -211,7 +211,8 @@ def _fcfa(valeur: int) -> str:
 def _diagnostic(ville: Ville, jours: list[dict]) -> dict:
     p = ville.p
     nb = len(jours)
-    moyenne = lambda cle: sum(j[cle] for j in jours) / nb
+    def moyenne(cle):
+        return sum(j[cle] for j in jours) / nb
     kg = p["population"]["kg_par_menage_jour"] * ville.facteur_production
     abonnes = sum(m.nombre for m in ville.menages if m.abonne)
     production_abonnes = abonnes * kg / 1000

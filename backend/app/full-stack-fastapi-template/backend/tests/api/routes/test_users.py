@@ -50,7 +50,7 @@ def test_create_user_new_email(
             headers=superuser_token_headers,
             json=data,
         )
-        assert 200 <= r.status_code < 300
+        assert 200 <= r.status_code < 300, r.text
         created_user = r.json()
         user = crud.get_user_by_email(session=db, email=username)
         assert user
@@ -352,7 +352,7 @@ def test_register_user_already_exists_error(client: TestClient) -> None:
         json=data,
     )
     assert r.status_code == 400
-    assert r.json()["detail"] == "The user with this email already exists in the system"
+    assert r.json()["detail"] == "Un compte utilise déjà cet e-mail ou ce numéro de téléphone."
 
 
 def test_update_user(
@@ -391,7 +391,7 @@ def test_update_user_not_exists(
         json=data,
     )
     assert r.status_code == 404
-    assert r.json()["detail"] == "The user with this id does not exist in the system"
+    assert r.json()["detail"] == "User not found"
 
 
 def test_update_user_email_exists(
@@ -439,13 +439,16 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     deleted_user = r.json()
-    assert deleted_user["message"] == "User deleted successfully"
+    assert deleted_user["message"] == "Account deactivated successfully"
     result = db.exec(select(User).where(User.id == user_id)).first()
-    assert result is None
+    assert result is not None
+    db.refresh(result)
+    assert result.is_active is False
 
     user_query = select(User).where(User.id == user_id)
-    user_db = db.execute(user_query).first()
-    assert user_db is None
+    user_db = db.exec(user_query).first()
+    assert user_db is not None
+    assert user_db.is_active is False
 
 
 def test_delete_user_me_as_superuser(
@@ -457,7 +460,7 @@ def test_delete_user_me_as_superuser(
     )
     assert r.status_code == 403
     response = r.json()
-    assert response["detail"] == "Super users are not allowed to delete themselves"
+    assert response["detail"] == "Administrators cannot deactivate their own account"
 
 
 def test_delete_user_super_user(
@@ -474,9 +477,11 @@ def test_delete_user_super_user(
     )
     assert r.status_code == 200
     deleted_user = r.json()
-    assert deleted_user["message"] == "User deleted successfully"
+    assert deleted_user["message"] == "User deactivated successfully"
     result = db.exec(select(User).where(User.id == user_id)).first()
-    assert result is None
+    assert result is not None
+    db.refresh(result)
+    assert result.is_active is False
 
 
 def test_delete_user_not_found(
@@ -502,7 +507,7 @@ def test_delete_user_current_super_user_error(
         headers=superuser_token_headers,
     )
     assert r.status_code == 403
-    assert r.json()["detail"] == "Super users are not allowed to delete themselves"
+    assert r.json()["detail"] == "Administrators cannot deactivate their own account"
 
 
 def test_delete_user_without_privileges(

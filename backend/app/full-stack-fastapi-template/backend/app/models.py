@@ -1,6 +1,6 @@
 import uuid
-from enum import Enum
 from datetime import UTC, datetime
+from enum import StrEnum
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -11,7 +11,7 @@ def get_datetime_utc() -> datetime:
 
 
 # Shared properties
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     ADMIN = "ADMIN"
     CITOYEN = "CITOYEN"
     STRUCTURE = "STRUCTURE"
@@ -61,7 +61,7 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     created_at: datetime | None = Field(default_factory=get_datetime_utc)
-    items: list["Item"] = Relationship(
+    items: list[Item] = Relationship(
     back_populates="owner",
     cascade_delete=True
 )
@@ -274,7 +274,7 @@ class SignalementsPublic(SQLModel):
     data: list[SignalementPublic]
     count: int
 
-class StatutSignalement(str, Enum):
+class StatutSignalement(StrEnum):
     NOUVEAU = "NOUVEAU"
     EN_VERIFICATION = "EN_VERIFICATION"
     VALIDE = "VALIDE"
@@ -331,7 +331,7 @@ class InterventionsPublic(SQLModel):
     data: list[InterventionPublic]
     count: int
 
-class StatutIntervention(str, Enum):
+class StatutIntervention(StrEnum):
     PLANIFIEE = "PLANIFIEE"
 
     EN_COURS = "EN_COURS"

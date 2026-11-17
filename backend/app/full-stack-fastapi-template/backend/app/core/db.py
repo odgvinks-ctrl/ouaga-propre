@@ -4,6 +4,7 @@ from app import crud
 from app.core.config import settings
 from app.models import User, UserCreate, UserRole
 
+
 def _accept_text_uuid_on_sqlite() -> None:
     import uuid
 

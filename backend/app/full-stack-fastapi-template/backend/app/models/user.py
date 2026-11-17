@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import EmailStr, model_validator
 from sqlmodel import Field, SQLModel
@@ -17,7 +17,7 @@ def normalize_phone(phone: str | None) -> str | None:
     return digits[-8:]
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     ADMIN = "ADMIN"
     CITOYEN = "CITOYEN"
     STRUCTURE = "STRUCTURE"

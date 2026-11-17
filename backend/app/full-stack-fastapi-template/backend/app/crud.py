@@ -59,12 +59,10 @@ def get_user_by_email(*, session: Session, email: str) -> User | None:
     if not identifier:
         return None
     normalized_phone = normalize_phone(identifier)
-    statement = select(User).where(
-        or_(
-            User.email == identifier.lower(),
-            User.telephone == normalized_phone,
-        )
-    )
+    predicates = [User.email == identifier.lower()]
+    if normalized_phone:
+        predicates.append(User.telephone == normalized_phone)
+    statement = select(User).where(or_(*predicates))
     session_user = session.exec(statement).first()
     return session_user
 
@@ -79,12 +77,10 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
     if not identifier:
         return None
     normalized_phone = normalize_phone(identifier)
-    statement = select(User).where(
-        or_(
-            User.email == identifier.lower(),
-            User.telephone == normalized_phone,
-        )
-    )
+    predicates = [User.email == identifier.lower()]
+    if normalized_phone:
+        predicates.append(User.telephone == normalized_phone)
+    statement = select(User).where(or_(*predicates))
     db_user = session.exec(statement).first()
     if not db_user:
         verify_password(password, DUMMY_HASH)
@@ -98,6 +94,5 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
         session.commit()
         session.refresh(db_user)
     return db_user
-
 
 

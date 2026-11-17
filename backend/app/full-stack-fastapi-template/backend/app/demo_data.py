@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlmodel import Session, select
@@ -79,7 +79,7 @@ def load_demo_data(session: Session) -> None:
             ),
             conditions_version="2026-11",
             conditions_commission=10,
-            conditions_acceptees_le=datetime.now(timezone.utc),
+            conditions_acceptees_le=datetime.now(UTC),
         )
         session.add(structure)
         structures[item["ref"]] = structure
