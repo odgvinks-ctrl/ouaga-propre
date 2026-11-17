@@ -1,12 +1,107 @@
-from fastapi import APIRouter
+from typing import Any
 
-router = APIRouter(
-    prefix="/messages",
-    tags=["Messages"]
+from fastapi import APIRouter, HTTPException, Query
+from sqlmodel import func, select
+
+from app.api.deps import CurrentUser, SessionDep
+from app.models import (
+    Message,
+    MessageCreate,
+    MessagePublic,
+    MessagesPublic,
+    StructureCollecte,
+    UserRole,
 )
 
-@router.get("/")
-def read_messages():
-    return {
-        "message": "Module Messagerie FASO NEERE"
-    }
+router = APIRouter(prefix="/messages", tags=["Messages"])
+
+
+def conversation_id_for(citoyen_id: str, structure_id: str) -> str:
+    return f"{citoyen_id}__{structure_id}"
+
+
+@router.get("/conversation/{citoyen_id}/{structure_id}", response_model=MessagesPublic)
+def get_conversation_messages(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    citoyen_id: str,
+    structure_id: str,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
+) -> Any:
+    conversation = conversation_id_for(citoyen_id, structure_id)
+    is_admin = current_user.role == UserRole.ADMIN
+    is_citizen = str(current_user.id) == citoyen_id
+    is_structure_owner = False
+    if current_user.role == UserRole.STRUCTURE:
+        structure = session.get(StructureCollecte, structure_id)
+        is_structure_owner = bool(structure and structure.owner_id == current_user.id)
+    if not (is_admin or is_citizen or is_structure_owner):
+        raise HTTPException(status_code=403, detail="Vous n'êtes pas participant à cette conversation.")
+    statement = (
+        select(Message)
+        .where(Message.conversation_id == conversation)
+        .order_by(Message.date.asc())
+        .offset(skip)
+        .limit(limit)
+    )
+    items = session.exec(statement).all()
+    count = session.exec(
+        select(func.count()).select_from(Message).where(Message.conversation_id == conversation)
+    ).one()
+    return MessagesPublic(data=list(items), count=count)
+
+
+@router.post("/conversation/{citoyen_id}/{structure_id}", response_model=MessagePublic)
+def send_message(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    citoyen_id: str,
+    structure_id: str,
+    payload: MessageCreate,
+) -> Any:
+    conversation = conversation_id_for(citoyen_id, structure_id)
+    if payload.conversation_id != conversation:
+        raise HTTPException(status_code=400, detail="Identifiant de conversation invalide.")
+    is_citizen = str(current_user.id) == citoyen_id
+    structure = session.get(StructureCollecte, structure_id)
+    is_structure_owner = bool(
+        current_user.role == UserRole.STRUCTURE
+        and structure
+        and structure.owner_id == current_user.id
+    )
+    if not (is_citizen or is_structure_owner):
+        raise HTTPException(status_code=403, detail="Vous n'êtes pas participant à cette conversation.")
+    if len(payload.texte.strip()) == 0:
+        raise HTTPException(status_code=400, detail="Le message ne peut pas être vide.")
+    if len(payload.texte) > 1000:
+        raise HTTPException(status_code=400, detail="Le message ne peut pas dépasser 1000 caractères.")
+    if not structure:
+        raise HTTPException(status_code=404, detail="Structure introuvable.")
+    destinataire_id = structure.owner_id if is_citizen else citoyen_id
+    message = Message.model_validate(
+        payload,
+        update={"expediteur_id": current_user.id, "destinataire_id": destinataire_id, "lu": False},
+    )
+    session.add(message)
+    session.commit()
+    session.refresh(message)
+    return message
+
+
+@router.get("/nonlus", response_model=dict)
+def unread_messages_count(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    if current_user.role == UserRole.ADMIN:
+        return {"count": 0}
+    count = session.exec(
+        select(func.count())
+        .select_from(Message)
+        .where(Message.destinataire_id == current_user.id, Message.lu.is_(False))
+    ).one()
+    return {"count": count}

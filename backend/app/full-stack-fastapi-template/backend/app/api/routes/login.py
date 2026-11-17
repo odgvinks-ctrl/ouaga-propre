@@ -4,12 +4,13 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import select
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
+from app.models import Message, NewPassword, StructureCollecte, Token, UserPublic, UserRole, UserUpdate
 from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
@@ -25,15 +26,33 @@ def login_access_token(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token:
     """
-    OAuth2 compatible token login, get an access token for future requests
+    OAuth2 compatible token login, get an access token for future requests.
+    Supports email or phone for the mobile/frontend login.
     """
     user = crud.authenticate(
         session=session, email=form_data.username, password=form_data.password
     )
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=400,
+            detail="Identifiant ou mot de passe incorrect.",
+        )
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="Compte inactif")
+    if user.role == UserRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="Les administrateurs doivent utiliser le portail web.",
+        )
+    if user.role == UserRole.STRUCTURE:
+        structure = session.exec(
+            select(StructureCollecte).where(StructureCollecte.owner_id == user.id)
+        ).first()
+        if structure and not structure.validated:
+            raise HTTPException(
+                status_code=403,
+                detail="La structure n'est pas encore validée.",
+            )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(

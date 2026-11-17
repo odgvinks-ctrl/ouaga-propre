@@ -6,20 +6,28 @@ from sqlmodel import Field, SQLModel
 from .common import get_datetime_utc
 
 
-class Notification(SQLModel, table=True):
-    id: uuid.UUID = Field(
-        default_factory=uuid.uuid4,
-        primary_key=True
-    )
-
-    user_id: uuid.UUID
-
-    titre: str
-
-    message: str
-
+class NotificationBase(SQLModel):
+    titre: str = Field(max_length=120)
+    message: str = Field(max_length=500)
     lu: bool = False
 
-    created_at: datetime = Field(
-        default_factory=get_datetime_utc
-    )
+
+class NotificationCreate(NotificationBase):
+    user_id: uuid.UUID
+
+
+class Notification(NotificationBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(index=True, foreign_key="user.id")
+    created_at: datetime = Field(default_factory=get_datetime_utc)
+
+
+class NotificationPublic(NotificationBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+
+
+class NotificationsPublic(SQLModel):
+    data: list[NotificationPublic]
+    count: int

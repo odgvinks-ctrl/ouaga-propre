@@ -8,4 +8,10 @@ from .notification import *
 from .vehicule import *
 from .equipe import *
 from .auth import *
-from .messages import Message as MessageRecord
+from .messages import (
+    Message,
+    MessageBase,
+    MessageCreate,
+    MessagePublic,
+    MessagesPublic,
+)

@@ -1,6 +1,7 @@
+
 import uuid
-from enum import Enum
 from datetime import datetime
+from enum import Enum
 
 from sqlmodel import Field, SQLModel
 
@@ -18,21 +19,13 @@ class StatutSignalement(str, Enum):
 
 
 class SignalementBase(SQLModel):
-    type_signalement: str
-
-    description: str
-
-    photo_url: str
-
-    latitude: float
-
-    longitude: float
-
-    adresse: str | None = None
-
-    quartier: str | None = None
-
-    statut: StatutSignalement = StatutSignalement.NOUVEAU
+    type_signalement: str = Field(max_length=100)
+    description: str = Field(max_length=2000)
+    photo_url: str | None = Field(default=None, max_length=2048)
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    adresse: str | None = Field(default=None, max_length=255)
+    quartier: str | None = Field(default=None, max_length=120)
 
 
 class SignalementCreate(SignalementBase):
@@ -40,34 +33,70 @@ class SignalementCreate(SignalementBase):
 
 
 class SignalementUpdate(SQLModel):
-    description: str | None = None
-
-    statut: StatutSignalement | None = None
+    description: str | None = Field(default=None, max_length=2000)
+    photo_url: str | None = Field(default=None, max_length=2048)
+    adresse: str | None = Field(default=None, max_length=255)
+    quartier: str | None = Field(default=None, max_length=120)
 
 
 class Signalement(SignalementBase, table=True):
     id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
-        primary_key=True
+        primary_key=True,
     )
 
-    owner_id: uuid.UUID
-
-    created_at: datetime = Field(
-        default_factory=get_datetime_utc
+    owner_id: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="user.id",
+        ondelete="SET NULL",
+        index=True,
     )
+
+    structure_id: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="structurecollecte.id",
+        ondelete="SET NULL",
+        index=True,
+    )
+
+    statut: StatutSignalement = Field(
+        default=StatutSignalement.NOUVEAU,
+        index=True,
+    )
+
+    is_archived: bool = Field(default=False, index=True)
+    archived_at: datetime | None = None
+
+    archived_by: uuid.UUID | None = Field(
+        default=None,
+        foreign_key="user.id",
+        ondelete="SET NULL",
+    )
+
+    tracking_token_hash: str | None = Field(
+        default=None,
+        unique=True,
+        index=True,
+    )
+
+    created_at: datetime = Field(default_factory=get_datetime_utc)
 
     score_confiance: float | None = None
-
     categorie_detectee: str | None = None
 
 
 class SignalementPublic(SignalementBase):
     id: uuid.UUID
-
-    owner_id: uuid.UUID
-
+    statut: StatutSignalement
     created_at: datetime
+
+
+class SignalementAdmin(SignalementPublic):
+    owner_id: uuid.UUID | None = None
+    structure_id: uuid.UUID | None = None
+    is_archived: bool
+    archived_at: datetime | None = None
+    archived_by: uuid.UUID | None = None
 
 
 class SignalementsPublic(SQLModel):

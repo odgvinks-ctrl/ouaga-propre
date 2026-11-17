@@ -7,35 +7,29 @@ from .common import get_datetime_utc
 
 
 class MessageBase(SQLModel):
-    contenu: str = Field(max_length=1000)
-
-
-class MessageCreate(MessageBase):
+    conversation_id: str = Field(max_length=200)
+    texte: str = Field(max_length=1000)
+    expediteur_id: uuid.UUID
     destinataire_id: uuid.UUID
+
+
+class MessageCreate(SQLModel):
+    conversation_id: str = Field(max_length=200)
+    texte: str = Field(max_length=1000)
 
 
 class Message(MessageBase, table=True):
-    id: uuid.UUID = Field(
-        default_factory=uuid.uuid4,
-        primary_key=True
-    )
-
-    expediteur_id: uuid.UUID
-
-    destinataire_id: uuid.UUID
-
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     lu: bool = False
-
-    created_at: datetime = Field(
-        default_factory=get_datetime_utc
-    )
+    date: datetime = Field(default_factory=get_datetime_utc)
+    created_at: datetime = Field(default_factory=get_datetime_utc)
 
 
 class MessagePublic(MessageBase):
     id: uuid.UUID
-    expediteur_id: uuid.UUID
-    destinataire_id: uuid.UUID
     lu: bool
+    date: datetime
+    created_at: datetime
 
 
 class MessagesPublic(SQLModel):
