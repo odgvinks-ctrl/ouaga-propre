@@ -53,7 +53,10 @@ Etape "Demarrage du backend (port 8000)"
 if (BackendRepond) {
   Write-Host "Le backend tourne deja, on le garde."
 } else {
-  Fenetre "FASO NEERE - Backend" $backend "uv sync; uv run python app/initial_data.py; uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  $migrations = ""
+  $fichierEnv = Join-Path $modele ".env"
+  if ((Test-Path $fichierEnv) -and (Select-String -Path $fichierEnv -Pattern "^\s*DATABASE_URL\s*=\s*[`"']?postgres" -Quiet)) { $migrations = "uv run python -m alembic upgrade head; " }
+  Fenetre "FASO NEERE - Backend" $backend "uv sync; $($migrations)uv run python app/initial_data.py; uv run python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
 }
 
 $pret = $false
