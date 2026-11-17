@@ -1,6 +1,8 @@
 const racine = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 const CLE_JETON = "ouaga-propre-jeton";
 
+export const apiActive = Boolean(import.meta.env.VITE_API_URL);
+
 export function lireJeton() {
   try {
     return localStorage.getItem(CLE_JETON);
@@ -19,6 +21,26 @@ export function ecrireJeton(jeton) {
   } catch {
     return;
   }
+}
+
+export async function requeteFormulaire(chemin, champs) {
+  let reponse;
+  try {
+    reponse = await fetch(racine + chemin, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(champs),
+    });
+  } catch {
+    throw new Error("Impossible de joindre le serveur. Vérifie ta connexion.");
+  }
+
+  const donnees = await reponse.json().catch(() => null);
+  if (!reponse.ok) {
+    const detail = donnees && typeof donnees.detail === "string" ? donnees.detail : "Une erreur est survenue.";
+    throw new Error(detail);
+  }
+  return donnees;
 }
 
 export async function requete(chemin, { methode = "GET", corps, auth = true } = {}) {

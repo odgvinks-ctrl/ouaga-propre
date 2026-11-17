@@ -27,11 +27,8 @@ function stocker(utilisateur) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(lireUtilisateur);
-  const id = user?.id;
 
   useEffect(() => {
-    if (!id) return;
-
     function appliquer(compte) {
       if (!compte) {
         setUser(null);
@@ -49,7 +46,7 @@ export function AuthProvider({ children }) {
     actualiser();
     window.addEventListener("focus", actualiser);
     return () => window.removeEventListener("focus", actualiser);
-  }, [id]);
+  }, []);
 
   function enregistrer(utilisateur) {
     setUser(utilisateur);

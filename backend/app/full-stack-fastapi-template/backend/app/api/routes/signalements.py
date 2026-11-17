@@ -15,17 +15,16 @@ from app.api.deps import (
 )
 from app.models import (
     Signalement,
-    SignalementCreate,
-    SignalementUpdate,
-    SignalementPublic,
     SignalementAdmin,
+    SignalementCreate,
+    SignalementPublic,
     SignalementsPublic,
+    SignalementUpdate,
     StatutSignalement,
     StructureCollecte,
     User,
     UserRole,
 )
-
 
 router = APIRouter(
     prefix="/signalements",
@@ -52,6 +51,10 @@ class SignalementTrackingRequest(SQLModel):
 
 class SignalementStatusUpdate(SQLModel):
     statut: StatutSignalement
+
+
+class SignalementStructureStatusUpdate(SQLModel):
+    statut: str
 
 
 class SignalementAssignment(SQLModel):
@@ -131,7 +134,7 @@ def read_signalements(
     limit: int = Query(default=100, ge=1, le=100),
 ):
     filters = [
-        Signalement.is_archived == False,
+        Signalement.is_archived.is_(False),
         Signalement.statut.in_(PUBLIC_STATUSES),
     ]
 
@@ -155,6 +158,100 @@ def read_signalements(
     )
 
 
+@router.get("/me", response_model=SignalementsPublic)
+def read_my_signalements(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+):
+    filters = [Signalement.owner_id == current_user.id, Signalement.is_archived.is_(False)]
+    count = session.exec(
+        select(func.count()).select_from(Signalement).where(*filters)
+    ).one()
+    items = session.exec(
+        select(Signalement)
+        .where(*filters)
+        .order_by(Signalement.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    ).all()
+    return SignalementsPublic(data=list(items), count=count)
+
+
+@router.get("/structure/me", response_model=SignalementsPublic)
+def read_structure_signalements(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+):
+    if current_user.role != UserRole.STRUCTURE:
+        raise HTTPException(status_code=403, detail="Accès réservé aux structures.")
+    structure = session.exec(
+        select(StructureCollecte).where(StructureCollecte.owner_id == current_user.id)
+    ).first()
+    if not structure or not structure.validated:
+        raise HTTPException(status_code=403, detail="Structure introuvable ou non validée.")
+    filters = [Signalement.structure_id == structure.id, Signalement.is_archived.is_(False)]
+    count = session.exec(
+        select(func.count()).select_from(Signalement).where(*filters)
+    ).one()
+    items = session.exec(
+        select(Signalement)
+        .where(*filters)
+        .order_by(Signalement.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    ).all()
+    return SignalementsPublic(data=list(items), count=count)
+
+
+@router.patch("/{signalement_id}/structure-statut", response_model=SignalementPublic)
+def update_structure_signalement_status(
+    *,
+    signalement_id: uuid.UUID,
+    session: SessionDep,
+    current_user: CurrentUser,
+    status_in: SignalementStructureStatusUpdate,
+):
+    if current_user.role != UserRole.STRUCTURE:
+        raise HTTPException(status_code=403, detail="Accès réservé aux structures.")
+    signalement = get_signalement_or_404(session, signalement_id)
+    structure = session.exec(
+        select(StructureCollecte).where(StructureCollecte.owner_id == current_user.id)
+    ).first()
+    if not structure or not structure.validated or signalement.structure_id != structure.id:
+        raise HTTPException(status_code=403, detail="Ce signalement n'est pas affecté à votre structure.")
+    transitions = {
+        StatutSignalement.TRANSMIS: ("pris_en_charge", StatutSignalement.EN_COURS),
+        StatutSignalement.EN_COURS: ("nettoye", StatutSignalement.RESOLU),
+    }
+    expected = transitions.get(signalement.statut)
+    if not expected or status_in.statut != expected[0]:
+        raise HTTPException(status_code=409, detail="Transition de statut non autorisée.")
+    signalement.statut = expected[1]
+    session.add(signalement)
+    session.commit()
+    session.refresh(signalement)
+    return signalement
+
+
+@router.get("/me/{signalement_id}", response_model=SignalementPublic)
+def read_my_signalement(
+    *,
+    signalement_id: uuid.UUID,
+    session: SessionDep,
+    current_user: CurrentUser,
+):
+    signalement = get_signalement_or_404(session, signalement_id)
+    if signalement.owner_id != current_user.id or signalement.is_archived:
+        raise HTTPException(status_code=404, detail="Signalement introuvable.")
+    return signalement
+
+
 # Suivi d'un signalement anonyme par référence secrète
 @router.post("/suivi", response_model=SignalementPublic)
 def track_anonymous_signalement(
@@ -167,7 +264,7 @@ def track_anonymous_signalement(
     signalement = session.exec(
         select(Signalement).where(
             Signalement.tracking_token_hash == reference_hash,
-            Signalement.is_archived == False,
+            Signalement.is_archived.is_(False),
         )
     ).first()
 
@@ -185,7 +282,7 @@ def track_anonymous_signalement(
 def read_all_signalements_admin(
     *,
     session: SessionDep,
-    current_user: AdminUser,
+    _current_user: AdminUser,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
 ):
@@ -212,7 +309,7 @@ def read_signalement_admin(
     *,
     signalement_id: uuid.UUID,
     session: SessionDep,
-    current_user: AdminUser,
+    _current_user: AdminUser,
 ):
     return get_signalement_or_404(session, signalement_id)
 
@@ -223,7 +320,7 @@ def update_signalement_status(
     *,
     signalement_id: uuid.UUID,
     session: SessionDep,
-    current_user: AdminUser,
+    _current_user: AdminUser,
     status_in: SignalementStatusUpdate,
 ):
     signalement = get_signalement_or_404(session, signalement_id)
@@ -249,7 +346,7 @@ def assign_signalement(
     *,
     signalement_id: uuid.UUID,
     session: SessionDep,
-    current_user: AdminUser,
+    _current_user: AdminUser,
     assignment: SignalementAssignment,
 ):
     signalement = get_signalement_or_404(session, signalement_id)

@@ -10,7 +10,15 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from app.models import Message, NewPassword, StructureCollecte, Token, UserPublic, UserRole, UserUpdate
+from app.models import (
+    Message,
+    NewPassword,
+    StructureCollecte,
+    Token,
+    UserPublic,
+    UserRole,
+    UserUpdate,
+)
 from app.utils import (
     generate_password_reset_token,
     generate_reset_password_email,
@@ -39,11 +47,6 @@ def login_access_token(
         )
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Compte inactif")
-    if user.role == UserRole.ADMIN:
-        raise HTTPException(
-            status_code=403,
-            detail="Les administrateurs doivent utiliser le portail web.",
-        )
     if user.role == UserRole.STRUCTURE:
         structure = session.exec(
             select(StructureCollecte).where(StructureCollecte.owner_id == user.id)

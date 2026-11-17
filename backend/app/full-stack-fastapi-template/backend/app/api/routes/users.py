@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, delete, func, or_, select
+from sqlmodel import col, func, or_, select
 
 from app import crud
 from app.api.deps import (
@@ -19,10 +19,10 @@ from app.models import (
     UserCreate,
     UserPublic,
     UserRegister,
+    UserRole,
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
-    UserRole,
 )
 from app.utils import generate_new_account_email, send_email
 
@@ -155,11 +155,12 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     Create new user without the need to be logged in.
     """
-    user = crud.get_user_by_email(session=session, email=user_in.email)
+    identifier = user_in.email or user_in.telephone or ""
+    user = crud.get_user_by_email(session=session, email=identifier)
     if user:
         raise HTTPException(
             status_code=400,
-            detail="The user with this email already exists in the system",
+            detail="Un compte utilise déjà cet e-mail ou ce numéro de téléphone.",
         )
     user_create = UserCreate.model_validate(user_in)
     user = crud.create_user(session=session, user_create=user_create)
@@ -260,7 +261,7 @@ def update_user(
         active_admins = session.exec(
             select(func.count())
             .select_from(User)
-            .where(User.is_active == True, or_(User.is_superuser == True, User.role == UserRole.ADMIN))
+            .where(User.is_active.is_(True), or_(User.is_superuser.is_(True), User.role == UserRole.ADMIN))
         ).one()
 
         if active_admins <= 1:
@@ -300,7 +301,7 @@ def delete_user(
         active_admins = session.exec(
             select(func.count())
             .select_from(User)
-            .where(User.is_active == True, or_(User.is_superuser == True, User.role == UserRole.ADMIN))
+            .where(User.is_active.is_(True), or_(User.is_superuser.is_(True), User.role == UserRole.ADMIN))
         ).one()
 
         if active_admins <= 1:

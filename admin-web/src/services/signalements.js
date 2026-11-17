@@ -1,4 +1,34 @@
 import { lireBase, ecrireBase, delai } from "@donnees/base.js";
+import { apiActive, requete } from "./http.js";
+
+const statutsFrontend = {
+  NOUVEAU: "a_verifier",
+  EN_VERIFICATION: "a_verifier",
+  VALIDE: "verifie",
+  TRANSMIS: "transmis",
+  EN_COURS: "pris_en_charge",
+  RESOLU: "nettoye",
+  REJETE: "rejete",
+};
+
+function convertirSignalement(signalement) {
+  return {
+    ...signalement,
+    auteurId: signalement.owner_id,
+    auteurNom: signalement.owner_id ? "Citoyen" : "Anonyme",
+    type: String(signalement.type_signalement || "DEPOTOIR_SAUVAGE").toLowerCase().includes("caniveau")
+      ? "caniveau"
+      : "depotoir",
+    taille: "moyen",
+    photo: signalement.photo_url || "",
+    statut: statutsFrontend[signalement.statut] || "a_verifier",
+    date: signalement.created_at,
+    position: { lat: signalement.latitude, lng: signalement.longitude },
+    structureId: signalement.structure_id,
+    confirmations: [],
+    fiabilite: { score: signalement.score_confiance ?? 0, raisons: [] },
+  };
+}
 
 function fiabilite(base, s) {
   const raisons = [];
@@ -67,6 +97,10 @@ function enrichir(base, s) {
 }
 
 export async function listerSignalements() {
+  if (apiActive) {
+    const resultat = await requete("/api/v1/signalements/admin");
+    return resultat.data.map(convertirSignalement);
+  }
   await delai();
   const base = lireBase();
   return base.signalements.map((s) => enrichir(base, s)).sort((a, b) => b.date.localeCompare(a.date));
@@ -96,6 +130,17 @@ function changer(id, changement) {
 export async function transmettreSignalement(id, structureId) {
   await delai();
   if (!structureId) throw new Error("Choisissez la structure qui interviendra.");
+  if (apiActive) {
+    const validation = await requete(`/api/v1/signalements/admin/${id}/statut`, {
+      methode: "PATCH",
+      corps: { statut: "VALIDE" },
+    });
+    if (validation.statut !== "VALIDE") throw new Error("Le signalement n'a pas pu être validé.");
+    return convertirSignalement(await requete(`/api/v1/signalements/admin/${id}/affecter`, {
+      methode: "PATCH",
+      corps: { structure_id: structureId },
+    }));
+  }
   const compte = lireBase().comptes.find((c) => c.id === structureId);
   if (!compte || compte.statut !== "actif") throw new Error("Cette structure n'est pas active.");
   return changer(id, { statut: "transmis", structureId });
@@ -104,5 +149,11 @@ export async function transmettreSignalement(id, structureId) {
 export async function rejeterSignalement(id, motif) {
   await delai();
   if (!motif.trim()) throw new Error("Indiquez le motif du rejet.");
+  if (apiActive) {
+    return convertirSignalement(await requete(`/api/v1/signalements/admin/${id}/statut`, {
+      methode: "PATCH",
+      corps: { statut: "REJETE" },
+    }));
+  }
   return changer(id, { statut: "rejete", motifRejet: motif.trim() });
 }

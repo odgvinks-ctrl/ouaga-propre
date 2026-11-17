@@ -2,6 +2,7 @@ import { lireBase, ecrireBase, delai, comptePublic, nouvelId } from "./base.js";
 import { piecesRequises } from "../models/documents.js";
 import { COMMISSION, VERSION_CONDITIONS } from "../models/conditions.js";
 import { idAppareil } from "./invite.js";
+import { apiActive, ecrireJeton, lireJeton, requete, requeteFormulaire } from "./http.js";
 
 const CLE_SESSION = "ouaga-propre-session";
 
@@ -30,17 +31,36 @@ function ecrireSession(id) {
 }
 
 export function sessionActive() {
-  return Boolean(lireSession());
+  return Boolean(apiActive ? lireJeton() : lireSession());
 }
 
 export function deconnecter() {
   ecrireSession(null);
+  ecrireJeton(null);
 }
 
 export async function chargerMoi() {
+  if (apiActive) {
+    if (!lireJeton()) return null;
+    try {
+      return convertirCompte(await requete("/api/v1/users/me"));
+    } catch {
+      ecrireJeton(null);
+      return null;
+    }
+  }
   await delai();
   const compte = lireBase().comptes.find((c) => c.id === lireSession());
   return compte && compte.statut !== "suspendu" ? comptePublic(compte) : null;
+}
+
+function convertirCompte(compte) {
+  return {
+    ...compte,
+    nom: compte.full_name || compte.telephone || compte.email || "Compte FASO NEERE",
+    role: String(compte.role || "CITOYEN").toLowerCase(),
+    statut: compte.is_active ? "actif" : "suspendu",
+  };
 }
 
 function rattacherSignalementsInvite(base, citoyenId, telephone) {
@@ -67,6 +87,19 @@ function rattacherSignalementsInvite(base, citoyenId, telephone) {
 }
 
 export async function login({ telephone, password }) {
+  if (apiActive) {
+    const jeton = await requeteFormulaire("/api/v1/login/access-token", {
+      username: normaliserTelephone(telephone),
+      password,
+    });
+    ecrireJeton(jeton.access_token);
+    const compte = convertirCompte(await requete("/api/v1/users/me"));
+    if (compte.role === "admin") {
+      ecrireJeton(null);
+      throw new Error("Les comptes administrateur se connectent sur le tableau de bord web.");
+    }
+    return compte;
+  }
   await delai();
   const compte = lireBase().comptes.find((c) => c.telephone === normaliserTelephone(telephone));
   if (!compte || compte.password !== password) {
@@ -87,6 +120,9 @@ export async function login({ telephone, password }) {
 }
 
 export async function signup(form) {
+  if (apiActive && form.role === "structure") {
+    throw new Error("L'inscription structure via l'API n'est pas encore disponible. Utilisez le mode local jusqu'à l'activation du parcours de validation backend.");
+  }
   await delai();
   const telephone = normaliserTelephone(form.telephone);
   const structure = form.role === "structure";
@@ -99,6 +135,24 @@ export async function signup(form) {
   }
   if (form.password.length < 8) {
     throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
+  }
+
+  if (apiActive) {
+    const compte = await requete("/api/v1/users/signup", {
+      methode: "POST",
+      auth: false,
+      corps: {
+        telephone,
+        full_name: form.nom.trim(),
+        password: form.password,
+      },
+    });
+    const jeton = await requeteFormulaire("/api/v1/login/access-token", {
+      username: telephone,
+      password: form.password,
+    });
+    ecrireJeton(jeton.access_token);
+    return convertirCompte(compte);
   }
   if (structure && !form.responsable.trim()) {
     throw new Error("Indiquez le nom du responsable.");

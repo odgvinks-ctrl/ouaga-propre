@@ -1,6 +1,55 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
+import { apiActive, lireJeton, requete } from "./http.js";
 
 const actifs = ["a_verifier", "verifie", "transmis", "pris_en_charge"];
+const CLE_SUIVI = "ouaga-propre-suivi-signalements";
+const statutsFrontend = {
+  NOUVEAU: "a_verifier",
+  EN_VERIFICATION: "a_verifier",
+  VALIDE: "verifie",
+  TRANSMIS: "transmis",
+  EN_COURS: "pris_en_charge",
+  RESOLU: "nettoye",
+  REJETE: "rejete",
+};
+
+function convertirSignalement(signalement) {
+  return {
+    ...signalement,
+    auteurId: signalement.owner_id,
+    type: String(signalement.type_signalement || "DEPOTOIR_SAUVAGE").toLowerCase().includes("caniveau")
+      ? "caniveau"
+      : "depotoir",
+    taille: "moyen",
+    photo: signalement.photo_url || "",
+    statut: statutsFrontend[signalement.statut] || "a_verifier",
+    date: signalement.created_at,
+    position: { lat: signalement.latitude, lng: signalement.longitude },
+    structureId: signalement.structure_id,
+    quartier: signalement.quartier || "",
+    confirmations: [],
+    historique: [],
+  };
+}
+
+function enregistrerReferenceSuivi(id, reference) {
+  if (!reference) return;
+  try {
+    const references = JSON.parse(localStorage.getItem(CLE_SUIVI) || "{}");
+    references[id] = reference;
+    localStorage.setItem(CLE_SUIVI, JSON.stringify(references));
+  } catch {
+    return;
+  }
+}
+
+function lireReferenceSuivi(id) {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_SUIVI) || "{}")[id] || null;
+  } catch {
+    return null;
+  }
+}
 
 function distance(a, b) {
   const rayon = 6371000;
@@ -23,9 +72,24 @@ function enrichir(base, s) {
 }
 
 export async function creerSignalement(auteurId, { type, taille, description, quartier, position, photo }) {
-  await delai();
   if (!photo) throw new Error("Ajoutez une photo du lieu.");
   if (!quartier) throw new Error("Choisissez le quartier.");
+  if (apiActive) {
+    const resultat = await requete("/api/v1/signalements/", {
+      methode: "POST",
+      corps: {
+        type_signalement: type === "caniveau" ? "CANIVEAU_OBSTRUE" : "DEPOTOIR_SAUVAGE",
+        description: description.trim(),
+        photo_url: photo,
+        latitude: position?.lat ?? 12.3714,
+        longitude: position?.lng ?? -1.5197,
+        quartier,
+      },
+    });
+    enregistrerReferenceSuivi(resultat.id, resultat.tracking_reference);
+    return convertirSignalement(resultat);
+  }
+  await delai();
   const base = lireBase();
   const maintenant = new Date().toISOString();
   const signalement = {
@@ -49,6 +113,10 @@ export async function creerSignalement(auteurId, { type, taille, description, qu
 }
 
 export async function getMesSignalements(auteurId) {
+  if (apiActive) {
+    const resultat = await requete("/api/v1/signalements/me");
+    return resultat.data.map(convertirSignalement).sort((a, b) => b.date.localeCompare(a.date));
+  }
   await delai();
   const base = lireBase();
   return base.signalements
@@ -58,6 +126,19 @@ export async function getMesSignalements(auteurId) {
 }
 
 export async function getSignalement(id) {
+  if (apiActive) {
+    const authentifie = Boolean(lireJeton());
+    const reference = lireReferenceSuivi(id);
+    if (reference) {
+      return convertirSignalement(await requete("/api/v1/signalements/suivi", {
+        methode: "POST",
+        auth: false,
+        corps: { reference },
+      }));
+    }
+    const chemin = authentifie ? `/api/v1/signalements/me/${id}` : `/api/v1/signalements/${id}`;
+    return convertirSignalement(await requete(chemin, { auth: authentifie }));
+  }
   await delai();
   const base = lireBase();
   const signalement = base.signalements.find((s) => s.id === id);
@@ -66,6 +147,14 @@ export async function getSignalement(id) {
 }
 
 export async function getSignalementsStructure(structureId) {
+  if (apiActive) {
+    const resultat = await requete("/api/v1/signalements/structure/me");
+    return resultat.data.map((signalement) => ({
+      ...convertirSignalement(signalement),
+      structureId,
+      auteurNom: "Citoyen",
+    }));
+  }
   await delai();
   const base = lireBase();
   return base.signalements
@@ -75,6 +164,14 @@ export async function getSignalementsStructure(structureId) {
 }
 
 export async function changerStatutSignalement(id, statut) {
+  if (apiActive) {
+    const statutApi = { pris_en_charge: "pris_en_charge", nettoye: "nettoye" }[statut];
+    if (!statutApi) throw new Error("Ce changement de statut n'est pas disponible.");
+    return convertirSignalement(await requete(`/api/v1/signalements/${id}/structure-statut`, {
+      methode: "PATCH",
+      corps: { statut: statutApi },
+    }));
+  }
   await delai();
   const base = lireBase();
   const signalement = base.signalements.find((s) => s.id === id);
@@ -86,6 +183,16 @@ export async function changerStatutSignalement(id, statut) {
 }
 
 export async function getSignalementsProches(position, rayon = 60) {
+  if (apiActive) {
+    if (!position) return [];
+    const resultat = await requete("/api/v1/signalements/", { auth: false });
+    return resultat.data
+      .map(convertirSignalement)
+      .filter((signalement) => signalement.position)
+      .map((signalement) => ({ ...signalement, distance: distance(position, signalement.position) }))
+      .filter((signalement) => signalement.distance <= rayon)
+      .sort((a, b) => a.distance - b.distance);
+  }
   await delai(80);
   if (!position) return [];
   return lireBase()
@@ -96,6 +203,7 @@ export async function getSignalementsProches(position, rayon = 60) {
 }
 
 export async function confirmerSignalement(id, citoyenId) {
+  if (apiActive) throw new Error("La confirmation des signalements sera disponible dans une prochaine version.");
   await delai();
   const base = lireBase();
   const signalement = base.signalements.find((s) => s.id === id);
@@ -130,6 +238,10 @@ export async function getMesPoints(citoyenId) {
 }
 
 export async function getDepotoirsCarte() {
+  if (apiActive) {
+    const resultat = await requete("/api/v1/signalements/", { auth: false });
+    return resultat.data.map(convertirSignalement).filter((signalement) => signalement.position);
+  }
   await delai();
   return lireBase()
     .signalements.filter((s) => ["verifie", "transmis", "pris_en_charge", "nettoye"].includes(s.statut))

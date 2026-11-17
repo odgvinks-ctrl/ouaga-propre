@@ -32,7 +32,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_HOST],
+    allow_origins=list(dict.fromkeys([settings.FRONTEND_HOST, *settings.FRONTEND_HOSTS])),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
