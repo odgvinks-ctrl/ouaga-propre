@@ -1,14 +1,14 @@
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from sqlmodel import Field, SQLModel
 
 from .common import get_datetime_utc
 
 
-class StatutSignalement(str, Enum):
+class StatutSignalement(StrEnum):
     NOUVEAU = "NOUVEAU"
     EN_VERIFICATION = "EN_VERIFICATION"
     VALIDE = "VALIDE"

@@ -5,8 +5,6 @@ from pydantic import BaseModel
 from sqlmodel import func, select
 
 from app import crud
-from app.models.common import get_datetime_utc
-
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     StructureCollecte,
@@ -19,6 +17,7 @@ from app.models import (
     UserPublic,
     UserRole,
 )
+from app.models.common import get_datetime_utc
 
 router = APIRouter(
     prefix="/structures",

@@ -351,7 +351,7 @@ export default function Brigade() {
             </div>
             <label className="champ">
               Lieu précis
-              <input name="lieu" placeholder="Ex. : marché de Gounghin, côté est" value={tache.lieu} onChange={changerTache} />
+              <input name="lieu" placeholder="Ex. : marché de Gounghin, côté est" value={tache.lieu} onChange={changerTache} required />
             </label>
             <label className="champ">
               Consignes
@@ -485,7 +485,7 @@ export default function Brigade() {
               </label>
               <label className="champ">
                 Lieu
-                <input name="lieu" value={sanction.lieu} onChange={changerSanction} />
+                <input name="lieu" value={sanction.lieu} onChange={changerSanction} required />
               </label>
             </div>
             <label className="champ">

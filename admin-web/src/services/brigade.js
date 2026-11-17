@@ -166,6 +166,7 @@ export async function listerTaches() {
 export async function creerTache({ type, quartier, lieu, consignes, date, agentIds, signalementId }, agents) {
   if (!typesTache[type]) throw new Error("Choisissez le type de tâche.");
   if (!quartier) throw new Error("Choisissez le quartier.");
+  if (!lieu.trim()) throw new Error("Indiquez le lieu précis.");
   if (!date) throw new Error("Choisissez la date de la tâche.");
   if (!agentIds.length) throw new Error("Assignez au moins un agent.");
   const autorises = agentsCompatibles(agents, type).map((a) => a.id);
@@ -243,6 +244,7 @@ export async function creerSanction({ type, infraction, montant, contrevenant, t
   const numero = telephone.replace(/\s/g, "");
   if (numero && !/^\d{8}$/.test(numero)) throw new Error("Le téléphone doit avoir 8 chiffres.");
   if (!quartier) throw new Error("Choisissez le quartier.");
+  if (!lieu.trim()) throw new Error("Indiquez le lieu de l'infraction.");
   if (!agentsDeControle(agents).some((a) => a.id === agentId)) throw new Error("Seul un agent de contrôle ou un chef d'équipe peut dresser une sanction.");
   const somme = type === "amende" ? Number(montant) : 0;
   if (type === "amende" && !(somme > 0)) throw new Error("Indiquez le montant de l'amende.");

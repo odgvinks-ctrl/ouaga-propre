@@ -17,11 +17,11 @@ def placer_points(
     hasard = random.Random(graine)
     centres = [positions[hasard.randrange(len(positions))]]
     while len(centres) < nombre:
-        distances = [min(distance_m(p, c) for c in centres) ** 2 * w for p, w in zip(positions, poids)]
+        distances = [min(distance_m(p, c) for c in centres) ** 2 * w for p, w in zip(positions, poids, strict=False)]
         total = sum(distances) or 1
         tirage = hasard.random() * total
         cumul = 0.0
-        for p, d in zip(positions, distances):
+        for p, d in zip(positions, distances, strict=False):
             cumul += d
             if cumul >= tirage:
                 centres.append(p)
@@ -40,7 +40,7 @@ def placer_points(
             lat = sum(positions[i][0] * poids[i] for i in groupe) / masse
             lng = sum(positions[i][1] * poids[i] for i in groupe) / masse
             nouveaux.append((lat, lng))
-        if all(distance_m(a, b) < 1 for a, b in zip(centres, nouveaux)):
+        if all(distance_m(a, b) < 1 for a, b in zip(centres, nouveaux, strict=False)):
             centres = nouveaux
             break
         centres = nouveaux

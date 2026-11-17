@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from sqlmodel import Session, select
@@ -9,6 +9,8 @@ from sqlmodel import Session, select
 from app import crud
 from app.core.config import settings
 from app.models import (
+    AgentBrigade,
+    RoleAgentBrigade,
     Signalement,
     StatutSignalement,
     StructureCollecte,
@@ -30,8 +32,31 @@ def _fichier_demo() -> Path:
 DEMO_FILE = _fichier_demo()
 
 
+AGENTS_BRIGADE_DEMO = [
+    ("Awa Sawadogo", "70110001", RoleAgentBrigade.CHEF, "Gounghin"),
+    ("Habibou Sanou", "70110002", RoleAgentBrigade.CHEF, "Tanghin"),
+    ("Mariam Ouédraogo", "70110003", RoleAgentBrigade.SENSIBILISATION, "Gounghin"),
+    ("Fatimata Traoré", "70110004", RoleAgentBrigade.SENSIBILISATION, "Koulouba"),
+    ("Salimata Kaboré", "70110005", RoleAgentBrigade.SENSIBILISATION, "Paspanga"),
+    ("Issa Compaoré", "70110006", RoleAgentBrigade.SANCTION, "Tanghin"),
+    ("Adama Ouattara", "70110007", RoleAgentBrigade.SANCTION, "Nonsin"),
+    ("Rasmata Zongo", "70110008", RoleAgentBrigade.SANCTION, "Dapoya"),
+]
+
+
+def load_demo_brigade(session: Session) -> None:
+    if session.exec(select(AgentBrigade)).first():
+        return
+    for nom, telephone, role, quartier in AGENTS_BRIGADE_DEMO:
+        session.add(AgentBrigade(nom=nom, telephone=telephone, role=role, quartier=quartier))
+    session.commit()
+
+
 def load_demo_data(session: Session) -> None:
-    if not settings.LOAD_DEMO_DATA or not DEMO_FILE.exists():
+    if not settings.LOAD_DEMO_DATA:
+        return
+    load_demo_brigade(session)
+    if not DEMO_FILE.exists():
         return
     if session.exec(select(User).where(User.role == UserRole.CITOYEN)).first():
         return
@@ -88,7 +113,7 @@ def load_demo_data(session: Session) -> None:
             ),
             conditions_version="2026-11",
             conditions_commission=10,
-            conditions_acceptees_le=datetime.now(timezone.utc),
+            conditions_acceptees_le=datetime.now(UTC),
         )
         session.add(structure)
         structures[item["ref"]] = structure

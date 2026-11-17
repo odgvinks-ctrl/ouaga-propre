@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.routes import (
     abonnements,
+    brigade,
     collectes,
     equipes,
     interventions,
@@ -37,6 +38,7 @@ api_router.include_router(photos.router)
 # Nouveau module
 api_router.include_router(structures.router)
 api_router.include_router(simulation.router)
+api_router.include_router(brigade.router)
 
 if settings.FASTAPI_ENV == "development":
     api_router.include_router(private.router)
