@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -12,6 +12,7 @@ from app.models import (
     CollectePublic,
     CollectesPublic,
     StructureCollecte,
+    User,
     UserRole,
 )
 
@@ -45,7 +46,7 @@ def create_collecte(
         raise HTTPException(status_code=404, detail="Structure non valide.")
     collecte = Collecte.model_validate(
         data,
-        update={"citoyen_id": current_user.id, "structure_id": abonnement.structure_id, "date": datetime.utcnow()},
+        update={"citoyen_id": current_user.id, "structure_id": abonnement.structure_id, "date": datetime.now(timezone.utc)},
     )
     session.add(collecte)
     session.commit()
@@ -96,7 +97,22 @@ def list_structure_collectes(
     count = session.exec(
         select(func.count()).select_from(Collecte).where(Collecte.structure_id == structure_id)
     ).one()
-    return CollectesPublic(data=list(items), count=count)
+    data = []
+    for item in items:
+        citoyen = session.get(User, item.citoyen_id)
+        abonnement = session.get(Abonnement, item.abonnement_id)
+        data.append(
+            CollectePublic.model_validate(
+                item,
+                update={
+                    "citoyen_nom": citoyen.full_name if citoyen else None,
+                    "citoyen_telephone": citoyen.telephone if citoyen else None,
+                    "quartier": abonnement.quartier if abonnement else None,
+                    "repere": abonnement.repere if abonnement else None,
+                },
+            )
+        )
+    return CollectesPublic(data=data, count=count)
 
 
 @router.patch("/{collecte_id}/planifier")
@@ -153,7 +169,7 @@ def reporter_collecte(
     if not collecte:
         raise HTTPException(status_code=404, detail="Collecte introuvable.")
     get_accessible_structure(session, current_user, str(collecte.structure_id))
-    nouvelle_date = datetime.utcnow().replace(hour=9, minute=0, second=0, microsecond=0)
+    nouvelle_date = datetime.now(timezone.utc).replace(hour=9, minute=0, second=0, microsecond=0)
     nouvelle_date += timedelta(days=max(jours, 1))
     collecte.date_prevue = nouvelle_date
     session.add(collecte)

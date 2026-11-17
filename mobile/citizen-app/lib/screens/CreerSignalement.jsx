@@ -17,6 +17,7 @@ import { useAuth } from "../providers/AuthContext.jsx";
 import { idAppareil } from "../services/invite.js";
 import { creerSignalement, getSignalementsProches, confirmerSignalement } from "../services/signalements.js";
 import { quartiers } from "../models/quartiers.js";
+import { detecterQuartier } from "../services/localisation.js";
 import { typesSignalement } from "../models/statuts.js";
 import ChoixPosition from "../maps/ChoixPosition.jsx";
 import "./Ecran.css";
@@ -43,6 +44,7 @@ export default function CreerSignalement() {
   const [gps, setGps] = useState(null);
   const [etatGps, setEtatGps] = useState("recherche");
   const [position, setPosition] = useState(null);
+  const [quartierDetecte, setQuartierDetecte] = useState("");
   const [doublons, setDoublons] = useState([]);
   const [ignorer, setIgnorer] = useState(false);
   const [erreur, setErreur] = useState("");
@@ -78,6 +80,11 @@ export default function CreerSignalement() {
 
   useEffect(() => {
     if (!position) return;
+    detecterQuartier(position).then((trouve) => {
+      if (!trouve) return;
+      setQuartierDetecte(trouve);
+      setForm((actuel) => ({ ...actuel, quartier: trouve }));
+    });
     const minuteur = setTimeout(() => {
       getSignalementsProches(position).then((liste) => setDoublons(liste.filter((s) => s.auteurId !== auteurId)));
     }, 350);
@@ -298,6 +305,9 @@ export default function CreerSignalement() {
               </option>
             ))}
           </select>
+          {quartierDetecte && quartierDetecte === form.quartier && (
+            <span className="champ-aide">Trouvé grâce à votre position. Changez-le s'il n'est pas bon.</span>
+          )}
         </label>
 
         <label className="champ">

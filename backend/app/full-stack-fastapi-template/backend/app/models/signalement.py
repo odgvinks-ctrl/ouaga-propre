@@ -64,6 +64,8 @@ class Signalement(SignalementBase, table=True):
         index=True,
     )
 
+    motif_rejet: str | None = Field(default=None, max_length=500)
+
     is_archived: bool = Field(default=False, index=True)
     archived_at: datetime | None = None
 
@@ -89,11 +91,12 @@ class SignalementPublic(SignalementBase):
     id: uuid.UUID
     statut: StatutSignalement
     created_at: datetime
+    structure_id: uuid.UUID | None = None
+    motif_rejet: str | None = None
 
 
 class SignalementAdmin(SignalementPublic):
     owner_id: uuid.UUID | None = None
-    structure_id: uuid.UUID | None = None
     is_archived: bool
     archived_at: datetime | None = None
     archived_by: uuid.UUID | None = None

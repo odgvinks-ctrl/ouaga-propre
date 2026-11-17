@@ -1,4 +1,32 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
+import { apiActive, requete } from "./http.js";
+import { idMaStructure } from "./structures.js";
+import { getMesAbonnements } from "./abonnements.js";
+
+function versDate(valeur) {
+  if (!valeur) return null;
+  return new Date(/Z$|[+-]\d\d:\d\d$/.test(valeur) ? valeur : `${valeur}Z`).toISOString();
+}
+
+async function convertirCollecte(c, abonnements = []) {
+  const abonnement = abonnements.find((a) => a.id === c.abonnement_id);
+  return {
+    id: c.id,
+    abonnementId: c.abonnement_id,
+    citoyenId: c.citoyen_id,
+    structureId: c.structure_id,
+    volume: c.volume,
+    statut: c.statut,
+    datePrevue: versDate(c.date_prevue),
+    date: versDate(c.date),
+    structureNom: abonnement?.structureNom || "Structure",
+    citoyenNom: c.citoyen_nom || "Citoyen",
+    citoyenTelephone: c.citoyen_telephone || "",
+    quartier: c.quartier || abonnement?.quartier || "",
+    repere: c.repere || abonnement?.repere || "",
+    position: c.latitude && c.longitude ? { lat: c.latitude, lng: c.longitude } : null,
+  };
+}
 
 function enrichir(base, c) {
   const structure = base.comptes.find((x) => x.id === c.structureId) || {};
@@ -16,6 +44,10 @@ function enrichir(base, c) {
 }
 
 export async function demanderCollecte(citoyenId, abonnementId, volume) {
+  if (apiActive) {
+    const cree = await requete("/api/v1/collectes/", { methode: "POST", corps: { abonnement_id: abonnementId, volume } });
+    return convertirCollecte(cree, await getMesAbonnements(citoyenId));
+  }
   await delai();
   const base = lireBase();
   const abonnement = base.abonnements.find((a) => a.id === abonnementId && a.citoyenId === citoyenId);
@@ -42,6 +74,10 @@ export async function demanderCollecte(citoyenId, abonnementId, volume) {
 }
 
 export async function getMesCollectes(citoyenId) {
+  if (apiActive) {
+    const [resultat, abonnements] = await Promise.all([requete("/api/v1/collectes/me"), getMesAbonnements(citoyenId)]);
+    return Promise.all(resultat.data.map((c) => convertirCollecte(c, abonnements)));
+  }
   await delai();
   const base = lireBase();
   return base.collectes
@@ -50,7 +86,13 @@ export async function getMesCollectes(citoyenId) {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+async function collectesApiStructure() {
+  const resultat = await requete(`/api/v1/collectes/structure/${await idMaStructure()}`);
+  return Promise.all(resultat.data.map((c) => convertirCollecte(c)));
+}
+
 export async function getCollectesStructure(structureId) {
+  if (apiActive) return collectesApiStructure();
   await delai();
   const base = lireBase();
   return base.collectes
@@ -69,17 +111,23 @@ function changer(id, changement) {
 }
 
 export async function planifierCollecte(id, datePrevue) {
-  await delai();
   if (!datePrevue) throw new Error("Choisissez la date et l'heure du passage.");
+  if (apiActive) {
+    const date = encodeURIComponent(new Date(datePrevue).toISOString());
+    return convertirCollecte(await requete(`/api/v1/collectes/${id}/planifier?date_prevue=${date}`, { methode: "PATCH" }));
+  }
+  await delai();
   return changer(id, { statut: "planifiee", datePrevue: new Date(datePrevue).toISOString() });
 }
 
 export async function terminerCollecte(id) {
+  if (apiActive) return convertirCollecte(await requete(`/api/v1/collectes/${id}/terminer`, { methode: "PATCH" }));
   await delai();
   return changer(id, { statut: "faite" });
 }
 
 export async function reporterCollecte(id) {
+  if (apiActive) return convertirCollecte(await requete(`/api/v1/collectes/${id}/reporter?jours=1`, { methode: "PATCH" }));
   await delai();
   const demain = new Date(Date.now() + 86400000);
   demain.setHours(9, 0, 0, 0);
@@ -87,13 +135,18 @@ export async function reporterCollecte(id) {
 }
 
 export async function getTournee(structureId) {
-  await delai();
-  const base = lireBase();
+  let miennes;
+  if (apiActive) {
+    miennes = await collectesApiStructure();
+  } else {
+    await delai();
+    const base = lireBase();
+    miennes = base.collectes.filter((c) => c.structureId === structureId).map((c) => enrichir(base, c));
+  }
   const finJournee = new Date();
   finJournee.setHours(23, 59, 59, 999);
   const debutJournee = new Date();
   debutJournee.setHours(0, 0, 0, 0);
-  const miennes = base.collectes.filter((c) => c.structureId === structureId).map((c) => enrichir(base, c));
   const points = miennes
     .filter((c) => c.statut === "planifiee" && new Date(c.datePrevue) <= finJournee)
     .sort((a, b) => a.datePrevue.localeCompare(b.datePrevue));

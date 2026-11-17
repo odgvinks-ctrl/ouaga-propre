@@ -1,4 +1,5 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
+import { apiActive, lireJeton, requete } from "./http.js";
 
 function avecCompte(base, structure) {
   const compte = base.comptes.find((c) => c.id === structure.id) || {};
@@ -10,7 +11,69 @@ export function prixMinimum(structure) {
   return Math.min(...structure.formules.map((f) => f.prix));
 }
 
+function lireFormules(texte) {
+  try {
+    const liste = JSON.parse(texte || "[]");
+    return Array.isArray(liste) ? liste : [];
+  } catch {
+    return [];
+  }
+}
+
+let maStructure = null;
+
+function estStructure() {
+  try {
+    return JSON.parse(localStorage.getItem("ouaga-propre-user") || "null")?.role === "structure";
+  } catch {
+    return false;
+  }
+}
+
+async function chargerMaStructure() {
+  if (!lireJeton() || !estStructure()) return null;
+  if (maStructure && maStructure.jeton === lireJeton()) return maStructure.fiche;
+  let fiche = null;
+  try {
+    fiche = await requete("/api/v1/structures/moi");
+  } catch {
+    fiche = null;
+  }
+  maStructure = { jeton: lireJeton(), fiche };
+  return fiche;
+}
+
+export async function idMaStructure() {
+  const fiche = await chargerMaStructure();
+  if (!fiche) throw new Error("Aucune structure liée à ce compte.");
+  return fiche.id;
+}
+
+export function convertirStructure(structure) {
+  return {
+    id: structure.id,
+    nom: structure.nom,
+    type: "GIE",
+    responsable: structure.responsable,
+    telephone: structure.telephone,
+    whatsapp: structure.telephone,
+    description: structure.description || "",
+    quartiers: String(structure.zones_intervention || "")
+      .split(",")
+      .map((q) => q.trim())
+      .filter(Boolean),
+    formules: lireFormules(structure.formules),
+    statut: structure.validated ? "actif" : structure.statut || "en_attente",
+    motifRefus: structure.motif_refus || "",
+    abonnes: 0,
+  };
+}
+
 export async function getStructures(quartier) {
+  if (apiActive) {
+    const resultat = await requete("/api/v1/structures/", { auth: false });
+    return resultat.data.map(convertirStructure).filter((s) => !quartier || s.quartiers.includes(quartier));
+  }
   await delai();
   const base = lireBase();
   return base.structures
@@ -20,6 +83,15 @@ export async function getStructures(quartier) {
 }
 
 export async function getStructure(id) {
+  if (apiActive) {
+    const mienne = await chargerMaStructure();
+    if (mienne) {
+      maStructure = null;
+      const fraiche = await chargerMaStructure();
+      if (fraiche) return convertirStructure(fraiche);
+    }
+    return convertirStructure(await requete(`/api/v1/structures/${id}`, { auth: false }));
+  }
   await delai();
   const base = lireBase();
   const structure = base.structures.find((s) => s.id === id);
@@ -28,7 +100,25 @@ export async function getStructure(id) {
   return { ...avecCompte(base, structure), abonnes };
 }
 
+async function modifierMaStructure(changement) {
+  const actuelle = convertirStructure(await requete("/api/v1/structures/moi"));
+  const suivante = changement(actuelle);
+  maStructure = null;
+  const fiche = await requete("/api/v1/structures/moi", {
+    methode: "PATCH",
+    corps: {
+      responsable: suivante.responsable,
+      telephone: suivante.whatsapp || suivante.telephone,
+      description: suivante.description,
+      zones_intervention: suivante.quartiers.join(", "),
+      formules: JSON.stringify(suivante.formules),
+    },
+  });
+  return convertirStructure(fiche);
+}
+
 function modifierStructure(id, changement) {
+  if (apiActive) return modifierMaStructure(changement);
   const base = lireBase();
   const index = base.structures.findIndex((s) => s.id === id);
   if (index === -1) throw new Error("Structure introuvable.");

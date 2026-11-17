@@ -4,6 +4,9 @@ import { Menu } from "lucide-react";
 import { useAuth } from "../hooks/AuthContext.jsx";
 import { useActualisation } from "../hooks/useActualisation.js";
 import { lireBase } from "@donnees/base.js";
+import { apiActive } from "../services/http.js";
+import { listerSignalements } from "../services/signalements.js";
+import { listerStructures } from "../services/structures.js";
 import Sidebar from "./Sidebar.jsx";
 import Logo from "./Logo.jsx";
 import "./Layout.css";
@@ -14,8 +17,17 @@ export default function Layout() {
   const [ouvert, setOuvert] = useState(false);
   const [compteurs, setCompteurs] = useState({ signalements: 0, structures: 0, echanges: 0 });
 
-  function charger() {
+  async function charger() {
     const base = lireBase();
+    if (apiActive) {
+      const [signalements, structures] = await Promise.all([listerSignalements().catch(() => []), listerStructures().catch(() => [])]);
+      setCompteurs({
+        signalements: signalements.filter((s) => s.statut === "a_verifier").length,
+        structures: structures.filter((s) => s.statut === "en_attente").length,
+        echanges: (base.echanges || []).filter((e) => e.statut === "en_attente").length,
+      });
+      return;
+    }
     setCompteurs({
       signalements: base.signalements.filter((s) => s.statut === "a_verifier").length,
       structures: base.comptes.filter((c) => c.role === "structure" && c.statut === "en_attente").length,

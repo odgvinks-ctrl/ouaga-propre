@@ -36,8 +36,10 @@ class AbonnementPublic(AbonnementBase):
     id: uuid.UUID
     citoyen_id: uuid.UUID
     created_at: datetime
+    citoyen_nom: str | None = None
+    citoyen_telephone: str | None = None
 
 
 class AbonnementsPublic(SQLModel):
     data: list[AbonnementPublic]
-    count: int
+    count: int

@@ -6,10 +6,10 @@ function codeBon() {
   return `FN-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Date.now().toString(36).slice(-2).toUpperCase()}`;
 }
 
-export async function echangerPoints(citoyenId, { cadeauCle, operateur, numero }) {
+export async function echangerPoints(citoyenId, { cadeauCle, operateur, numero, soldeConnu }) {
   const cadeau = cadeaux.find((c) => c.cle === cadeauCle);
   if (!cadeau) throw new Error("Cadeau introuvable.");
-  const { solde } = await getMesPoints(citoyenId);
+  const solde = soldeConnu ?? (await getMesPoints(citoyenId)).solde;
   if (solde < cadeau.cout) throw new Error(`Il vous manque ${cadeau.cout - solde} points pour ce cadeau.`);
   const bon = cadeau.categorie === "bon";
   const telephone = String(numero || "").replace(/\D/g, "").slice(-8);

@@ -3,6 +3,49 @@ import { piecesRequises } from "../models/documents.js";
 import { COMMISSION, VERSION_CONDITIONS } from "../models/conditions.js";
 import { idAppareil } from "./invite.js";
 import { apiActive, ecrireJeton, lireJeton, requete, requeteFormulaire } from "./http.js";
+import { lireReferencesSuivi } from "./signalements.js";
+
+const CLE_QUARTIERS = "faso-neere-quartiers";
+const CLE_ATTENTE = "faso-neere-structure-en-attente";
+
+function lireAttente() {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_ATTENTE) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function ecrireAttente(compte) {
+  try {
+    if (compte) localStorage.setItem(CLE_ATTENTE, JSON.stringify(compte));
+    else localStorage.removeItem(CLE_ATTENTE);
+  } catch {
+    return;
+  }
+}
+
+function lireQuartiers() {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_QUARTIERS) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function ecrireQuartier(id, quartier) {
+  try {
+    localStorage.setItem(CLE_QUARTIERS, JSON.stringify({ ...lireQuartiers(), [id]: quartier }));
+  } catch {
+    return;
+  }
+}
+
+async function rattacherSignalementsApi() {
+  const references = Object.values(lireReferencesSuivi());
+  if (!references.length) return;
+  await requete("/api/v1/signalements/rattacher", { methode: "POST", corps: { references } }).catch(() => null);
+}
 
 const CLE_SESSION = "ouaga-propre-session";
 
@@ -31,17 +74,18 @@ function ecrireSession(id) {
 }
 
 export function sessionActive() {
-  return Boolean(apiActive ? lireJeton() : lireSession());
+  return Boolean(apiActive ? lireJeton() || lireAttente() : lireSession());
 }
 
 export function deconnecter() {
+  ecrireAttente(null);
   ecrireSession(null);
   ecrireJeton(null);
 }
 
 export async function chargerMoi() {
   if (apiActive) {
-    if (!lireJeton()) return null;
+    if (!lireJeton()) return lireAttente();
     try {
       return convertirCompte(await requete("/api/v1/users/me"));
     } catch {
@@ -57,6 +101,7 @@ export async function chargerMoi() {
 function convertirCompte(compte) {
   return {
     ...compte,
+    secteur: lireQuartiers()[compte.id] || "",
     nom: compte.full_name || compte.telephone || compte.email || "Compte FASO NEERE",
     role: String(compte.role || "CITOYEN").toLowerCase(),
     statut: compte.is_active ? "actif" : "suspendu",
@@ -93,11 +138,13 @@ export async function login({ telephone, password }) {
       password,
     });
     ecrireJeton(jeton.access_token);
+    ecrireAttente(null);
     const compte = convertirCompte(await requete("/api/v1/users/me"));
     if (compte.role === "admin") {
       ecrireJeton(null);
       throw new Error("Les comptes administrateur se connectent sur le tableau de bord web.");
     }
+    if (compte.role === "citoyen") await rattacherSignalementsApi();
     return compte;
   }
   await delai();
@@ -120,9 +167,6 @@ export async function login({ telephone, password }) {
 }
 
 export async function signup(form) {
-  if (apiActive && form.role === "structure") {
-    throw new Error("L'inscription structure via l'API n'est pas encore disponible. Utilisez le mode local jusqu'à l'activation du parcours de validation backend.");
-  }
   await delai();
   const telephone = normaliserTelephone(form.telephone);
   const structure = form.role === "structure";
@@ -135,6 +179,34 @@ export async function signup(form) {
   }
   if (form.password.length < 8) {
     throw new Error("Le mot de passe doit contenir au moins 8 caractères.");
+  }
+
+  if (apiActive && structure) {
+    const manquante = piecesRequises(form.type).find((p) => p.obligatoire && !form.pieces[p.cle]);
+    if (manquante) throw new Error(`Ajoutez le document : ${manquante.label.toLowerCase()}.`);
+    const compte = await requete("/api/v1/structures/inscription", {
+      methode: "POST",
+      auth: false,
+      corps: {
+        nom: form.nom.trim(),
+        telephone,
+        password: form.password,
+        responsable: form.responsable.trim(),
+        type_structure: form.type,
+        quartier: form.secteur,
+        numero_cnib: form.numeroCnib.trim(),
+        numero_enregistrement: form.numeroEnregistrement.trim(),
+        ifu: form.ifu.trim(),
+        numero_autorisation: form.numeroAutorisation.trim(),
+        pieces: Object.fromEntries(Object.entries(form.pieces).filter(([, nom]) => nom)),
+        conditions_acceptees: Boolean(form.conditionsAcceptees),
+        conditions_version: VERSION_CONDITIONS,
+        commission: COMMISSION,
+      },
+    });
+    const enAttente = { ...convertirCompte(compte), role: "structure", statut: "en_attente", secteur: form.secteur };
+    ecrireAttente(enAttente);
+    return enAttente;
   }
 
   if (apiActive) {
@@ -152,6 +224,8 @@ export async function signup(form) {
       password: form.password,
     });
     ecrireJeton(jeton.access_token);
+    ecrireQuartier(compte.id, form.secteur);
+    await rattacherSignalementsApi();
     return convertirCompte(compte);
   }
   if (structure && !form.responsable.trim()) {
@@ -220,8 +294,13 @@ export async function signup(form) {
 }
 
 export async function modifierMonProfil(id, { nom, secteur }) {
-  await delai();
   if (nom.trim().length < 3) throw new Error("Le nom est trop court.");
+  if (apiActive) {
+    const compte = await requete("/api/v1/users/me", { methode: "PATCH", corps: { full_name: nom.trim() } });
+    ecrireQuartier(id, secteur);
+    return convertirCompte(compte);
+  }
+  await delai();
   const base = lireBase();
   const compte = base.comptes.find((c) => c.id === id);
   if (!compte) throw new Error("Compte introuvable.");

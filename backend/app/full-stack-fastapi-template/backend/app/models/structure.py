@@ -14,6 +14,20 @@ class StructureCollecteBase(SQLModel):
     description: str | None = Field(default=None, max_length=2000)
     zones_intervention: str = Field(max_length=2000)
     statut: str = Field(default="en_attente", max_length=30, index=True)
+    formules: str = Field(default="[]", max_length=4000)
+    type_structure: str = Field(default="GIE", max_length=30)
+
+
+class StructureCollecteDossier(SQLModel):
+    motif_refus: str | None = Field(default=None, max_length=500)
+    numero_enregistrement: str | None = Field(default=None, max_length=120)
+    numero_cnib: str | None = Field(default=None, max_length=60)
+    ifu: str | None = Field(default=None, max_length=60)
+    numero_autorisation: str | None = Field(default=None, max_length=120)
+    pieces: str = Field(default="{}", max_length=2000)
+    conditions_version: str | None = Field(default=None, max_length=20)
+    conditions_commission: int | None = None
+    conditions_acceptees_le: datetime | None = None
 
 
 class StructureCollecteCreate(StructureCollecteBase):
@@ -29,10 +43,11 @@ class StructureCollecteUpdate(SQLModel):
     description: str | None = Field(default=None, max_length=2000)
     zones_intervention: str | None = Field(default=None, max_length=2000)
     statut: str | None = Field(default=None, max_length=30)
+    formules: str | None = Field(default=None, max_length=4000)
     validated: bool | None = None
 
 
-class StructureCollecte(StructureCollecteBase, table=True):
+class StructureCollecte(StructureCollecteBase, StructureCollecteDossier, table=True):
     id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         primary_key=True,
@@ -56,8 +71,10 @@ class StructureCollectePublic(StructureCollecteBase):
     validated: bool
 
 
-class StructureCollecteAdmin(StructureCollectePublic):
+class StructureCollecteAdmin(StructureCollectePublic, StructureCollecteDossier):
     owner_id: uuid.UUID
+    compte_actif: bool = True
+    created_at: datetime | None = None
 
 
 class StructuresCollectePublic(SQLModel):

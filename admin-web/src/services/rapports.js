@@ -1,4 +1,5 @@
-import { lireBase, delai } from "@donnees/base.js";
+import { delai } from "@donnees/base.js";
+import { chargerBase, derniereBase } from "./base-api.js";
 
 const JOUR = 86400000;
 
@@ -9,7 +10,7 @@ function dateEtape(s, statut) {
 
 export async function getRapport(jours) {
   await delai();
-  const base = lireBase();
+  const base = await chargerBase();
   const depuis = jours ? Date.now() - jours * JOUR : 0;
   const dansPeriode = (iso) => iso && new Date(iso).getTime() >= depuis;
 
@@ -54,7 +55,7 @@ export async function getRapport(jours) {
 }
 
 export function donneesExport() {
-  const base = lireBase();
+  const base = derniereBase();
   const nom = (id) => (base.comptes.find((c) => c.id === id) || {}).nom || "";
   return { base, nom };
 }

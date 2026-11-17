@@ -51,6 +51,7 @@ class SignalementTrackingRequest(SQLModel):
 
 class SignalementStatusUpdate(SQLModel):
     statut: StatutSignalement
+    motif: str | None = None
 
 
 class SignalementStructureStatusUpdate(SQLModel):
@@ -277,6 +278,34 @@ def track_anonymous_signalement(
     return signalement
 
 
+class RattachementRequest(SQLModel):
+    references: list[str]
+
+
+# Rattachement des signalements faits sans compte au compte qui vient de se connecter
+@router.post("/rattacher", response_model=dict)
+def attach_anonymous_signalements(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    data: RattachementRequest,
+):
+    total = 0
+    for reference in data.references[:200]:
+        signalement = session.exec(
+            select(Signalement).where(
+                Signalement.tracking_token_hash == hash_tracking_reference(reference),
+                Signalement.owner_id.is_(None),
+            )
+        ).first()
+        if signalement:
+            signalement.owner_id = current_user.id
+            session.add(signalement)
+            total += 1
+    session.commit()
+    return {"rattaches": total}
+
+
 # Liste complète réservée à l'administration
 @router.get("/admin", response_model=SignalementsAdmin)
 def read_all_signalements_admin(
@@ -331,6 +360,10 @@ def update_signalement_status(
             detail="Un signalement archivé ne peut plus changer de statut",
         )
 
+    if status_in.statut == StatutSignalement.REJETE:
+        if not status_in.motif or not status_in.motif.strip():
+            raise HTTPException(status_code=400, detail="Indiquez le motif du rejet.")
+        signalement.motif_rejet = status_in.motif.strip()
     signalement.statut = status_in.statut
 
     session.add(signalement)

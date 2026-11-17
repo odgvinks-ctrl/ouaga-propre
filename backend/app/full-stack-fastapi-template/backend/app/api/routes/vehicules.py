@@ -9,6 +9,7 @@ from app.models import (
     VehiculeCreate,
     VehiculePublic,
     VehiculesPublic,
+    VehiculeUpdate,
 )
 
 router = APIRouter(prefix="/vehicules", tags=["Vehicules"])
@@ -71,3 +72,38 @@ def update_vehicule_status(
     session.commit()
     session.refresh(vehicule)
     return vehicule
+
+
+@router.patch("/{vehicule_id}", response_model=VehiculePublic)
+def update_vehicule(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    vehicule_id: str,
+    data: VehiculeUpdate,
+) -> Any:
+    vehicule = session.get(Vehicule, vehicule_id)
+    if not vehicule:
+        raise HTTPException(status_code=404, detail="Véhicule introuvable.")
+    get_accessible_structure(session, current_user, str(vehicule.structure_id))
+    vehicule.sqlmodel_update(data.model_dump(exclude_unset=True))
+    session.add(vehicule)
+    session.commit()
+    session.refresh(vehicule)
+    return vehicule
+
+
+@router.delete("/{vehicule_id}")
+def delete_vehicule(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    vehicule_id: str,
+) -> Any:
+    vehicule = session.get(Vehicule, vehicule_id)
+    if not vehicule:
+        raise HTTPException(status_code=404, detail="Véhicule introuvable.")
+    get_accessible_structure(session, current_user, str(vehicule.structure_id))
+    session.delete(vehicule)
+    session.commit()
+    return {"message": "Véhicule supprimé."}

@@ -1,4 +1,39 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
+import { apiActive, requete } from "./http.js";
+import { convertirStructure, idMaStructure } from "./structures.js";
+
+const fiches = {};
+
+async function ficheStructure(id) {
+  if (!fiches[id]) {
+    fiches[id] = requete(`/api/v1/structures/${id}`, { auth: false })
+      .then(convertirStructure)
+      .catch(() => null);
+  }
+  return fiches[id];
+}
+
+export async function convertirAbonnement(a) {
+  const structure = await ficheStructure(a.structure_id);
+  const formule = structure?.formules.find((f) => f.id === a.formule_id);
+  return {
+    id: a.id,
+    citoyenId: a.citoyen_id,
+    structureId: a.structure_id,
+    formuleId: a.formule_id,
+    quartier: a.quartier,
+    repere: a.repere,
+    paiement: a.paiement,
+    statut: a.statut,
+    motifRefus: a.motif_refus || "",
+    date: a.created_at,
+    structureNom: structure?.nom || "Structure",
+    structureTelephone: structure?.telephone || "",
+    citoyenNom: a.citoyen_nom || "Citoyen",
+    citoyenTelephone: a.citoyen_telephone || "",
+    formule: formule || { nom: a.formule_id || "Formule", prix: 0, frequence: "" },
+  };
+}
 
 function enrichir(base, a) {
   const structure = base.structures.find((s) => s.id === a.structureId);
@@ -19,6 +54,13 @@ export async function demanderAbonnement(citoyenId, { structureId, formuleId, qu
   await delai();
   if (!formuleId) throw new Error("Choisissez une formule.");
   if (!repere.trim()) throw new Error("Indiquez un repère pour trouver votre domicile.");
+  if (apiActive) {
+    const cree = await requete("/api/v1/abonnements/", {
+      methode: "POST",
+      corps: { structure_id: structureId, formule_id: formuleId, quartier, repere: repere.trim(), paiement },
+    });
+    return convertirAbonnement(cree);
+  }
   const base = lireBase();
   const dejaLa = base.abonnements.some(
     (a) => a.citoyenId === citoyenId && a.structureId === structureId && a.statut !== "refuse"
@@ -42,6 +84,10 @@ export async function demanderAbonnement(citoyenId, { structureId, formuleId, qu
 }
 
 export async function getMesAbonnements(citoyenId) {
+  if (apiActive) {
+    const resultat = await requete("/api/v1/abonnements/me");
+    return Promise.all(resultat.data.map(convertirAbonnement));
+  }
   await delai();
   const base = lireBase();
   return base.abonnements
@@ -51,6 +97,10 @@ export async function getMesAbonnements(citoyenId) {
 }
 
 export async function getDemandesStructure(structureId) {
+  if (apiActive) {
+    const resultat = await requete(`/api/v1/abonnements/structure/${await idMaStructure()}`);
+    return Promise.all(resultat.data.map(convertirAbonnement));
+  }
   await delai();
   const base = lireBase();
   return base.abonnements
@@ -60,6 +110,12 @@ export async function getDemandesStructure(structureId) {
 }
 
 export async function repondreDemande(id, accepter, motif = "") {
+  if (apiActive) {
+    if (!accepter && !motif.trim()) throw new Error("Indiquez le motif du refus.");
+    const parametres = new URLSearchParams({ accepter: String(accepter) });
+    if (!accepter) parametres.set("motif", motif.trim());
+    return convertirAbonnement(await requete(`/api/v1/abonnements/${id}/reponse?${parametres}`, { methode: "PATCH" }));
+  }
   await delai();
   const base = lireBase();
   const abonnement = base.abonnements.find((a) => a.id === id);

@@ -11,22 +11,63 @@ const statutsFrontend = {
   REJETE: "rejete",
 };
 
+function fiabiliteApi(signalement, ussd) {
+  const raisons = [];
+  let score = 0;
+  if (signalement.photo_url) {
+    score += 30;
+    raisons.push("Photo jointe");
+  } else {
+    raisons.push("Aucune photo");
+  }
+  const centreVille = Math.abs(signalement.latitude - 12.3714) < 0.0001 && Math.abs(signalement.longitude + 1.5197) < 0.0001;
+  if (!centreVille) {
+    score += 30;
+    raisons.push("Position GPS du lieu");
+  } else {
+    raisons.push("Pas de position précise");
+  }
+  if (signalement.owner_id) {
+    score += 20;
+    raisons.push("Envoyé par un citoyen inscrit");
+  } else {
+    raisons.push("Envoyé sans compte");
+  }
+  if (ussd) {
+    score += 10;
+    raisons.push("Envoyé par USSD : numéro connu, mais ni photo ni GPS, à vérifier sur place");
+  }
+  if (signalement.description && signalement.description.trim().length > 10) {
+    score += 10;
+    raisons.push("Description détaillée");
+  }
+  return { score: Math.min(100, score), raisons };
+}
+
 function convertirSignalement(signalement) {
+  const ussd = String(signalement.description || "").startsWith("Signalé par USSD");
+  const telephoneUssd = ussd ? (String(signalement.description).match(/\((\d{8})\)/) || [])[1] || "" : "";
+  const statut = statutsFrontend[signalement.statut] || "a_verifier";
   return {
     ...signalement,
     auteurId: signalement.owner_id,
-    auteurNom: signalement.owner_id ? "Citoyen" : "Anonyme",
-    type: String(signalement.type_signalement || "DEPOTOIR_SAUVAGE").toLowerCase().includes("caniveau")
-      ? "caniveau"
-      : "depotoir",
+    auteurNom: ussd ? "Téléphone simple (USSD)" : signalement.owner_id ? "Citoyen inscrit" : "Anonyme (sans compte)",
+    auteurTelephone: telephoneUssd,
+    canal: ussd ? "ussd" : "app",
+    telephone: telephoneUssd,
+    type: String(signalement.type_signalement || "DEPOTOIR_SAUVAGE").toLowerCase().includes("caniveau") ? "caniveau" : "depotoir",
     taille: "moyen",
     photo: signalement.photo_url || "",
-    statut: statutsFrontend[signalement.statut] || "a_verifier",
+    statut,
     date: signalement.created_at,
     position: { lat: signalement.latitude, lng: signalement.longitude },
     structureId: signalement.structure_id,
     confirmations: [],
-    fiabilite: { score: signalement.score_confiance ?? 0, raisons: [] },
+    historique: [{ statut, date: signalement.created_at }],
+    quartier: signalement.quartier || "",
+    description: signalement.description || "",
+    motifRejet: signalement.motif_rejet || "",
+    fiabilite: fiabiliteApi(signalement, ussd),
   };
 }
 
@@ -152,7 +193,7 @@ export async function rejeterSignalement(id, motif) {
   if (apiActive) {
     return convertirSignalement(await requete(`/api/v1/signalements/admin/${id}/statut`, {
       methode: "PATCH",
-      corps: { statut: "REJETE" },
+      corps: { statut: "REJETE", motif: motif.trim() },
     }));
   }
   return changer(id, { statut: "rejete", motifRejet: motif.trim() });

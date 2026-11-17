@@ -27,6 +27,7 @@ function convertirSignalement(signalement) {
     position: { lat: signalement.latitude, lng: signalement.longitude },
     structureId: signalement.structure_id,
     quartier: signalement.quartier || "",
+    motifRejet: signalement.motif_rejet || "",
     confirmations: [],
     historique: [],
   };
@@ -41,6 +42,24 @@ function enregistrerReferenceSuivi(id, reference) {
   } catch {
     return;
   }
+}
+
+export function lireReferencesSuivi() {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_SUIVI) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+async function getSignalementsSuivis() {
+  const references = Object.values(lireReferencesSuivi());
+  const resultats = await Promise.all(
+    references.map((reference) =>
+      requete("/api/v1/signalements/suivi", { methode: "POST", auth: false, corps: { reference } }).catch(() => null)
+    )
+  );
+  return resultats.filter(Boolean).map(convertirSignalement);
 }
 
 function lireReferenceSuivi(id) {
@@ -114,8 +133,8 @@ export async function creerSignalement(auteurId, { type, taille, description, qu
 
 export async function getMesSignalements(auteurId) {
   if (apiActive) {
-    const resultat = await requete("/api/v1/signalements/me");
-    return resultat.data.map(convertirSignalement).sort((a, b) => b.date.localeCompare(a.date));
+    const liste = lireJeton() ? (await requete("/api/v1/signalements/me")).data.map(convertirSignalement) : await getSignalementsSuivis();
+    return liste.sort((a, b) => b.date.localeCompare(a.date));
   }
   await delai();
   const base = lireBase();
@@ -216,6 +235,23 @@ export async function confirmerSignalement(id, citoyenId) {
 }
 
 export async function getMesPoints(citoyenId) {
+  if (apiActive) {
+    const miens = lireJeton() ? (await requete("/api/v1/signalements/me")).data.map(convertirSignalement) : [];
+    const valides = miens.filter((s) => !["a_verifier", "rejete"].includes(s.statut));
+    const nettoyes = valides.filter((s) => s.statut === "nettoye").length;
+    const gagnes = valides.length * 10 + nettoyes * 5;
+    const depenses = (lireBase().echanges || [])
+      .filter((e) => e.citoyenId === citoyenId && e.statut !== "refuse")
+      .reduce((total, e) => total + e.cout, 0);
+    return {
+      points: gagnes,
+      solde: gagnes - depenses,
+      enAttente: miens.filter((s) => s.statut === "a_verifier").length * 10,
+      signales: miens.length,
+      nettoyes,
+      confirmes: 0,
+    };
+  }
   await delai(80);
   const base = lireBase();
   const miens = base.signalements.filter((s) => s.auteurId === citoyenId);

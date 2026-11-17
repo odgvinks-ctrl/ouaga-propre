@@ -8,3 +8,5 @@ mobile/android/
 
 # Local environment backups
 .env.backup-*
+
+FASO-NEERE.apk

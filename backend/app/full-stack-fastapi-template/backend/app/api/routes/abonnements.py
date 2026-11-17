@@ -10,6 +10,7 @@ from app.models import (
     AbonnementPublic,
     AbonnementsPublic,
     StructureCollecte,
+    User,
     UserRole,
 )
 
@@ -90,7 +91,19 @@ def list_structure_abonnements(
     count = session.exec(
         select(func.count()).select_from(Abonnement).where(Abonnement.structure_id == structure_id)
     ).one()
-    return AbonnementsPublic(data=list(items), count=count)
+    data = []
+    for item in items:
+        citoyen = session.get(User, item.citoyen_id)
+        data.append(
+            AbonnementPublic.model_validate(
+                item,
+                update={
+                    "citoyen_nom": citoyen.full_name if citoyen else None,
+                    "citoyen_telephone": citoyen.telephone if citoyen else None,
+                },
+            )
+        )
+    return AbonnementsPublic(data=data, count=count)
 
 
 @router.patch("/{abonnement_id}/reponse")

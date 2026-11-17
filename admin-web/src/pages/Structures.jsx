@@ -18,7 +18,7 @@ const statuts = {
 
 export default function Structures() {
   const [structures, setStructures] = useState([]);
-  const [filtre, setFiltre] = useState("actif");
+  const [filtre, setFiltre] = useState("");
   const [recherche, setRecherche] = useState("");
   const [selection, setSelection] = useState(null);
   const [confirmation, setConfirmation] = useState(null);
@@ -142,12 +142,12 @@ export default function Structures() {
           <div className="panneau-entete">
             <h2>{courant.nom}</h2>
             {courant.statut === "actif" && (
-              <button type="button" className="btn btn-danger btn-petit" onClick={() => setConfirmation({ id: courant.id, nom: courant.nom, statut: "suspendu" })}>
+              <button type="button" className="btn btn-danger btn-petit" onClick={() => setConfirmation({ id: courant.compteId || courant.id, nom: courant.nom, statut: "suspendu" })}>
                 Suspendre
               </button>
             )}
             {courant.statut === "suspendu" && (
-              <button type="button" className="btn btn-primaire btn-petit" onClick={() => setConfirmation({ id: courant.id, nom: courant.nom, statut: "actif" })}>
+              <button type="button" className="btn btn-primaire btn-petit" onClick={() => setConfirmation({ id: courant.compteId || courant.id, nom: courant.nom, statut: "actif" })}>
                 Réactiver
               </button>
             )}

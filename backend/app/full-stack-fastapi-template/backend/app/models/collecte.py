@@ -43,8 +43,12 @@ class CollectePublic(CollecteBase):
     structure_id: uuid.UUID
     date: datetime
     created_at: datetime
+    citoyen_nom: str | None = None
+    citoyen_telephone: str | None = None
+    quartier: str | None = None
+    repere: str | None = None
 
 
 class CollectesPublic(SQLModel):
     data: list[CollectePublic]
-    count: int
+    count: int

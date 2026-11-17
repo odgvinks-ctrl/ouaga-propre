@@ -35,11 +35,11 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
-    DATABASE_URL: PostgresDsn
+    DATABASE_URL: str = "sqlite:///./faso_neere.db"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
-    def _use_psycopg_driver(cls, value: str | PostgresDsn) -> str:
+    def _use_psycopg_driver(cls, value: str) -> str:
         database_url = str(value)
         for scheme in ("postgres://", "postgresql://"):
             if database_url.startswith(scheme):
@@ -65,8 +65,16 @@ class Settings(BaseSettings):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
+    def is_sqlite(self) -> bool:
+        return self.DATABASE_URL.startswith("sqlite")
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
+
+    LOAD_DEMO_DATA: bool = True
+    DEMO_PASSWORD: str = "demo12345"
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr
@@ -86,8 +94,9 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
-        for host in self.DATABASE_URL.hosts():
-            self._check_default_secret("DATABASE_URL password", host["password"])
+        if self.DATABASE_URL.startswith("postgresql"):
+            password = PostgresDsn(self.DATABASE_URL).hosts()[0]["password"]
+            self._check_default_secret("DATABASE_URL password", password)
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )

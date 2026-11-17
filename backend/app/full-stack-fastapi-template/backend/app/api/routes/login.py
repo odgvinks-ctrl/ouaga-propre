@@ -46,11 +46,16 @@ def login_access_token(
             detail="Identifiant ou mot de passe incorrect.",
         )
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Compte inactif")
+        raise HTTPException(status_code=400, detail="Ce compte est suspendu. Contactez la mairie pour le réactiver.")
     if user.role == UserRole.STRUCTURE:
         structure = session.exec(
             select(StructureCollecte).where(StructureCollecte.owner_id == user.id)
         ).first()
+        if structure and structure.statut == "refuse":
+            raise HTTPException(
+                status_code=403,
+                detail=f"Inscription refusée par la mairie : {structure.motif_refus or 'motif non précisé'}.",
+            )
         if structure and not structure.validated:
             raise HTTPException(
                 status_code=403,

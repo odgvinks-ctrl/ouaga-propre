@@ -1,4 +1,6 @@
 import { lireBase, delai } from "@donnees/base.js";
+import { apiActive } from "./http.js";
+import { chargerBase } from "./base-api.js";
 
 const JOUR = 86400000;
 
@@ -10,7 +12,7 @@ function debutJour(decalage) {
 
 export async function getTableauDeBord() {
   await delai();
-  const base = lireBase();
+  const base = await chargerBase();
   const signalements = base.signalements;
   const actifs = signalements.filter((s) => ["verifie", "transmis", "pris_en_charge"].includes(s.statut));
   const depuis30 = Date.now() - 30 * JOUR;
@@ -63,6 +65,7 @@ export async function getTableauDeBord() {
 }
 
 export async function getAbonnesCarte() {
+  if (apiActive) return [];
   await delai();
   const base = lireBase();
   return base.abonnements

@@ -10,6 +10,7 @@ from app.models import (
     MessagePublic,
     MessagesPublic,
     StructureCollecte,
+    User,
     UserRole,
 )
 
@@ -47,6 +48,11 @@ def get_conversation_messages(
         .limit(limit)
     )
     items = session.exec(statement).all()
+    for item in items:
+        if item.destinataire_id == current_user.id and not item.lu:
+            item.lu = True
+            session.add(item)
+    session.commit()
     count = session.exec(
         select(func.count()).select_from(Message).where(Message.conversation_id == conversation)
     ).one()
@@ -89,6 +95,42 @@ def send_message(
     session.commit()
     session.refresh(message)
     return message
+
+
+@router.get("/conversations", response_model=list[dict])
+def list_conversations(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    messages = session.exec(
+        select(Message)
+        .where((Message.expediteur_id == current_user.id) | (Message.destinataire_id == current_user.id))
+        .order_by(Message.date.desc())
+    ).all()
+    conversations: dict[str, dict] = {}
+    for message in messages:
+        resume = conversations.get(message.conversation_id)
+        if not resume:
+            citoyen_id, _, structure_id = message.conversation_id.partition("__")
+            citoyen = session.get(User, citoyen_id)
+            structure = session.get(StructureCollecte, structure_id)
+            resume = {
+                "id": message.conversation_id,
+                "citoyen_id": citoyen_id,
+                "structure_id": structure_id,
+                "citoyen_nom": citoyen.full_name if citoyen else "Citoyen",
+                "citoyen_telephone": citoyen.telephone if citoyen else "",
+                "structure_nom": structure.nom if structure else "Structure",
+                "dernier_texte": message.texte,
+                "dernier_auteur": str(message.expediteur_id),
+                "date": message.date.isoformat(),
+                "non_lus": 0,
+            }
+            conversations[message.conversation_id] = resume
+        if message.destinataire_id == current_user.id and not message.lu:
+            resume["non_lus"] += 1
+    return list(conversations.values())
 
 
 @router.get("/nonlus", response_model=dict)

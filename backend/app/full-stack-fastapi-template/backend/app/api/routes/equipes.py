@@ -1,10 +1,10 @@
 from typing import Any
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep, get_accessible_structure
-from app.models import Equipe, EquipeCreate, EquipePublic, EquipesPublic
+from app.models import Equipe, EquipeCreate, EquipePublic, EquipesPublic, EquipeUpdate
 
 router = APIRouter(prefix="/equipes", tags=["Equipes"])
 
@@ -47,3 +47,38 @@ def create_equipe(
     session.commit()
     session.refresh(equipe)
     return equipe
+
+
+@router.patch("/{equipe_id}", response_model=EquipePublic)
+def update_equipe(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    equipe_id: str,
+    data: EquipeUpdate,
+) -> Any:
+    membre = session.get(Equipe, equipe_id)
+    if not membre:
+        raise HTTPException(status_code=404, detail="Membre introuvable.")
+    get_accessible_structure(session, current_user, str(membre.structure_id))
+    membre.sqlmodel_update(data.model_dump(exclude_unset=True))
+    session.add(membre)
+    session.commit()
+    session.refresh(membre)
+    return membre
+
+
+@router.delete("/{equipe_id}")
+def delete_equipe(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    equipe_id: str,
+) -> Any:
+    membre = session.get(Equipe, equipe_id)
+    if not membre:
+        raise HTTPException(status_code=404, detail="Membre introuvable.")
+    get_accessible_structure(session, current_user, str(membre.structure_id))
+    session.delete(membre)
+    session.commit()
+    return {"message": "Membre supprimé."}

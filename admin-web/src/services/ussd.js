@@ -4,6 +4,70 @@ import { echangerPoints } from "@donnees/recompenses.js";
 import { quartiers } from "@modeles/quartiers.js";
 import { cadeaux, operateurs } from "@modeles/recompenses.js";
 import { statutsSignalement } from "@modeles/statuts.js";
+import { apiActive, requete } from "./http.js";
+
+const CLE_API = "faso-neere-ussd-api";
+const statutsApi = {
+  NOUVEAU: "a_verifier",
+  EN_VERIFICATION: "a_verifier",
+  VALIDE: "verifie",
+  TRANSMIS: "transmis",
+  EN_COURS: "pris_en_charge",
+  RESOLU: "nettoye",
+  REJETE: "rejete",
+};
+const etapesOrdre = ["a_verifier", "verifie", "transmis", "pris_en_charge", "nettoye"];
+
+function lireSuivis() {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_API) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function ajouterSuivi(telephone, suivi) {
+  const tous = lireSuivis();
+  tous[telephone] = [...(tous[telephone] || []), suivi];
+  localStorage.setItem(CLE_API, JSON.stringify(tous));
+}
+
+async function signalementsApi(telephone) {
+  const suivis = telephone ? lireSuivis()[telephone] || [] : Object.entries(lireSuivis()).flatMap(([tel, liste]) => liste.map((x) => ({ ...x, telephone: tel })));
+  const resultats = await Promise.all(
+    suivis.map((x) =>
+      requete("/api/v1/signalements/suivi", { methode: "POST", auth: false, corps: { reference: x.reference } })
+        .then((s) => ({
+          id: s.id,
+          telephone: x.telephone || telephone,
+          type: String(s.type_signalement).includes("CANIVEAU") ? "caniveau" : "depotoir",
+          quartier: s.quartier || "",
+          statut: statutsApi[s.statut] || "a_verifier",
+          date: s.created_at,
+          structureId: s.structure_id,
+          canal: "ussd",
+          historique: [],
+        }))
+        .catch(() => null)
+    )
+  );
+  return resultats
+    .filter(Boolean)
+    .map((s) => {
+      const atteint = s.statut === "rejete" ? ["a_verifier", "rejete"] : etapesOrdre.slice(0, etapesOrdre.indexOf(s.statut) + 1);
+      return { ...s, historique: atteint.map((statut) => ({ statut, date: s.date })) };
+    });
+}
+
+async function soldeApi(telephone) {
+  const liste = await signalementsApi(telephone);
+  const valides = liste.filter((s) => !["a_verifier", "rejete"].includes(s.statut));
+  const gagnes = valides.length * 10 + valides.filter((s) => s.statut === "nettoye").length * 5;
+  const depenses = (lireBase().echanges || [])
+    .filter((e) => e.citoyenId === auteurUssd(telephone) && e.statut !== "refuse")
+    .reduce((t, e) => t + e.cout, 0);
+  return { solde: gagnes - depenses, enAttente: liste.filter((s) => s.statut === "a_verifier").length * 10 };
+}
 
 export const CODE_USSD = "*226#";
 
@@ -60,7 +124,7 @@ export async function repondre(session, saisie) {
       const options = taillesUssd[type].map((t, i) => `${i + 1}. ${t}`).join("\n");
       return suite("taille", `Quelle taille ?\n${options}`, { type });
     }
-    if (choix === "3") return ecran(null, suivi(telephone), true);
+    if (choix === "3") return ecran(null, await suivi(telephone), true);
     if (choix === "4") return points(session);
     if (choix === "0") return ecran(null, "Merci. Ensemble pour un Faso propre !", true);
     return ecran(session, `Choix invalide.\n${menu}`);
@@ -99,7 +163,7 @@ export async function repondre(session, saisie) {
   if (etape === "confirmation") {
     if (choix === "2") return ecran(null, "Signalement annulé.", true);
     if (choix !== "1") return ecran(session, "Tapez 1 pour envoyer ou 2 pour annuler.");
-    const signalement = enregistrer(telephone, donnees);
+    const signalement = await enregistrer(telephone, donnees);
     return ecran(null, `Merci ! Signalement ${reference(signalement.id)} enregistré.\nVous recevrez un SMS à chaque étape.`, true);
   }
 
@@ -116,7 +180,12 @@ export async function repondre(session, saisie) {
     const operateur = operateurs[Number(choix) - 1];
     if (!operateur) return ecran(session, "Tapez 1, 2 ou 3 pour votre opérateur.");
     try {
-      const echange = await echangerPoints(auteurUssd(telephone), { cadeauCle: donnees.cadeauCle, operateur, numero: telephone });
+      const echange = await echangerPoints(auteurUssd(telephone), {
+        cadeauCle: donnees.cadeauCle,
+        operateur,
+        numero: telephone,
+        soldeConnu: apiActive ? (await soldeApi(telephone)).solde : undefined,
+      });
       return ecran(null, `Demande enregistrée : ${echange.label}.\nVous serez servi sous 48 h.`, true);
     } catch (e) {
       return ecran(null, e.message, true);
@@ -127,14 +196,30 @@ export async function repondre(session, saisie) {
 }
 
 async function points(session, prefixe = "") {
-  const { solde, enAttente } = await getMesPoints(auteurUssd(session.telephone));
+  const { solde, enAttente } = apiActive ? await soldeApi(session.telephone) : await getMesPoints(auteurUssd(session.telephone));
   const options = cadeauxUssd.map((c, i) => `${i + 1}. ${c.label} (${c.cout} pts)`).join("\n");
   const attente = enAttente ? `\n+${enAttente} en vérification` : "";
   const texte = `${prefixe ? `${prefixe}\n` : ""}Vous avez ${solde} points.${attente}\n${options}\n0. Retour`;
   return ecran({ ...session, etape: "points", donnees: { solde } }, texte);
 }
 
-function enregistrer(telephone, donnees) {
+async function enregistrer(telephone, donnees) {
+  if (apiActive) {
+    const cree = await requete("/api/v1/signalements/", {
+      methode: "POST",
+      auth: false,
+      corps: {
+        type_signalement: donnees.type === "caniveau" ? "CANIVEAU_OBSTRUE" : "DEPOTOIR_SAUVAGE",
+        description: `Signalé par USSD (${telephone}), taille ${donnees.taille}${donnees.repere ? ` : ${donnees.repere}` : ""}`,
+        latitude: 12.3714,
+        longitude: -1.5197,
+        adresse: donnees.repere || null,
+        quartier: donnees.quartier,
+      },
+    });
+    ajouterSuivi(telephone, { id: cree.id, reference: cree.tracking_reference });
+    return cree;
+  }
   const base = lireBase();
   const maintenant = new Date().toISOString();
   const signalement = {
@@ -159,10 +244,10 @@ function enregistrer(telephone, donnees) {
   return signalement;
 }
 
-function suivi(telephone) {
+async function suivi(telephone) {
   const auteur = auteurUssd(telephone);
-  const miens = lireBase()
-    .signalements.filter((s) => s.auteurId === auteur)
+  const source = apiActive ? await signalementsApi(telephone) : lireBase().signalements.filter((s) => s.auteurId === auteur);
+  const miens = source
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 4);
   if (!miens.length) return "Aucun signalement pour ce numéro.\nComposez *226# puis 1 pour signaler.";
@@ -188,9 +273,15 @@ export async function getSms(telephone) {
   const base = lireBase();
   const auteur = auteurUssd(telephone);
   const structures = Object.fromEntries(base.comptes.map((c) => [c.id, c.nom]));
+  if (apiActive) {
+    const fiches = await requete("/api/v1/structures/", { auth: false }).catch(() => ({ data: [] }));
+    fiches.data.forEach((f) => {
+      structures[f.id] = f.nom;
+    });
+  }
   const messages = [];
-  base.signalements
-    .filter((s) => s.auteurId === auteur && s.canal === "ussd")
+  const source = apiActive ? await signalementsApi(telephone) : base.signalements.filter((s) => s.auteurId === auteur && s.canal === "ussd");
+  source
     .forEach((s) =>
       (s.historique || []).forEach((etape, i) => {
         const texte = texteSms(s, etape, structures);
@@ -211,7 +302,7 @@ export async function getSms(telephone) {
 
 export async function getStatistiquesUssd() {
   await delai(60);
-  const liste = lireBase().signalements.filter((s) => s.canal === "ussd");
+  const liste = apiActive ? await signalementsApi() : lireBase().signalements.filter((s) => s.canal === "ussd");
   const mois = new Date().toISOString().slice(0, 7);
   return {
     total: liste.length,

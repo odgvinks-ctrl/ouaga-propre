@@ -1,5 +1,5 @@
 const racine = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
-const CLE_JETON = "ouaga-propre-jeton";
+const CLE_JETON = "faso-neere-admin-jeton";
 
 export const apiActive = Boolean(import.meta.env.VITE_API_URL);
 

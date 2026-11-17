@@ -4,6 +4,7 @@ import { Clock, XCircle, FileCheck, FileX } from "lucide-react";
 import { chargerMoi } from "../services/auth.js";
 import { getStructure } from "../services/structures.js";
 import { piecesRequises } from "../models/documents.js";
+import { apiActive } from "../services/http.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import "./Ecran.css";
 import "./Auth.css";
@@ -17,7 +18,7 @@ export default function Validation() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user?.role === "structure") getStructure(user.id).then(setStructure, () => setStructure(null));
+    if (user?.role === "structure" && !apiActive) getStructure(user.id).then(setStructure, () => setStructure(null));
   }, [user?.id]);
 
   if (!user) return <Navigate to="/connexion" replace />;
@@ -26,6 +27,11 @@ export default function Validation() {
   const refuse = user.statut === "refuse";
 
   async function verifier() {
+    if (apiActive) {
+      logout();
+      navigate("/connexion", { state: { depuis: "/gestion" } });
+      return;
+    }
     setChargement(true);
     try {
       const compte = await chargerMoi();
