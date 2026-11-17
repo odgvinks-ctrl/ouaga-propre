@@ -67,6 +67,8 @@ class TacheBrigadeCreate(SQLModel):
     date_prevue: datetime
     agent_ids: list[uuid.UUID] = Field(default_factory=list)
     signalement_id: uuid.UUID | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
 
 
 class TacheBrigade(SQLModel, table=True):
@@ -86,6 +88,8 @@ class TacheBrigade(SQLModel, table=True):
     statut: StatutTacheBrigade = StatutTacheBrigade.A_FAIRE
     created_at: datetime = Field(default_factory=get_datetime_utc)
     terminee_le: datetime | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
 
 class TacheBrigadeAgent(SQLModel, table=True):
@@ -114,6 +118,8 @@ class TacheBrigadePublic(SQLModel):
     statut: StatutTacheBrigade
     created_at: datetime
     terminee_le: datetime | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     agent_ids: list[uuid.UUID] = []
 
 

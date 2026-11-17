@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Send, X } from "lucide-react";
+import { Send, X, Navigation, MessageCircle, MapPin } from "lucide-react";
+import { CircleMarker } from "react-leaflet";
 import { useActualisation } from "../hooks/useActualisation.js";
-import { typesTache, statutsTache, listerTaches, signalerTache, annulerTache } from "../services/brigade.js";
+import { typesTache, statutsTache, listerTaches, signalerTache, annulerTache, lienItineraire, messageBrigade } from "../services/brigade.js";
+import CarteOuaga from "../maps/CarteOuaga.jsx";
 import { listerSignalements } from "../services/signalements.js";
 import { quartiers } from "@modeles/quartiers.js";
 import { typesSignalement } from "@modeles/statuts.js";
@@ -18,7 +20,7 @@ function demainMatin() {
   return new Date(date.getTime() - decalage).toISOString().slice(0, 16);
 }
 
-const tacheVide = { type: "sanction", quartier: quartiers[0], lieu: "", consignes: "", date: demainMatin(), signalementId: "" };
+const tacheVide = { type: "sanction", quartier: quartiers[0], lieu: "", consignes: "", date: demainMatin(), signalementId: "", position: null };
 
 export default function Brigade() {
   const [parametres, setParametres] = useSearchParams();
@@ -29,6 +31,7 @@ export default function Brigade() {
   const [message, setMessage] = useState("");
   const [erreur, setErreur] = useState("");
   const [envoi, setEnvoi] = useState(false);
+  const [derniere, setDerniere] = useState(null);
 
   async function charger() {
     const [listeTaches, listeSignalements] = await Promise.all([listerTaches(), listerSignalements().catch(() => [])]);
@@ -48,6 +51,7 @@ export default function Brigade() {
       quartier: quartiers.includes(s.quartier) ? s.quartier : tacheVide.quartier,
       lieu: s.description ? s.description.slice(0, 120) : "",
       signalementId: String(s.id),
+      position: s.position || null,
     });
     setParametres({}, { replace: true });
   }, [parametres, signalements]);
@@ -64,6 +68,7 @@ export default function Brigade() {
     if (name === "signalementId" && value) {
       const s = signalements.find((x) => String(x.id) === value);
       if (s && quartiers.includes(s.quartier)) suite.quartier = s.quartier;
+      if (s && s.position) suite.position = s.position;
     }
     setTache(suite);
     setErreur("");
@@ -87,9 +92,10 @@ export default function Brigade() {
   function signaler(e) {
     e.preventDefault();
     agir(async () => {
-      await signalerTache(tache);
+      const envoyee = await signalerTache(tache);
       setTache({ ...tacheVide, date: tache.date });
-    }, "Signalé à la brigade Laabal. Elle organise l'intervention.");
+      setDerniere(envoyee);
+    }, "Signalé à la brigade Laabal, avec la position du lieu.");
   }
 
   return (
@@ -118,7 +124,16 @@ export default function Brigade() {
         </div>
       </div>
 
-      {message && <p className="message message-ok">{message}</p>}
+      {message && (
+        <p className="message message-ok brigade-message">
+          {message}
+          {derniere && (
+            <a href={messageBrigade(derniere)} target="_blank" rel="noreferrer" className="btn btn-secondaire btn-petit">
+              <MessageCircle size={14} /> Prévenir la brigade sur WhatsApp
+            </a>
+          )}
+        </p>
+      )}
       {erreur && <p className="message message-erreur">{erreur}</p>}
 
       <div className="grille-principale">
@@ -154,6 +169,19 @@ export default function Brigade() {
                     <span className={`badge ${statutsTache[t.statut].classe}`}>{statutsTache[t.statut].label}</span>
                   </div>
                   {t.signalementId && <p className="champ-aide">Lié à un signalement citoyen</p>}
+                  {t.position && (
+                    <div className="page-actions">
+                      <a href={lienItineraire(t.position)} target="_blank" rel="noreferrer" className="btn btn-secondaire btn-petit">
+                        <Navigation size={14} /> Itinéraire
+                      </a>
+                      <a href={messageBrigade(t)} target="_blank" rel="noreferrer" className="btn btn-secondaire btn-petit">
+                        <MessageCircle size={14} /> Envoyer sur WhatsApp
+                      </a>
+                      <span className="champ-aide brigade-coordonnees">
+                        <MapPin size={12} /> {t.position.lat.toFixed(5)}, {t.position.lng.toFixed(5)}
+                      </span>
+                    </div>
+                  )}
                   {t.consignes && <p className="champ-aide">{t.consignes}</p>}
                   {t.statut === "a_faire" && (
                     <div className="page-actions">
@@ -213,6 +241,25 @@ export default function Brigade() {
             Lieu précis
             <input name="lieu" placeholder="Ex. : marché de Gounghin, côté est" value={tache.lieu} onChange={changer} required />
           </label>
+          <div className="champ">
+            Position exacte
+            <CarteOuaga hauteur={220} cadrage={tache.position ? [[tache.position.lat, tache.position.lng]] : []} onClic={(position) => setTache({ ...tache, position })}>
+              {tache.position && (
+                <CircleMarker
+                  center={[tache.position.lat, tache.position.lng]}
+                  radius={9}
+                  pathOptions={{ color: "#A8141A", weight: 3, fillColor: "#D71920", fillOpacity: 0.9 }}
+                />
+              )}
+            </CarteOuaga>
+            <span className="champ-aide">
+              {tache.position
+                ? tache.signalementId
+                  ? "Position du signalement citoyen. Touchez la carte pour la corriger."
+                  : "Touchez la carte pour déplacer le point."
+                : "Touchez la carte pour indiquer le lieu exact."}
+            </span>
+          </div>
           <label className="champ">
             Précisions pour la brigade
             <textarea name="consignes" placeholder="Ce qui a été constaté, auteur présumé, horaires..." value={tache.consignes} onChange={changer} />

@@ -59,6 +59,7 @@ function convertirTache(t) {
     statut: t.statut || "a_faire",
     creeLe: t.created_at || t.creeLe,
     termineeLe: t.terminee_le || t.termineeLe || null,
+    position: Number.isFinite(t.latitude) && Number.isFinite(t.longitude) ? { lat: t.latitude, lng: t.longitude } : t.position || null,
   };
 }
 
@@ -70,7 +71,22 @@ export async function listerTaches() {
   return [...taches].sort((a, b) => String(b.creeLe).localeCompare(String(a.creeLe)));
 }
 
-export async function signalerTache({ type, quartier, lieu, consignes, date, signalementId }) {
+export function lienItineraire(position) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${position.lat},${position.lng}`;
+}
+
+export function messageBrigade(tache) {
+  const lignes = [
+    `FASO NEERE · Brigade Laabal : ${typesTache[tache.type]}`,
+    `${tache.quartier} · ${tache.lieu}`,
+    `Souhaité le ${new Date(tache.date).toLocaleString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}`,
+  ];
+  if (tache.consignes) lignes.push(tache.consignes);
+  if (tache.position) lignes.push(`Position : ${lienItineraire(tache.position)}`);
+  return `https://wa.me/?text=${encodeURIComponent(lignes.join("\n"))}`;
+}
+
+export async function signalerTache({ type, quartier, lieu, consignes, date, signalementId, position }) {
   if (!typesTache[type]) throw new Error("Choisissez le type d'intervention.");
   if (!quartier) throw new Error("Choisissez le quartier.");
   if (!lieu.trim()) throw new Error("Indiquez le lieu précis.");
@@ -82,6 +98,8 @@ export async function signalerTache({ type, quartier, lieu, consignes, date, sig
     consignes: consignes.trim(),
     date_prevue: new Date(date).toISOString(),
     signalement_id: signalementId || null,
+    latitude: position ? position.lat : null,
+    longitude: position ? position.lng : null,
   };
   return avecApi(
     async () => convertirTache(await requete("/api/v1/brigade/taches", { methode: "POST", corps })),

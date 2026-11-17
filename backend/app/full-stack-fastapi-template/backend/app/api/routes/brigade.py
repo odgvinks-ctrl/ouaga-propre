@@ -5,6 +5,7 @@ from sqlmodel import func, select
 
 from app.api.deps import SessionDep, get_current_active_superuser
 from app.models import (
+    Signalement,
     AgentBrigade,
     AgentBrigadeCreate,
     AgentBrigadeUpdate,
@@ -110,6 +111,11 @@ def list_tasks(session: SessionDep):
 @router.post("/taches", response_model=TacheBrigadePublic)
 def create_task(session: SessionDep, data: TacheBrigadeCreate):
     validate_agents_for_task(session, data.agent_ids, data.type.value)
+    if data.signalement_id and (data.latitude is None or data.longitude is None):
+        signalement = session.get(Signalement, data.signalement_id)
+        if signalement:
+            data.latitude = signalement.latitude
+            data.longitude = signalement.longitude
     task = TacheBrigade.model_validate(
         data,
         update={"statut": StatutTacheBrigade.A_FAIRE},
