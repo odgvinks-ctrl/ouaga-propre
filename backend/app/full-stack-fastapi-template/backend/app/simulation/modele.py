@@ -16,7 +16,7 @@ from .agents import (
     PreCollecteur,
     position_dans_disque,
 )
-from .parametres import appliquer, valeurs_formulaire
+from .parametres import ZONE_DEMO, ZONE_VILLE, appliquer, valeurs_formulaire
 
 COMPTEURS = [
     "production_t",
@@ -47,6 +47,7 @@ class Ville:
         self.facteur_camions = 1 - (pluie["baisse_capacite_camions"] if actif else 0)
         self.facteur_brigade = 1 - (pluie["baisse_efficacite_brigade"] if actif else 0)
         self.depotoirs: list[Depotoir] = []
+        self.grille_depotoirs: dict[tuple, list[Depotoir]] = defaultdict(list)
         self.delais: list[int] = []
         self.jour_courant: dict = {}
         self.servis_du_jour: set[int] = set()
@@ -58,15 +59,32 @@ class Ville:
     def _creer_quartiers(self) -> None:
         zone = self.p["zone"]
         total = self.p["population"]["menages"]
+        choix = self.p["simulation"].get("zone", ZONE_DEMO)
         self.quartiers = []
-        for q in zone["quartiers"]:
+        if choix == ZONE_DEMO:
+            sources = zone["quartiers"]
+            nouveau = zone["nouveau_quartier"]
+        else:
+            arrondissements = self.p["arrondissements"]
+            if choix != ZONE_VILLE:
+                arrondissements = [a for a in arrondissements if a["id"] == choix]
+            population = sum(a["population"] for a in arrondissements) or 1
+            sources = [{**a, "part": a["population"] / population} for a in arrondissements]
+            if choix == ZONE_VILLE:
+                nouveau = zone["nouveau_quartier"]
+            else:
+                a = arrondissements[0]
+                lat, lng = decaler((a["lat"], a["lng"]), a["rayon_m"] * 1.2, 0)
+                nouveau = {**zone["nouveau_quartier"], "lat": lat, "lng": lng}
+        for q in sources:
             self.quartiers.append({**q, "menages": round(total * q["part"]), "nouveau": False})
         if self.p["simulation"]["nouveau_quartier"]:
-            self.quartiers.append({**zone["nouveau_quartier"], "nouveau": True})
+            self.quartiers.append({**nouveau, "nouveau": True})
         self.depot = (zone["centre_traitement"]["lat"], zone["centre_traitement"]["lng"])
 
     def _creer_menages(self) -> None:
-        taille = self.p["population"]["menages_par_agent"]
+        total = sum(q["menages"] for q in self.quartiers)
+        taille = max(self.p["population"]["menages_par_agent"], math.ceil(total / 2000))
         taux = self.p["population"]["taux_abonnement"] / 100
         self.menages: list[Menage] = []
         self.menages_par_quartier: dict[str, list[Menage]] = defaultdict(list)
@@ -146,23 +164,31 @@ class Ville:
             en_panne = numero > p["transport"]["camions"] - p["transport"]["camions_en_panne"]
             self.camions.append(Camion(numero, en_panne, tournees.get(numero, [])))
         self.brigade = BrigadeLaabal(p["brigade_laabal"]["agents"])
-        self.mairie = Mairie(p["mairie"]["verifications_par_jour"])
+        verifications = p["mairie"]["verifications_par_jour"]
+        if p["simulation"].get("zone", ZONE_DEMO) != ZONE_DEMO:
+            verifications = max(verifications, round(p["population"]["menages"] / 1000 * p["moyens_pour_1000_menages"]["verifications_par_jour"]))
+        self.mairie = Mairie(verifications)
 
     def jeter(self, quartier: str, position: tuple[float, float], tonnes: float, jour: int) -> None:
         if tonnes <= 0:
             return
         self.jour_courant["jete_t"] += tonnes
-        proche = None
-        for depotoir in self.depotoirs:
-            if depotoir.actif and depotoir.quartier == quartier and distance_m(depotoir.position, position) < 220:
-                proche = depotoir
-                break
+        cle = (quartier, int(position[0] * 400), int(position[1] * 400))
+        candidats = [
+            depotoir
+            for dx in (-1, 0, 1)
+            for dy in (-1, 0, 1)
+            for depotoir in self.grille_depotoirs.get((quartier, cle[1] + dx, cle[2] + dy), ())
+            if depotoir.actif and distance_m(depotoir.position, position) < 220
+        ]
+        proche = min(candidats, key=lambda d: d.id) if candidats else None
         if proche is None:
             angle = self.hasard.random() * 2 * math.pi
             ecart = 40 + self.hasard.random() * 90
             lieu = decaler(position, math.cos(angle) * ecart, math.sin(angle) * ecart)
             proche = Depotoir(len(self.depotoirs) + 1, quartier, lieu, 0.0, jour)
             self.depotoirs.append(proche)
+            self.grille_depotoirs[(quartier, int(lieu[0] * 400), int(lieu[1] * 400))].append(proche)
             self.jour_courant["nouveaux_depotoirs"] += 1
         proche.tonnes += tonnes
 
@@ -313,6 +339,7 @@ def simuler(changements: dict | None = None) -> dict:
         "resume": resume,
         "jours": jours,
         "plan": {
+            "zone": parametres["simulation"].get("zone", ZONE_DEMO),
             "centre": {"nom": parametres["zone"]["centre_traitement"]["nom"], "position": list(ville.depot)},
             "quartiers": [
                 {"nom": q["nom"], "position": [q["lat"], q["lng"]], "rayon_m": q["rayon_m"], "menages": q["menages"], "nouveau": q["nouveau"]}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RotateCcw, Save, CloudRain, House, Map as Carte, Loader2 } from "lucide-react";
-import { parametresDefaut, simuler, enregistrerScenario, simulerComplet, simulationComplete, lireParametres, ecrireParametres } from "../services/simulation.js";
+import { parametresDefaut, simuler, enregistrerScenario, simulerComplet, simulationComplete, lireParametres, ecrireParametres, avecZone } from "../services/simulation.js";
+import ChoixZone from "../components/ChoixZone.jsx";
 import "./ParametresSimulation.css";
 
 const goulots = {
@@ -106,17 +107,18 @@ export default function ParametresSimulation() {
         <div className="panneau simulation-parametres">
           <fieldset>
             <legend className="surtitre">Population et abonnements</legend>
+            <ChoixZone valeur={parametres.zone} onChoisir={(zone) => setParametres(avecZone(parametres, zone))} />
             <label className="champ">
               Ménages de la zone simulée
-              <input type="number" name="menages" min="1000" max="200000" step="500" value={parametres.menages} onChange={handleChange} />
+              <input type="number" name="menages" min="1000" max="800000" step="500" value={parametres.menages} onChange={handleChange} />
             </label>
             <Curseur nom="tauxAbonnement" label="Ménages abonnés à la pré-collecte" min={0} max={100} unite=" %" valeur={parametres.tauxAbonnement} onChange={handleChange} />
           </fieldset>
 
           <fieldset>
             <legend className="surtitre">Moyens de collecte</legend>
-            <Curseur nom="preCollecteurs" label="Pré-collecteurs (tricycles)" min={0} max={200} valeur={parametres.preCollecteurs} onChange={handleChange} />
-            <Curseur nom="camions" label="Camions bennes" min={0} max={30} valeur={parametres.camions} onChange={handleChange} />
+            <Curseur nom="preCollecteurs" label="Pré-collecteurs (tricycles)" min={0} max={Math.max(200, Math.ceil(parametres.menages / 200))} valeur={parametres.preCollecteurs} onChange={handleChange} />
+            <Curseur nom="camions" label="Camions bennes" min={0} max={Math.max(30, Math.ceil(parametres.menages / 2000))} valeur={parametres.camions} onChange={handleChange} />
             <Curseur nom="camionsEnPanne" label="Camions en panne" min={0} max={parametres.camions} valeur={parametres.camionsEnPanne} onChange={handleChange} />
             <Curseur nom="rotations" label="Rotations par camion et par jour" min={1} max={4} valeur={parametres.rotations} onChange={handleChange} />
             <Curseur nom="frequencePassage" label="Passage chez un abonné tous les" min={1} max={7} unite=" j" valeur={parametres.frequencePassage} onChange={handleChange} />
@@ -124,7 +126,7 @@ export default function ParametresSimulation() {
 
           <fieldset>
             <legend className="surtitre">Brigade Laabal et signalements</legend>
-            <Curseur nom="agentsBrigade" label="Agents de la brigade" min={0} max={150} valeur={parametres.agentsBrigade} onChange={handleChange} />
+            <Curseur nom="agentsBrigade" label="Agents de la brigade" min={0} max={Math.max(150, Math.ceil(parametres.menages / 250))} valeur={parametres.agentsBrigade} onChange={handleChange} />
             <Curseur nom="tauxPieges" label="Faux signalements" min={0} max={50} unite=" %" valeur={parametres.tauxPieges} onChange={handleChange} />
           </fieldset>
 

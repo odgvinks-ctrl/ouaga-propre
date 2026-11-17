@@ -171,3 +171,39 @@
     transform: rotate(360deg);
   }
 }
+
+.plan-impression {
+  display: none;
+}
+
+.plan-hypothese {
+  display: contents;
+}
+
+.plan-evenements .choix-zone {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+@media print {
+  .plan-impression {
+    display: block;
+    margin: 0 0 12px;
+    color: var(--encre-douce);
+    font-size: 13px;
+  }
+
+  .plan-grille {
+    grid-template-columns: 1fr !important;
+  }
+
+  .plan-cote .panneau,
+  .plan-carte {
+    break-inside: avoid;
+  }
+
+  .indicateurs {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}

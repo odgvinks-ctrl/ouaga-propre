@@ -16,6 +16,7 @@ export const parametresDefaut = {
   nouveauQuartier: false,
   frequencePassage: 3,
   budgetMensuel: 20000000,
+  zone: "demo",
 };
 
 export const simulationComplete = apiActive;
@@ -34,6 +35,21 @@ export function ecrireParametres(parametres) {
   } catch {
     return;
   }
+}
+
+let zonesConnues = null;
+
+export async function listerZones() {
+  if (!apiActive) return [];
+  if (!zonesConnues) zonesConnues = requete("/api/v1/simulation/zones").catch((err) => {
+    zonesConnues = null;
+    throw err;
+  });
+  return zonesConnues;
+}
+
+export function avecZone(parametres, zone) {
+  return { ...parametres, ...zone.valeurs, zone: zone.id, camionsEnPanne: 0 };
 }
 
 export async function simulerComplet(parametres) {

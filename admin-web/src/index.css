@@ -626,3 +626,13 @@ textarea {
 .mot-de-passe-oeil:hover {
   color: var(--vert);
 }
+
+.choix-zone span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.choix-zone select {
+  min-width: 260px;
+}

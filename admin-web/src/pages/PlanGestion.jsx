@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Circle, CircleMarker, Polyline, Tooltip } from "react-leaflet";
-import { CloudRain, House, Minus, Plus, Play, Pause, Loader2, Truck, SlidersHorizontal } from "lucide-react";
+import { CloudRain, House, Minus, Plus, Play, Pause, Loader2, Truck, SlidersHorizontal, FileDown } from "lucide-react";
 import CarteOuaga from "../maps/CarteOuaga.jsx";
 import EtatVide from "../components/EtatVide.jsx";
-import { lireParametres, ecrireParametres, simulerComplet, simulationComplete } from "../services/simulation.js";
+import { lireParametres, ecrireParametres, simulerComplet, simulationComplete, listerZones, avecZone } from "../services/simulation.js";
+import ChoixZone from "../components/ChoixZone.jsx";
 import "./PlanGestion.css";
 
 const COULEURS_CAMIONS = ["#00853F", "#1F6FB2", "#7A3DB8", "#C2410C", "#0F766E", "#A16207", "#BE185D", "#4D7C0F"];
@@ -53,6 +54,7 @@ export default function PlanGestion() {
   const [jour, setJour] = useState(1);
   const [lecture, setLecture] = useState(false);
   const [duree, setDuree] = useState(null);
+  const [zones, setZones] = useState([]);
   const minuteur = useRef(null);
 
   useEffect(() => {
@@ -73,6 +75,13 @@ export default function PlanGestion() {
     }, 400);
     return () => clearTimeout(attente);
   }, [parametres]);
+
+  useEffect(() => {
+    if (!simulationComplete) return;
+    listerZones()
+      .then(setZones)
+      .catch(() => setZones([]));
+  }, []);
 
   useEffect(() => {
     if (!lecture || !resultat) return;
@@ -131,12 +140,28 @@ export default function PlanGestion() {
   }
 
   const r = resultat?.resume;
+  const nomZone = (zones.find((z) => z.id === (plan?.zone || parametres.zone)) || {}).nom || "Zone de démonstration";
+  const hypotheses = r
+    ? [
+        ["Zone", nomZone],
+        ["Ménages", nombre(r.menagesTotal)],
+        ["Ménages abonnés", `${parametres.tauxAbonnement} %`],
+        ["Pré-collecteurs (tricycles)", nombre(parametres.preCollecteurs)],
+        ["Passage chez un abonné", `tous les ${parametres.frequencePassage} jours`],
+        ["Camions", `${parametres.camions} dont ${parametres.camionsEnPanne} en panne · ${parametres.rotations} rotation(s) par jour`],
+        ["Agents de la brigade Laabal", nombre(parametres.agentsBrigade)],
+        ["Saison des pluies", parametres.saisonPluies ? "oui" : "non"],
+        ["Nouveau quartier", parametres.nouveauQuartier ? "oui" : "non"],
+        ["Budget mensuel", `${nombre(parametres.budgetMensuel)} FCFA`],
+        ["Durée simulée", `${resultat.jours.length} jours`],
+      ]
+    : [];
 
   return (
     <section className="page">
       <div className="page-entete">
         <div>
-          <h1>Plan de gestion et simulation</h1>
+          <h1>Plan de gestion · {nomZone}</h1>
           <p className="page-sous-titre">
             Points de regroupement, tournées optimisées et simulation des ménages, pré-collecteurs, camions, brigade Laabal et mairie sur{" "}
             {resultat?.jours.length || parametres.dureeJours || 30} jours.
@@ -146,10 +171,19 @@ export default function PlanGestion() {
           <Link to="/simulation" className="btn btn-secondaire">
             <SlidersHorizontal size={16} /> Tous les paramètres
           </Link>
+          <button type="button" className="btn btn-primaire" disabled={!resultat || calcul} onClick={() => window.print()}>
+            <FileDown size={16} /> Exporter le plan (PDF)
+          </button>
         </div>
       </div>
 
-      <div className="panneau plan-evenements">
+      <p className="plan-impression">
+        Plan de gestion des déchets généré par FASO NEERE le {new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}. Simulation
+        multi-agents sur {resultat?.jours.length || 30} jours, situation au jour {jour}.
+      </p>
+
+      <div className="panneau plan-evenements non-imprime">
+        <ChoixZone valeur={parametres.zone} onChoisir={(zone) => setParametres(avecZone(parametres, zone))} />
         <div className="plan-evenement">
           <span>
             <Truck size={18} /> Camions en panne
@@ -283,7 +317,7 @@ export default function PlanGestion() {
                 </CircleMarker>
               </CarteOuaga>
 
-              <div className="plan-temps">
+              <div className="plan-temps non-imprime">
                 <button type="button" className="btn btn-secondaire btn-petit" onClick={lire} aria-label={lecture ? "Mettre en pause" : "Lire les jours"}>
                   {lecture ? <Pause size={16} /> : <Play size={16} />}
                 </button>
@@ -323,6 +357,22 @@ export default function PlanGestion() {
         </div>
 
         <div className="plan-cote">
+          {r && (
+            <div className="panneau">
+              <div className="panneau-entete">
+                <h2>Hypothèses du scénario</h2>
+              </div>
+              <dl className="liste-cles">
+                {hypotheses.map(([cle, valeur]) => (
+                  <div key={cle} className="plan-hypothese">
+                    <dt>{cle}</dt>
+                    <dd>{valeur}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+
           {r && (
             <div className="panneau">
               <div className="panneau-entete">

@@ -5,7 +5,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from app.api.deps import get_current_active_superuser
 from app.simulation.modele import simuler
-from app.simulation.parametres import FICHIER, valeurs_formulaire
+from app.simulation.parametres import FICHIER, valeurs_formulaire, zones
 
 router = APIRouter(
     prefix="/simulation",
@@ -17,6 +17,11 @@ router = APIRouter(
 @router.get("/parametres")
 def read_parameters() -> dict[str, Any]:
     return {"valeurs": valeurs_formulaire(), "fichier": FICHIER.read_text(encoding="utf-8")}
+
+
+@router.get("/zones")
+def read_zones() -> list[dict[str, Any]]:
+    return zones()
 
 
 @router.post("/")

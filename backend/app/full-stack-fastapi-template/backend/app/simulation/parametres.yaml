@@ -20,12 +20,40 @@ zone:
   # Quartier ajouté quand le paramètre nouveau_quartier est activé (aucune pré-collecte au départ).
   nouveau_quartier: { nom: "Nouveau quartier", lat: 12.4120, lng: -1.4950, rayon_m: 900, menages: 3000 }
 
+# Ouagadougou, 12 arrondissements. Population résidente : 5e RGPH 2019 (INSD, monographie de la
+# commune de Ouagadougou, tableau 2.2) : 2 415 266 habitants et 502 938 ménages.
+# Ménages d'un arrondissement = population / taille_menage.
+# Les positions (centre approximatif et rayon) servent à placer les ménages sur la carte : elles sont
+# approximatives et doivent être vérifiées sur OpenStreetMap par l'équipe.
+taille_menage: 4.8              # 2 415 266 habitants / 502 938 ménages (RGPH 2019)
+arrondissements:
+  - { id: "arr1", nom: "Arrondissement 1", lat: 12.3620, lng: -1.5300, rayon_m: 2000, population: 102528 }
+  - { id: "arr2", nom: "Arrondissement 2", lat: 12.3800, lng: -1.5350, rayon_m: 1800, population: 83436 }
+  - { id: "arr3", nom: "Arrondissement 3", lat: 12.4100, lng: -1.5650, rayon_m: 3500, population: 311406 }
+  - { id: "arr4", nom: "Arrondissement 4", lat: 12.4050, lng: -1.5100, rayon_m: 3000, population: 207647 }
+  - { id: "arr5", nom: "Arrondissement 5", lat: 12.3700, lng: -1.4900, rayon_m: 2300, population: 129984 }
+  - { id: "arr6", nom: "Arrondissement 6", lat: 12.3350, lng: -1.5450, rayon_m: 3000, population: 222854 }
+  - { id: "arr7", nom: "Arrondissement 7", lat: 12.3200, lng: -1.5800, rayon_m: 3500, population: 282837 }
+  - { id: "arr8", nom: "Arrondissement 8", lat: 12.3850, lng: -1.6100, rayon_m: 3500, population: 152880 }
+  - { id: "arr9", nom: "Arrondissement 9", lat: 12.4300, lng: -1.5350, rayon_m: 3800, population: 336483 }
+  - { id: "arr10", nom: "Arrondissement 10", lat: 12.4050, lng: -1.4650, rayon_m: 3500, population: 263969 }
+  - { id: "arr11", nom: "Arrondissement 11", lat: 12.3450, lng: -1.4600, rayon_m: 3800, population: 254928 }
+  - { id: "arr12", nom: "Arrondissement 12", lat: 12.3150, lng: -1.5100, rayon_m: 3000, population: 66314 }
+
+# Moyens suggérés quand on change de zone, pour 1 000 ménages (estimations à fixer avec la mairie).
+moyens_pour_1000_menages:
+  pre_collecteurs: 2.2
+  camions: 0.17
+  agents_brigade: 1.7
+  verifications_par_jour: 2.2
+  budget_mensuel_fcfa: 1100000
+
 population:
   menages: 18000                # nombre de ménages de la zone simulée
-  taux_abonnement: 35           # % des ménages abonnés à une structure de pré-collecte
+  taux_abonnement: 35           # % des ménages abonnés à une structure de pré-collecte (43,7 % des ménages de Ouagadougou ont un ramassage privé, RGPH 2019)
   kg_par_menage_jour: 3.0       # déchets produits par ménage et par jour (kg)
   menages_par_agent: 10         # un agent « ménage » représente ce nombre de ménages voisins
-  part_depotoir_non_abonnes: 0.2   # part des déchets d'un ménage non abonné jetée dans un dépotoir sauvage (le reste est brûlé ou enfoui)
+  part_depotoir_non_abonnes: 0.2   # part des déchets d'un ménage non abonné jetée dans un dépotoir sauvage (le reste est brûlé ou enfoui). RGPH 2019 : 38,2 % des ménages de Ouagadougou jettent dans un tas, la rue ou un caniveau
   jours_avant_debordement: 4    # au-delà de ces jours sans passage, un abonné vide sa poubelle dans la rue
   probabilite_signalement: 0.35 # chance qu'un nouveau dépotoir soit signalé par un habitant chaque jour
 
@@ -67,6 +95,7 @@ saison_pluies:
   baisse_efficacite_brigade: 0.40
 
 simulation:
+  zone: "demo"                  # "demo" (7 quartiers), "ville" (12 arrondissements) ou "arr1" à "arr12"
   duree_jours: 30
   graine: 2026                  # même graine = mêmes résultats, pour comparer les scénarios
   nouveau_quartier: false
