@@ -182,7 +182,7 @@ export default function DemandeCollecte() {
                   Volume {volumes[c.volume].toLowerCase()} · demandé le {dateCourte(c.date)}
                 </p>
                 {c.statut === "planifiee" && <p className="message message-info">Passage prévu le {dateHeure(c.datePrevue)}</p>}
-                {c.statut === "faite" && /^(data:|https?:)/.test(c.photoPreuve) && <img className="photo-preuve" src={c.photoPreuve} alt="Photo prise après la collecte" />}
+                {c.statut === "faite" && /^(data:|https?:|\/)/.test(c.photoPreuve) && <img className="photo-preuve" src={c.photoPreuve} alt="Photo prise après la collecte" />}
               </article>
             ))}
           </div>

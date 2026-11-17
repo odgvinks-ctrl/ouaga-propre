@@ -117,7 +117,7 @@ export default function Collectes() {
               <Badge statut={c.statut} liste={statutsCollecte} />
             </div>
             <p className="element-meta">{dateCourte(c.datePrevue)}</p>
-            {/^(data:|https?:)/.test(c.photoPreuve) && <img className="photo-preuve" src={c.photoPreuve} alt="Preuve de la collecte" />}
+            {/^(data:|https?:|\/)/.test(c.photoPreuve) && <img className="photo-preuve" src={c.photoPreuve} alt="Preuve de la collecte" />}
           </article>
         ))}
       </div>

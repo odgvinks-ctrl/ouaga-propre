@@ -1,6 +1,13 @@
 const racine = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 const CLE_JETON = "ouaga-propre-jeton";
 
+export function adressePhoto(adresse) {
+  if (!adresse) return "";
+  if (/^(data:|https?:)/.test(adresse)) return adresse;
+  if (adresse.startsWith("/")) return racine + adresse;
+  return "";
+}
+
 export const apiActive = Boolean(import.meta.env.VITE_API_URL);
 
 export function lireJeton() {

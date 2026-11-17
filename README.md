@@ -1,6 +1,26 @@
-# Ouaga Propre
+# FASO NEERE
 
 Outil libre d'aide à la décision pour l'assainissement de Ouagadougou : signalement des dépotoirs et caniveaux bouchés, structures de pré-collecte, abonnements et collectes, tournées optimisées, simulation multi-agents.
+
+## Démarrage en une commande
+
+Prérequis : Docker (Docker Desktop sous Windows ou macOS).
+
+```
+docker compose up --build
+```
+
+Puis ouvrir :
+
+- application citoyen et structures : http://localhost:8080
+- administration (mairie) : http://localhost:8080/admin, compte `admin@fasoneere.bf` / `admin12345`
+- documentation de l'API : http://localhost:8080/docs
+
+Comptes de démonstration (mot de passe `demo12345`) : citoyens `70000001`, `70000002`, `70000003` ; structures `70000101`, `70000102`.
+
+La base SQLite et les photos sont gardées dans le volume Docker `donnees`. Pour repartir de zéro : `docker compose down -v`. Pour changer le port : `PORT=9000 docker compose up --build`.
+
+Sous Windows, sans Docker, `lancer.bat` démarre aussi tout le projet et fabrique l'APK Android.
 
 ## Structure
 

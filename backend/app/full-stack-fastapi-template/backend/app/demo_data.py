@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,7 +19,15 @@ from app.models import (
 
 logger = logging.getLogger(__name__)
 
-DEMO_FILE = Path(__file__).resolve().parents[5] / "data" / "reference" / "jeu_demo_faso_neere.json"
+def _fichier_demo() -> Path:
+    if os.environ.get("DEMO_DATA_FILE"):
+        return Path(os.environ["DEMO_DATA_FILE"])
+    dossiers = Path(__file__).resolve().parents
+    racine = dossiers[5] if len(dossiers) > 5 else Path.cwd()
+    return racine / "data" / "reference" / "jeu_demo_faso_neere.json"
+
+
+DEMO_FILE = _fichier_demo()
 
 
 def load_demo_data(session: Session) -> None:

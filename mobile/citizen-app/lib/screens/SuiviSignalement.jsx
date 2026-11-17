@@ -72,7 +72,7 @@ export default function SuiviSignalement() {
 
       <div className="suivi-photos">
         <div className="suivi-photo avant">
-          {/^(data:|https?:)/.test(signalement.photo) ? (
+          {/^(data:|https?:|\/)/.test(signalement.photo) ? (
             <img src={signalement.photo} alt="Le lieu avant le nettoyage" />
           ) : (
             <>
@@ -83,7 +83,7 @@ export default function SuiviSignalement() {
           <span>Avant</span>
         </div>
         <div className={nettoye ? "suivi-photo apres fait" : "suivi-photo apres"}>
-          {nettoye && /^(data:|https?:)/.test(signalement.photoApres) ? (
+          {nettoye && /^(data:|https?:|\/)/.test(signalement.photoApres) ? (
             <img src={signalement.photoApres} alt="Le lieu après le nettoyage" />
           ) : (
             <>

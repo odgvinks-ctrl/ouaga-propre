@@ -1,0 +1,33 @@
+name: faso-neere
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      PROJECT_NAME: FASO NEERE
+      SECRET_KEY: ${SECRET_KEY:-cle-de-demo-faso-neere-a-changer-en-production}
+      FIRST_SUPERUSER: ${FIRST_SUPERUSER:-admin@fasoneere.bf}
+      FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:-admin12345}
+      LOAD_DEMO_DATA: "true"
+      DEMO_PASSWORD: demo12345
+      DATABASE_URL: sqlite:////donnees/faso_neere.db
+      PHOTO_STORAGE_DIR: /donnees/photos
+      FRONTEND_HOST: http://localhost:8080
+    volumes:
+      - donnees:/donnees
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    ports:
+      - "${PORT:-8080}:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  donnees:

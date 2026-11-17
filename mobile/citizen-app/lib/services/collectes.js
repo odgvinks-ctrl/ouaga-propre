@@ -1,5 +1,5 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
-import { apiActive, requete } from "./http.js";
+import { apiActive, adressePhoto, requete } from "./http.js";
 import { idMaStructure } from "./structures.js";
 import { getMesAbonnements } from "./abonnements.js";
 import { envoyerPhoto, miniature } from "./photos.js";
@@ -26,7 +26,7 @@ async function convertirCollecte(c, abonnements = []) {
     quartier: c.quartier || abonnement?.quartier || "",
     repere: c.repere || abonnement?.repere || "",
     position: c.latitude && c.longitude ? { lat: c.latitude, lng: c.longitude } : null,
-    photoPreuve: c.photo_preuve_url || "",
+    photoPreuve: adressePhoto(c.photo_preuve_url),
   };
 }
 

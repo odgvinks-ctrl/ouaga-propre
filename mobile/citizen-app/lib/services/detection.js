@@ -11,7 +11,7 @@ const sessions = {};
 
 function session(nom) {
   if (!sessions[nom]) {
-    sessions[nom] = ort.InferenceSession.create(`${import.meta.env.BASE_URL}modeles/${nom}.onnx`, { executionProviders: ["wasm"] }).catch((err) => {
+    sessions[nom] = ort.InferenceSession.create(`${import.meta.env.BASE_URL}modeles/${nom}.onnx`, { executionProviders: ["wasm"], logSeverityLevel: 3 }).catch((err) => {
       delete sessions[nom];
       throw err;
     });

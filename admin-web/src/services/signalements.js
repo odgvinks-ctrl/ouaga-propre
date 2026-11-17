@@ -1,5 +1,5 @@
 import { lireBase, ecrireBase, delai } from "@donnees/base.js";
-import { apiActive, requete } from "./http.js";
+import { apiActive, adressePhoto, requete } from "./http.js";
 
 const statutsFrontend = {
   NOUVEAU: "a_verifier",
@@ -57,10 +57,10 @@ function convertirSignalement(signalement) {
     telephone: telephoneUssd,
     type: String(signalement.type_signalement || "DEPOTOIR_SAUVAGE").toLowerCase().includes("caniveau") ? "caniveau" : "depotoir",
     taille: "moyen",
-    photo: signalement.photo_url || "",
+    photo: adressePhoto(signalement.photo_url),
     empreinte: signalement.photo_empreinte || "",
     floute: Boolean(signalement.photo_floutee),
-    photoApres: signalement.photo_apres_url || "",
+    photoApres: adressePhoto(signalement.photo_apres_url),
     statut,
     date: signalement.created_at,
     position: { lat: signalement.latitude, lng: signalement.longitude },

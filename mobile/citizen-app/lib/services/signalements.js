@@ -1,5 +1,5 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "./base.js";
-import { apiActive, lireJeton, requete } from "./http.js";
+import { apiActive, adressePhoto, lireJeton, requete } from "./http.js";
 import { envoyerPhoto, miniature } from "./photos.js";
 import { ajouterEnvoi, listerEnvois, reseauDisponible, traiterEnvoi } from "./sync.js";
 
@@ -23,9 +23,9 @@ function convertirSignalement(signalement) {
       ? "caniveau"
       : "depotoir",
     taille: "moyen",
-    photo: signalement.photo_url || "",
+    photo: adressePhoto(signalement.photo_url),
     empreinte: signalement.photo_empreinte || "",
-    photoApres: signalement.photo_apres_url || "",
+    photoApres: adressePhoto(signalement.photo_apres_url),
     statut: statutsFrontend[signalement.statut] || "a_verifier",
     date: signalement.created_at,
     position: { lat: signalement.latitude, lng: signalement.longitude },

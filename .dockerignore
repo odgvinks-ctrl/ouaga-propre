@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/.venv
+**/__pycache__
+**/*.db
+**/photos
+mobile/android
+mobile/.env
+admin-web/.env
+**/.env
+FASO-NEERE.apk
+.git

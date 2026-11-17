@@ -204,7 +204,7 @@ export default function Signalements() {
 
               {message && <p className="message message-ok">{message}</p>}
 
-              {/^(data:|https?:)/.test(courant.photo) ? (
+              {/^(data:|https?:|\/)/.test(courant.photo) ? (
                 <a className="signalement-image" href={courant.photo} target="_blank" rel="noreferrer">
                   <img src={courant.photo} alt={`Photo du signalement à ${courant.quartier}`} />
                   {courant.floute && <span>Visages et plaques floutés</span>}
@@ -216,7 +216,7 @@ export default function Signalements() {
                 </div>
               )}
 
-              {/^(data:|https?:)/.test(courant.photoApres) && (
+              {/^(data:|https?:|\/)/.test(courant.photoApres) && (
                 <a className="signalement-image" href={courant.photoApres} target="_blank" rel="noreferrer">
                   <img src={courant.photoApres} alt={`Le lieu nettoyé à ${courant.quartier}`} />
                   <span>Après nettoyage</span>

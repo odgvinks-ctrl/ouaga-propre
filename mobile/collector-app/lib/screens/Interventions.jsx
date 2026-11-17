@@ -63,7 +63,7 @@ export default function Interventions() {
           {s.quartier} · signalé le {dateCourte(s.date)}
         </p>
         {s.description && <p className="element-meta">{s.description}</p>}
-        {s.statut === "nettoye" && /^(data:|https?:)/.test(s.photoApres) && <img className="photo-preuve" src={s.photoApres} alt="Le lieu après nettoyage" />}
+        {s.statut === "nettoye" && /^(data:|https?:|\/)/.test(s.photoApres) && <img className="photo-preuve" src={s.photoApres} alt="Le lieu après nettoyage" />}
         {s.position && s.statut !== "nettoye" && (
           <a href={lienCarte(s.position)} target="_blank" rel="noreferrer noopener" className="element-meta">
             <MapPin size={14} /> Voir sur la carte

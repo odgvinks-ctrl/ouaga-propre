@@ -111,5 +111,5 @@ export async function envoyerPhoto(image) {
   if (reponse.status === 404 || reponse.status === 405) return null;
   const donnees = await reponse.json().catch(() => null);
   if (!reponse.ok) throw new Error(donnees && typeof donnees.detail === "string" ? donnees.detail : "La photo n'a pas pu être envoyée.");
-  return donnees.url.startsWith("http") ? donnees.url : racine + donnees.url;
+  return donnees.url;
 }
