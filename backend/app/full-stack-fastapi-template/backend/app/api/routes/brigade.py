@@ -76,7 +76,7 @@ def validate_agents_for_task(
     task_type: str,
 ) -> list[AgentBrigade]:
     if not agent_ids:
-        raise HTTPException(status_code=400, detail="Sélectionnez au moins un agent.")
+        return []
     if len(set(agent_ids)) != len(agent_ids):
         raise HTTPException(status_code=400, detail="Un agent ne peut être affecté qu'une fois.")
 

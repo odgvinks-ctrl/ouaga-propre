@@ -317,7 +317,7 @@ export default function Signalements() {
                     </button>
                   </div>
                   <Link to={`/brigade?signalement=${courant.id}`} className="btn btn-secondaire">
-                    <Shovel size={16} /> Confier à la brigade Laabal
+                    <Shovel size={16} /> Signaler à la brigade Laabal
                   </Link>
                 </div>
               )}

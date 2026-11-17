@@ -65,7 +65,7 @@ class TacheBrigadeCreate(SQLModel):
     lieu: str = Field(min_length=1, max_length=255)
     consignes: str = Field(default="", max_length=2000)
     date_prevue: datetime
-    agent_ids: list[uuid.UUID] = Field(min_length=1)
+    agent_ids: list[uuid.UUID] = Field(default_factory=list)
     signalement_id: uuid.UUID | None = None
 
 
