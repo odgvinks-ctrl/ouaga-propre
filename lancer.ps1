@@ -70,7 +70,9 @@ Write-Host "Backend pret."
 $adresseApi = "http://127.0.0.1:8000"
 if (-not $SansTunnel) {
   Etape "Ouverture du tunnel internet"
-  if (Test-Path $journal) { Remove-Item $journal }
+  Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force
+  Start-Sleep -Seconds 1
+  if (Test-Path $journal) { Remove-Item $journal -Force }
   $cloudflared = (Get-Command cloudflared -ErrorAction SilentlyContinue).Source
   if (-not $cloudflared) {
     $cloudflared = @(
@@ -103,7 +105,14 @@ Fenetre "FASO NEERE - App" $mobile "npm run dev"
 
 if (-not $SansApk) {
   Etape "Fabrication de l'APK"
+  if (-not $jdk) { throw "Java 21 manquant pour l'APK : winget install --id Microsoft.OpenJDK.21 -e --source winget, ou relance avec -SansApk." }
   Set-Location $mobile
+  if (-not (Test-Path (Join-Path $mobile "android"))) {
+    Write-Host "Premiere fabrication : ajout de la plateforme Android."
+    npx cap add android
+    if ($LASTEXITCODE -ne 0) { throw "L'ajout de la plateforme Android a echoue." }
+    npm run icones
+  }
   npm run android
   if ($LASTEXITCODE -ne 0) { throw "La preparation de l'APK a echoue." }
   Set-Location (Join-Path $mobile "android")
