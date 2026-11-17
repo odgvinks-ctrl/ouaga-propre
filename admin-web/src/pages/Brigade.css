@@ -1,0 +1,103 @@
+.brigade-taches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brigade-tache {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--ligne);
+  border-radius: 10px;
+}
+
+.brigade-tache-haut {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brigade-tache-haut div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brigade-tache-haut small {
+  color: var(--encre-douce);
+  font-size: 13px;
+}
+
+.brigade-agents {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.brigade-tache p.champ-aide {
+  margin: 0;
+}
+
+.brigade-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.brigade-choix legend {
+  margin-bottom: 8px;
+}
+
+.brigade-agent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--ligne);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.brigade-agent.choisi {
+  border-color: var(--vert);
+  background: var(--vert-clair);
+}
+
+.brigade-agent input {
+  accent-color: var(--vert);
+  width: 18px;
+  height: 18px;
+}
+
+.brigade-agent span {
+  display: flex;
+  flex-direction: column;
+}
+
+.brigade-agent small {
+  color: var(--encre-douce);
+  font-size: 13px;
+}
+
+.brigade-telephone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.brigade-role {
+  min-height: 34px;
+  padding: 4px 8px;
+  border: 1px solid #C3CCC6;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font: inherit;
+}

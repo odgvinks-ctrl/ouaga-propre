@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CircleMarker } from "react-leaflet";
-import { Search, Camera, Users, Send, Ban } from "lucide-react";
+import { Search, Camera, Users, Send, Ban, Shovel } from "lucide-react";
 import { useActualisation } from "../hooks/useActualisation.js";
 import { listerSignalements, transmettreSignalement, rejeterSignalement, structuresDuSecteur } from "../services/signalements.js";
 import { listerStructures } from "../services/structures.js";
@@ -316,6 +316,9 @@ export default function Signalements() {
                       <Ban size={16} /> Rejeter
                     </button>
                   </div>
+                  <Link to={`/brigade?signalement=${courant.id}`} className="btn btn-secondaire">
+                    <Shovel size={16} /> Confier à la brigade Laabal
+                  </Link>
                 </div>
               )}
 

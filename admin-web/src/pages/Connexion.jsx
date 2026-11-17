@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { login } from "../services/auth.js";
 import { useAuth } from "../hooks/AuthContext.jsx";
 import Logo from "../components/Logo.jsx";
+import ChampMotDePasse from "../components/ChampMotDePasse.jsx";
 import "./Connexion.css";
 
 export default function Connexion() {
@@ -48,7 +49,7 @@ export default function Connexion() {
         </label>
         <label className="champ">
           Mot de passe
-          <input type="password" name="password" value={form.password} onChange={handleChange} required />
+          <ChampMotDePasse name="password" value={form.password} onChange={handleChange} required />
         </label>
 
         {erreur && <p className="message message-erreur">{erreur}</p>}

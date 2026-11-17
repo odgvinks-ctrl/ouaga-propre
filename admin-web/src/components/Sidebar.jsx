@@ -13,6 +13,7 @@ import {
   Gift,
   Smartphone,
   Route,
+  Shovel,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../hooks/AuthContext.jsx";
@@ -35,6 +36,7 @@ const groupes = [
       { vers: "/ussd", label: "Canal USSD et SMS", icone: Smartphone },
       { vers: "/validation", label: "Validation des structures", icone: ShieldCheck, compteur: "structures" },
       { vers: "/structures", label: "Structures", icone: Building2 },
+      { vers: "/brigade", label: "Brigade Laabal", icone: Shovel },
       { vers: "/utilisateurs", label: "Utilisateurs", icone: Users },
       { vers: "/recompenses", label: "Récompenses", icone: Gift, compteur: "echanges" },
     ],

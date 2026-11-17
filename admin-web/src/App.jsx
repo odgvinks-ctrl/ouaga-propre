@@ -16,6 +16,7 @@ import Rapports from "./pages/Rapports.jsx";
 import Recompenses from "./pages/Recompenses.jsx";
 import CanalUssd from "./pages/CanalUssd.jsx";
 import PlanGestion from "./pages/PlanGestion.jsx";
+import Brigade from "./pages/Brigade.jsx";
 import NonTrouve from "./pages/NonTrouve.jsx";
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="recompenses" element={<Recompenses />} />
             <Route path="ussd" element={<CanalUssd />} />
             <Route path="plan" element={<PlanGestion />} />
+            <Route path="brigade" element={<Brigade />} />
             <Route path="simulation" element={<ParametresSimulation />} />
             <Route path="scenarios" element={<ComparaisonScenarios />} />
             <Route path="rapports" element={<Rapports />} />

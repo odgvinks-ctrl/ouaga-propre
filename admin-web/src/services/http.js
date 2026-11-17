@@ -38,7 +38,9 @@ export async function requeteFormulaire(chemin, champs) {
   const donnees = await reponse.json().catch(() => null);
   if (!reponse.ok) {
     const detail = donnees && typeof donnees.detail === "string" ? donnees.detail : "Une erreur est survenue.";
-    throw new Error(detail);
+    const erreur = new Error(detail);
+    erreur.statut = reponse.status;
+    throw erreur;
   }
   return donnees;
 }
@@ -71,7 +73,9 @@ export async function requete(chemin, { methode = "GET", corps, auth = true } = 
 
   if (!reponse.ok) {
     const detail = donnees && typeof donnees.detail === "string" ? donnees.detail : "Une erreur est survenue.";
-    throw new Error(detail);
+    const erreur = new Error(detail);
+    erreur.statut = reponse.status;
+    throw erreur;
   }
   return donnees;
 }

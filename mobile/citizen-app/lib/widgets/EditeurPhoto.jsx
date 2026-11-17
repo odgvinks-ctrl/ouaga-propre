@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { EyeOff, Undo2, ScanFace } from "lucide-react";
-import { detecterVisages, detectionAutomatique, flouter } from "../services/photos.js";
+import { EyeOff, Undo2, ScanFace, TriangleAlert } from "lucide-react";
+import { detecterZonesSensibles, flouter } from "../services/photos.js";
 import "./EditeurPhoto.css";
 
 export default function EditeurPhoto({ source, zones, setZones }) {
@@ -10,15 +10,28 @@ export default function EditeurPhoto({ source, zones, setZones }) {
   const [trouves, setTrouves] = useState(null);
 
   useEffect(() => {
-    if (!detectionAutomatique) return;
+    let actif = true;
     setRecherche(true);
-    detecterVisages(source)
-      .then((visages) => {
-        setTrouves(visages.length);
-        if (visages.length) setZones((actuelles) => [...actuelles, ...visages]);
+    setTrouves(null);
+    detecterZonesSensibles(source)
+      .then(({ visages, plaques }) => {
+        if (!actif) return;
+        setTrouves({ visages: visages?.length ?? null, plaques: plaques?.length ?? null });
+        const automatiques = [...(visages || []), ...(plaques || [])];
+        if (automatiques.length) setZones((actuelles) => [...actuelles, ...automatiques]);
       })
-      .finally(() => setRecherche(false));
+      .finally(() => actif && setRecherche(false));
+    return () => {
+      actif = false;
+    };
   }, [source]);
+
+  function bilan() {
+    const morceaux = [];
+    if (trouves.visages) morceaux.push(`${trouves.visages} visage(s)`);
+    if (trouves.plaques) morceaux.push(`${trouves.plaques} plaque(s)`);
+    return morceaux.length ? `${morceaux.join(" et ")} flouté(s) automatiquement` : "Aucun visage ni plaque repéré";
+  }
 
   useEffect(() => {
     const canvas = ecran.current;
@@ -85,18 +98,23 @@ export default function EditeurPhoto({ source, zones, setZones }) {
       <div className="editeur-photo-aide">
         <EyeOff size={18} />
         <p>
-          <strong>Protégez les passants.</strong> Glissez le doigt sur un visage ou une plaque d'immatriculation pour le flouter.
+          <strong>Protégez les passants.</strong> Les visages et les plaques sont floutés automatiquement. Si l'un d'eux reste visible, glissez le doigt dessus pour le flouter.
         </p>
       </div>
       <div className="editeur-photo-actions">
         {recherche && (
           <span className="editeur-photo-etat">
-            <ScanFace size={16} /> Recherche des visages...
+            <ScanFace size={16} /> Recherche des visages et des plaques...
           </span>
         )}
-        {!recherche && trouves > 0 && (
+        {!recherche && trouves && trouves.visages !== null && trouves.plaques !== null && (
           <span className="editeur-photo-etat">
-            <ScanFace size={16} /> {trouves} visage(s) flouté(s) automatiquement
+            <ScanFace size={16} /> {bilan()}
+          </span>
+        )}
+        {!recherche && trouves && (trouves.visages === null || trouves.plaques === null) && (
+          <span className="editeur-photo-etat">
+            <TriangleAlert size={16} /> Floutage automatique indisponible, floutez à la main
           </span>
         )}
         {zones.length > 0 && (

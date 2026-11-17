@@ -27,19 +27,12 @@ export async function preparerPhoto(fichier) {
   }
 }
 
-export const detectionAutomatique = typeof window !== "undefined" && "FaceDetector" in window;
-
-export async function detecterVisages(canvas) {
-  if (!detectionAutomatique) return [];
+export async function detecterZonesSensibles(source) {
   try {
-    const detecteur = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 10 });
-    const visages = await detecteur.detect(canvas);
-    return visages.map(({ boundingBox: b }) => {
-      const marge = b.width * 0.25;
-      return { x: b.x - marge, y: b.y - marge, largeur: b.width + marge * 2, hauteur: b.height + marge * 2 };
-    });
+    const { detecterZones } = await import("./detection.js");
+    return await detecterZones(source);
   } catch {
-    return [];
+    return { visages: null, plaques: null };
   }
 }
 

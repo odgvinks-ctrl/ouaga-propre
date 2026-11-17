@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { login } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import Logo from "../widgets/Logo.jsx";
+import ChampMotDePasse from "../widgets/ChampMotDePasse.jsx";
 import "./Ecran.css";
 import "./Auth.css";
 
@@ -72,8 +73,7 @@ export default function Connexion() {
 
         <label className="champ">
           Mot de passe
-          <input
-            type="password"
+          <ChampMotDePasse
             name="password"
             placeholder="Votre mot de passe"
             value={form.password}

@@ -10,6 +10,7 @@ import { COMMISSION, conditionsPartenariat } from "../models/conditions.js";
 import "./Ecran.css";
 import "./Auth.css";
 import Logo from "../widgets/Logo.jsx";
+import ChampMotDePasse from "../widgets/ChampMotDePasse.jsx";
 
 const vide = {
   role: "citoyen",
@@ -227,8 +228,7 @@ export default function Inscription() {
 
         <label className="champ">
           Mot de passe
-          <input
-            type="password"
+          <ChampMotDePasse
             name="password"
             placeholder="Au moins 8 caractères"
             value={form.password}

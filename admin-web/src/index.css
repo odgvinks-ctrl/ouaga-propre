@@ -595,3 +595,34 @@ textarea {
     padding: 0 !important;
   }
 }
+
+.mot-de-passe {
+  position: relative;
+  display: flex;
+}
+
+.mot-de-passe input {
+  flex: 1;
+  min-width: 0;
+  padding-right: 48px;
+}
+
+.mot-de-passe-oeil {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4F5B54;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.mot-de-passe-oeil:hover {
+  color: var(--vert);
+}
