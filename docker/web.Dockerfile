@@ -5,7 +5,7 @@ WORKDIR /depot
 COPY mobile/package.json mobile/package-lock.json ./mobile/
 COPY admin-web/package.json admin-web/package-lock.json ./admin-web/
 
-RUN cd mobile && npm ci && cd ../admin-web && npm ci
+RUN cd mobile && npm ci --ignore-scripts --no-audit --no-fund && cd ../admin-web && npm ci --ignore-scripts --no-audit --no-fund
 
 COPY mobile ./mobile
 COPY admin-web ./admin-web

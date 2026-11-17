@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     PHOTO_STORAGE_DIR: Path = Path("photos")
     PHOTO_MAX_SIZE_BYTES: int = 3 * 1024 * 1024
     BRIGADE_WHATSAPP_NUMBER: str | None = None
-    BRIGADE_GEO_BOUNDS: list[float] | None = None
+    BRIGADE_GEO_BOUNDS: list[float] | None = [-1.70, 12.20, -1.35, 12.55]
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr
