@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "dataset": "faso-neere-demo-ouagadougou",
+  "generated_at": "2026-11-17T00:00:00Z",
+  "provenance": {
+    "type": "synthetic",
+    "description": "Jeu de demonstration fabrique pour le developpement et les tests. Les personnes, structures, signalements et positions ne representent pas des donnees officielles.",
+    "coordinate_reference_system": "WGS84",
+    "coordinate_precision": "Approximative; positions de demonstration autour de Ouagadougou."
+  },
+  "quartiers": [
+    { "id": "paspanga", "nom": "Paspanga", "commune": "Baskuy" },
+    { "id": "dapoya", "nom": "Dapoya", "commune": "Baskuy" },
+    { "id": "koulouba", "nom": "Koulouba", "commune": "Baskuy" },
+    { "id": "tanghin", "nom": "Tanghin", "commune": "Nongremassom" },
+    { "id": "nonsin", "nom": "Nonsin", "commune": "Boulmiougou" },
+    { "id": "gounghin", "nom": "Gounghin", "commune": "Baskuy" },
+    { "id": "wemtenga", "nom": "Wemtenga", "commune": "Bogodogo" }
+  ],
+  "utilisateurs": [
+    { "ref": "citoyen-001", "nom": "Aminata Demo", "telephone": "70000001", "role": "CITOYEN", "actif": true },
+    { "ref": "citoyen-002", "nom": "Issa Demo", "telephone": "70000002", "role": "CITOYEN", "actif": true },
+    { "ref": "citoyen-003", "nom": "Mariam Demo", "telephone": "70000003", "role": "CITOYEN", "actif": true },
+    { "ref": "structure-001", "nom": "GIE Wend Panga (demo)", "telephone": "70000101", "role": "STRUCTURE", "actif": true },
+    { "ref": "structure-002", "nom": "Association Laafi (demo)", "telephone": "70000102", "role": "STRUCTURE", "actif": true },
+    { "ref": "structure-003", "nom": "GIE Yilma (demo)", "telephone": "70000103", "role": "STRUCTURE", "actif": true }
+  ],
+  "structures": [
+    {
+      "ref": "structure-001",
+      "nom": "GIE Wend Panga (demo)",
+      "responsable": "Boubacar Demo",
+      "telephone": "70000101",
+      "adresse": "Paspanga, Ouagadougou",
+      "description": "Structure fictive de pre-collecte pour le jeu de demonstration.",
+      "zones_intervention": ["Paspanga", "Dapoya", "Koulouba"],
+      "validated": true,
+      "statut": "actif",
+      "formules": [
+        { "ref": "formule-001", "nom": "Menage", "prix_xof": 2000, "frequence": "2 passages par semaine" },
+        { "ref": "formule-002", "nom": "A la demande", "prix_xof": 1500, "frequence": "4 collectes par mois" }
+      ]
+    },
+    {
+      "ref": "structure-002",
+      "nom": "Association Laafi (demo)",
+      "responsable": "Salimata Demo",
+      "telephone": "70000102",
+      "adresse": "Tanghin, Ouagadougou",
+      "description": "Association fictive de collecte et de curage pour la demonstration.",
+      "zones_intervention": ["Tanghin", "Nonsin"],
+      "validated": true,
+      "statut": "actif",
+      "formules": [
+        { "ref": "formule-003", "nom": "Standard", "prix_xof": 1800, "frequence": "2 passages par semaine" }
+      ]
+    },
+    {
+      "ref": "structure-003",
+      "nom": "GIE Yilma (demo)",
+      "responsable": "Awa Demo",
+      "telephone": "70000103",
+      "adresse": "Gounghin, Ouagadougou",
+      "description": "Structure fictive en attente de validation administrative.",
+      "zones_intervention": ["Gounghin", "Wemtenga"],
+      "validated": false,
+      "statut": "en_attente",
+      "formules": []
+    }
+  ],
+  "signalements": [
+    {
+      "ref": "signalement-001",
+      "auteur_ref": "citoyen-001",
+      "structure_ref": "structure-001",
+      "type_signalement": "DEPOTOIR_SAUVAGE",
+      "description": "Depotoir de demonstration pres du marche.",
+      "photo_url": null,
+      "latitude": 12.3721,
+      "longitude": -1.5152,
+      "adresse": "A proximite du marche de Paspanga",
+      "quartier": "Paspanga",
+      "statut": "TRANSMIS",
+      "is_archived": false,
+      "created_at": "2026-11-12T08:30:00Z"
+    },
+    {
+      "ref": "signalement-002",
+      "auteur_ref": "citoyen-002",
+      "structure_ref": null,
+      "type_signalement": "CANIVEAU_OBSTRUE",
+      "description": "Caniveau obstrue apres des pluies, cas fictif.",
+      "photo_url": null,
+      "latitude": 12.3709,
+      "longitude": -1.5168,
+      "adresse": "Rue secondaire de Dapoya",
+      "quartier": "Dapoya",
+      "statut": "NOUVEAU",
+      "is_archived": false,
+      "created_at": "2026-11-16T10:15:00Z"
+    },
+    {
+      "ref": "signalement-003",
+      "auteur_ref": "citoyen-003",
+      "structure_ref": "structure-001",
+      "type_signalement": "DEPOTOIR_SAUVAGE",
+      "description": "Melange de dechets menagers et de plastiques, donnees fictives.",
+      "photo_url": null,
+      "latitude": 12.3655,
+      "longitude": -1.5101,
+      "adresse": "Secteur de Koulouba",
+      "quartier": "Koulouba",
+      "statut": "EN_COURS",
+      "is_archived": false,
+      "created_at": "2026-11-10T14:00:00Z"
+    },
+    {
+      "ref": "signalement-004",
+      "auteur_ref": "citoyen-001",
+      "structure_ref": "structure-002",
+      "type_signalement": "CANIVEAU_OBSTRUE",
+      "description": "Eau stagnante signalee pour exercice de suivi.",
+      "photo_url": null,
+      "latitude": 12.3588,
+      "longitude": -1.4987,
+      "adresse": "Secteur de Tanghin",
+      "quartier": "Tanghin",
+      "statut": "RESOLU",
+      "is_archived": false,
+      "created_at": "2026-11-08T07:45:00Z"
+    },
+    {
+      "ref": "signalement-005",
+      "auteur_ref": null,
+      "structure_ref": null,
+      "type_signalement": "DEPOTOIR_SAUVAGE",
+      "description": "Signalement anonyme fictif en attente de verification.",
+      "photo_url": null,
+      "latitude": 12.3634,
+      "longitude": -1.5261,
+      "adresse": "Gounghin, secteur de demonstration",
+      "quartier": "Gounghin",
+      "statut": "EN_VERIFICATION",
+      "is_archived": false,
+      "created_at": "2026-11-17T06:20:00Z"
+    },
+    {
+      "ref": "signalement-006",
+      "auteur_ref": "citoyen-002",
+      "structure_ref": null,
+      "type_signalement": "DEPOTOIR_SAUVAGE",
+      "description": "Signalement rejete de demonstration pour tester le filtre.",
+      "photo_url": null,
+      "latitude": 12.3568,
+      "longitude": -1.5352,
+      "adresse": "Nonsin, position approximative",
+      "quartier": "Nonsin",
+      "statut": "REJETE",
+      "is_archived": false,
+      "created_at": "2026-11-06T16:10:00Z"
+    }
+  ]
+}

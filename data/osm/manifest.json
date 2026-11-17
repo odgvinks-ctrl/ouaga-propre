@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "dataset": "ouagadougou-osm-extract",
+  "status": "not_downloaded",
+  "region": {
+    "name": "Ouagadougou, Burkina Faso",
+    "bounds_wgs84": null
+  },
+  "source": {
+    "provider": null,
+    "url": null,
+    "retrieved_at": null
+  },
+  "file": {
+    "path": null,
+    "format": null,
+    "size_bytes": null,
+    "sha256": null
+  },
+  "license": {
+    "name": "Open Database License (ODbL)",
+    "attribution": "© OpenStreetMap contributors",
+    "attribution_url": "https://www.openstreetmap.org/copyright"
+  },
+  "notes": "Modele de manifeste uniquement. Completer apres obtention et verification d'un extrait source; aucune donnee geographique n'est incluse."
+}

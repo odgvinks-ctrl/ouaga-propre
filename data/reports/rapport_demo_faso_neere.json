@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "report": "rapport_demo_faso_neere",
+  "generated_at": "2026-11-17T00:00:00Z",
+  "source": "../reference/jeu_demo_faso_neere.json",
+  "classification": "synthetic_demo_only",
+  "period": {
+    "from": "2026-11-06T16:10:00Z",
+    "to": "2026-11-17T06:20:00Z"
+  },
+  "counts": {
+    "users": 6,
+    "citizens": 3,
+    "structures": 3,
+    "validated_structures": 2,
+    "pending_structures": 1,
+    "signalements": 6,
+    "assigned_signalements": 3,
+    "unassigned_signalements": 3
+  },
+  "signalements_by_status": {
+    "NOUVEAU": 1,
+    "EN_VERIFICATION": 1,
+    "VALIDE": 0,
+    "TRANSMIS": 1,
+    "EN_COURS": 1,
+    "RESOLU": 1,
+    "REJETE": 1
+  },
+  "signalements_by_type": {
+    "DEPOTOIR_SAUVAGE": 4,
+    "CANIVEAU_OBSTRUE": 2
+  },
+  "signalements_by_quartier": {
+    "Paspanga": 1,
+    "Dapoya": 1,
+    "Koulouba": 1,
+    "Tanghin": 1,
+    "Nonsin": 1,
+    "Gounghin": 1
+  },
+  "limitations": [
+    "Toutes les entites et valeurs sont synthetiques.",
+    "Les coordonnees sont approximatives et ne representent pas une collecte terrain.",
+    "Ce rapport ne constitue pas un indicateur operationnel de la ville."
+  ]
+}
