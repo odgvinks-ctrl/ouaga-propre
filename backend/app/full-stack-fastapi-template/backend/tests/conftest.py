@@ -1,13 +1,20 @@
+# ruff: noqa: E402
+
 import os
 from collections.abc import Generator
-
-os.environ["LOAD_DEMO_DATA"] = "false"
-os.environ["FASTAPI_ENV"] = "development"
+from pathlib import Path
+from tempfile import gettempdir
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, select
 
+os.environ["LOAD_DEMO_DATA"] = "false"
+os.environ["FASTAPI_ENV"] = "development"
+TEST_DATABASE_PATH = Path(gettempdir()) / f"faso-neere-tests-{os.getpid()}.db"
+os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DATABASE_PATH.as_posix()}"
+
+# These imports must follow the test-only environment configuration.
 from app import crud
 from app.core.config import settings
 from app.core.db import engine, init_db
@@ -19,6 +26,8 @@ from tests.utils.utils import get_superuser_token_headers
 
 @pytest.fixture(scope="session", autouse=True)
 def db() -> Generator[Session]:
+    if settings.is_sqlite:
+        SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         for table in reversed(SQLModel.metadata.sorted_tables):
             session.execute(table.delete())
@@ -29,6 +38,13 @@ def db() -> Generator[Session]:
         for table in reversed(SQLModel.metadata.sorted_tables):
             session.execute(table.delete())
         session.commit()
+    engine.dispose()
+    for path in (
+        TEST_DATABASE_PATH,
+        Path(f"{TEST_DATABASE_PATH}-wal"),
+        Path(f"{TEST_DATABASE_PATH}-shm"),
+    ):
+        path.unlink(missing_ok=True)
 
 
 @pytest.fixture(scope="module")

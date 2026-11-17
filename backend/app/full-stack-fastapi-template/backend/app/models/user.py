@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from enum import StrEnum
+from typing import Self
 
 from pydantic import EmailStr, model_validator
 from sqlmodel import Field, SQLModel
@@ -19,6 +20,7 @@ def normalize_phone(phone: str | None) -> str | None:
 
 class UserRole(StrEnum):
     ADMIN = "ADMIN"
+    BRIGADE = "BRIGADE"
     CITOYEN = "CITOYEN"
     STRUCTURE = "STRUCTURE"
 
@@ -36,7 +38,7 @@ class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
 
     @model_validator(mode="after")
-    def validate_identifier(self):
+    def validate_identifier(self) -> Self:
         if not self.email and not self.telephone:
             raise ValueError("Un compte doit avoir un e-mail ou un numéro de téléphone.")
         return self
@@ -49,7 +51,7 @@ class UserRegister(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
 
     @model_validator(mode="after")
-    def validate_identifier(self):
+    def validate_identifier(self) -> Self:
         if not self.email and not self.telephone:
             raise ValueError("Un compte doit avoir un e-mail ou un numéro de téléphone.")
         return self

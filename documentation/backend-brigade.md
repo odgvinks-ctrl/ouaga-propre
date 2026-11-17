@@ -1,6 +1,6 @@
 # Backend : brigade Laabal
 
-La mairie (admin) ne fait que **signaler** à la brigade Laabal les lieux à sensibiliser ou à contrôler. La brigade gère elle-même ses agents, ses équipes et les sanctions : l'admin ne les affiche plus.
+La mairie (`role=ADMIN`) peut créer et transmettre les interventions. Les responsables habilités de la brigade utilisent un compte `role=BRIGADE` pour consulter les tâches, affecter les agents, gérer leur progression, leurs agents et les sanctions. Le contrôle d'accès dépend du rôle explicite, pas du statut superutilisateur.
 
 ## Ce que l'admin utilise
 
@@ -25,17 +25,24 @@ La mairie (admin) ne fait que **signaler** à la brigade Laabal les lieux à sen
 
 `agent_ids` n'est plus envoyé : il est maintenant facultatif (liste vide par défaut). C'est la brigade qui affecte ses agents ensuite.
 
-`PATCH /api/v1/brigade/taches/{id}/statut` avec `{"statut": "annulee"}` : la mairie peut annuler un signalement encore « à faire ». La brigade passe elle-même la tâche à `en_cours` puis `terminee`.
+`PATCH /api/v1/brigade/taches/{id}/statut` avec `{"statut": "annulee"}` : la mairie peut annuler une intervention avant sa prise en charge. La brigade gère les transitions vers `en_cours`, `terminee` ou `annulee`. Les transitions de tâches terminées ou annulées sont définitives.
 
 Tache : `{id, type, quartier, lieu, consignes, date_prevue, signalement_id, latitude, longitude, statut, created_at, terminee_le, agent_ids}`
 
 Types : `sensibilisation`, `sanction`. Statuts : `a_faire` (affiché « Signalée »), `en_cours`, `terminee` (« Traitée »), `annulee`.
 
-## Changements faits dans le backend
+## Permissions, GPS et historique
 
-- `tache_brigade` : deux colonnes `latitude` et `longitude` (nullable), migration `d7a3b9c2e5f1_position_des_taches_brigade.py`.
+- `/agents` et `/sanctions` sont réservés au rôle `BRIGADE`; création des tâches au rôle `ADMIN`; consultation et historique aux deux rôles.
+- `PUT /api/v1/brigade/taches/{id}/agents` permet à la brigade de remplacer les agents affectés.
+- `PATCH /api/v1/brigade/taches/{id}/position` corrige la position pour un responsable de brigade et exige un motif.
+- `GET /api/v1/brigade/taches/{id}/historique` donne les événements, les anciens/nouveaux statuts et positions, les auteurs et dates. Les tâches anciennes sont reprises avec l'auteur historique indiqué comme non enregistré.
+- Latitude et longitude sont facultatives ensemble, jamais séparément. Si aucun point manuel n'est fourni pour un signalement lié, l'API reprend ses coordonnées et répond 404 si le signalement n'existe pas.
+- Pour éviter d'inventer une limite, configurer `BRIGADE_GEO_BOUNDS` avec les limites officielles `[longitude_min, latitude_min, longitude_max, latitude_max]`. Si cette configuration manque, l'API refuse une tâche qui porte des coordonnées GPS (503); les tâches sans position restent possibles. Cette enveloppe doit provenir d'une source géographique vérifiée.
+- La migration `e91ab2c3d4f5_brigade_permissions_and_history.py` ajoute le rôle, l'auteur de création, les contraintes de coordonnées et l'historique sans supprimer les tâches existantes.
 
-- `models/brigade.py` : `TacheBrigadeCreate.agent_ids` passe de `Field(min_length=1)` à `Field(default_factory=list)`.
-- `api/routes/brigade.py` : `validate_agents_for_task` renvoie une liste vide au lieu d'une erreur 400 quand aucun agent n'est donné. La vérification des rôles reste active quand des agents sont fournis.
+## WhatsApp
 
-Les routes agents et sanctions restent en place pour l'outil propre à la brigade, mais l'admin de la mairie ne les appelle plus.
+Configurer `BRIGADE_WHATSAPP_NUMBER` avec le numéro officiel, au format international sans `+` ni séparateurs. Il n'y a pas de valeur par défaut. `GET /api/v1/brigade/configuration` indique le numéro configuré; `GET /api/v1/brigade/taches/{id}/partage` retourne les liens WhatsApp et Google Maps, le message préparé et `message_sent: false`. L'API ne prétend pas envoyer le message : l'utilisateur doit ouvrir WhatsApp et confirmer l'envoi.
+
+Le frontend actuel compose encore son propre lien `wa.me/?text=`; conformément au périmètre retenu, ce backend ne peut pas lui faire ouvrir un numéro configuré sans modification cliente. Pour bénéficier du numéro officiel côté interface, le client devra consommer les liens de `/partage`.

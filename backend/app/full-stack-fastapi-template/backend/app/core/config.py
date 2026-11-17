@@ -77,6 +77,8 @@ class Settings(BaseSettings):
     DEMO_PASSWORD: str = "demo12345"
     PHOTO_STORAGE_DIR: Path = Path("photos")
     PHOTO_MAX_SIZE_BYTES: int = 3 * 1024 * 1024
+    BRIGADE_WHATSAPP_NUMBER: str | None = None
+    BRIGADE_GEO_BOUNDS: list[float] | None = None
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"
     FIRST_SUPERUSER: EmailStr

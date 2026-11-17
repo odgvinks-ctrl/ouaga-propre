@@ -12,7 +12,9 @@ from sqlmodel import Session
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
-from app.models import StructureCollecte, TokenPayload, User, UserRole
+from app.models.auth import TokenPayload
+from app.models.structure import StructureCollecte
+from app.models.user import User, UserRole
 
 # Authentification obligatoire
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -105,6 +107,24 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
             detail="The user doesn't have enough privileges",
         )
 
+    return current_user
+
+
+def require_mairie(current_user: CurrentUser) -> User:
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Accès réservé à la mairie.")
+    return current_user
+
+
+def require_brigade(current_user: CurrentUser) -> User:
+    if current_user.role != UserRole.BRIGADE:
+        raise HTTPException(status_code=403, detail="Accès réservé aux responsables de la brigade.")
+    return current_user
+
+
+def require_mairie_or_brigade(current_user: CurrentUser) -> User:
+    if current_user.role not in (UserRole.ADMIN, UserRole.BRIGADE):
+        raise HTTPException(status_code=403, detail="Accès réservé à la mairie ou à la brigade.")
     return current_user
 
 
