@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, delete, func, select
+from sqlmodel import col, delete, func, or_, select
 
 from app import crud
 from app.api.deps import (
@@ -22,6 +22,7 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+    UserRole,
 )
 from app.utils import generate_new_account_email, send_email
 
@@ -91,7 +92,10 @@ def update_user_me(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
-    user_data = user_in.model_dump(exclude_unset=True)
+    user_data = user_in.model_dump(
+        exclude_unset=True,
+        exclude_none=True,
+    )
     current_user.sqlmodel_update(user_data)
     session.add(current_user)
     session.commit()
@@ -129,18 +133,22 @@ def read_user_me(current_user: CurrentUser) -> Any:
 
 
 @router.delete("/me", response_model=Message)
-def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
-    """
-    Delete own user.
-    """
-    if current_user.is_superuser:
+def delete_user_me(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Message:
+    """Deactivate the current user's account without deleting its history."""
+    if current_user.is_superuser or current_user.role == UserRole.ADMIN:
         raise HTTPException(
-            status_code=403, detail="Super users are not allowed to delete themselves"
+            status_code=403,
+            detail="Administrators cannot deactivate their own account",
         )
-    session.delete(current_user)
-    session.commit()
-    return Message(message="User deleted successfully")
 
+    current_user.is_active = False
+    session.add(current_user)
+    session.commit()
+
+    return Message(message="Account deactivated successfully")
 
 @router.post("/signup", response_model=UserPublic)
 def register_user(session: SessionDep, user_in: UserRegister) -> Any:
@@ -168,7 +176,10 @@ def read_user_by_id(
     user = session.get(User, user_id)
     if user == current_user:
         return user
-    if not current_user.is_superuser:
+    if (
+        not current_user.is_superuser
+        or current_user.role != UserRole.ADMIN
+    ):
         raise HTTPException(
             status_code=403,
             detail="The user doesn't have enough privileges",
@@ -188,42 +199,118 @@ def update_user(
     session: SessionDep,
     user_id: uuid.UUID,
     user_in: UserUpdate,
+    current_user: CurrentUser,
 ) -> Any:
-    """
-    Update a user.
-    """
-
+    """Update a user while preserving administrator safeguards."""
     db_user = session.get(User, user_id)
     if not db_user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this id does not exist in the system",
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_data = user_in.model_dump(
+        exclude_unset=True,
+        exclude_none=True,
+    )
+
+    if user_data.get("email"):
+        existing_user = crud.get_user_by_email(
+            session=session,
+            email=user_data["email"],
         )
-    if user_in.email:
-        existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != user_id:
             raise HTTPException(
-                status_code=409, detail="User with this email already exists"
+                status_code=409,
+                detail="User with this email already exists",
             )
 
-    db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
-    return db_user
+    if "role" in user_data:
+        if user_data["role"] is None:
+            raise HTTPException(status_code=400, detail="Role cannot be null")
+        user_data["is_superuser"] = user_data["role"] == UserRole.ADMIN
+    elif "is_superuser" in user_data:
+        if user_data["is_superuser"] is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Administrator status cannot be null",
+            )
+        if user_data["is_superuser"]:
+            user_data["role"] = UserRole.ADMIN
+        elif db_user.role == UserRole.ADMIN:
+            user_data["role"] = UserRole.CITOYEN
 
+    resulting_active = user_data.get("is_active", db_user.is_active)
+    resulting_superuser = user_data.get("is_superuser", db_user.is_superuser)
+
+    if user_id == current_user.id and (
+        not resulting_active or not resulting_superuser
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="You cannot deactivate or demote your own administrator account",
+        )
+
+    was_active_admin = db_user.is_active and (
+        db_user.is_superuser or db_user.role == UserRole.ADMIN
+    )
+    resulting_role = user_data.get("role", db_user.role)
+    remains_active_admin = resulting_active and (
+        resulting_superuser or resulting_role == UserRole.ADMIN
+    )
+
+    if was_active_admin and not remains_active_admin:
+        active_admins = session.exec(
+            select(func.count())
+            .select_from(User)
+            .where(User.is_active == True, or_(User.is_superuser == True, User.role == UserRole.ADMIN))
+        ).one()
+
+        if active_admins <= 1:
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot deactivate or demote the last active administrator",
+            )
+
+    updated_user = UserUpdate(**user_data)
+    return crud.update_user(
+        session=session,
+        db_user=db_user,
+        user_in=updated_user,
+    )
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])
 def delete_user(
-    session: SessionDep, current_user: CurrentUser, user_id: uuid.UUID
+    session: SessionDep,
+    current_user: CurrentUser,
+    user_id: uuid.UUID,
 ) -> Message:
-    """
-    Delete a user.
-    """
+    """Deactivate a user without deleting associated history."""
     user = session.get(User, user_id)
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if user == current_user:
+
+    if user.id == current_user.id:
         raise HTTPException(
-            status_code=403, detail="Super users are not allowed to delete themselves"
+            status_code=403,
+            detail="Administrators cannot deactivate their own account",
         )
-    session.delete(user)
+
+    if user.is_active and (
+        user.is_superuser or user.role == UserRole.ADMIN
+    ):
+        active_admins = session.exec(
+            select(func.count())
+            .select_from(User)
+            .where(User.is_active == True, or_(User.is_superuser == True, User.role == UserRole.ADMIN))
+        ).one()
+
+        if active_admins <= 1:
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot deactivate the last active administrator",
+            )
+
+    user.is_active = False
+    session.add(user)
     session.commit()
-    return Message(message="User deleted successfully")
+
+    return Message(message="User deactivated successfully")

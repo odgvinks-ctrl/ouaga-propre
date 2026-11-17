@@ -35,9 +35,8 @@ class UserRegister(SQLModel):
 
 
 class UserUpdateMe(SQLModel):
-    email: EmailStr | None = None
-    full_name: str | None = None
-    password: str | None = None
+    email: EmailStr | None = Field(default=None, max_length=255)
+    full_name: str | None = Field(default=None, max_length=255)
     
 
 class UserUpdate(SQLModel):
@@ -46,6 +45,7 @@ class UserUpdate(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     is_active: bool | None = None
     is_superuser: bool | None = None
+    role: UserRole | None = None
 
 
 class User(SQLModel, table=True):

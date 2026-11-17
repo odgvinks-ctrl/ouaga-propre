@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 .env
 mobile/android/
+
+# Local environment backups
+.env.backup-*
