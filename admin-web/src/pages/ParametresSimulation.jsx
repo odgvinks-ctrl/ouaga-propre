@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { RotateCcw, Save, CloudRain, House } from "lucide-react";
-import { parametresDefaut, simuler, enregistrerScenario } from "../services/simulation.js";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { RotateCcw, Save, CloudRain, House, Map as Carte, Loader2 } from "lucide-react";
+import { parametresDefaut, simuler, enregistrerScenario, simulerComplet, simulationComplete, lireParametres, ecrireParametres } from "../services/simulation.js";
 import "./ParametresSimulation.css";
 
 const goulots = {
@@ -30,12 +30,28 @@ function nombre(valeur) {
 }
 
 export default function ParametresSimulation() {
-  const [parametres, setParametres] = useState(parametresDefaut);
+  const [parametres, setParametres] = useState(lireParametres);
+  const [resultat, setResultat] = useState(null);
+  const [calcul, setCalcul] = useState(false);
+  const navigate = useNavigate();
   const [nom, setNom] = useState("");
   const [message, setMessage] = useState("");
   const [erreur, setErreur] = useState("");
   const [envoi, setEnvoi] = useState(false);
-  const r = simuler(parametres);
+  const r = simulationComplete && resultat ? resultat : simuler(parametres);
+
+  useEffect(() => {
+    ecrireParametres(parametres);
+    if (!simulationComplete) return;
+    setCalcul(true);
+    const minuteur = setTimeout(() => {
+      simulerComplet(parametres)
+        .then((reponse) => setResultat(reponse.resume))
+        .catch((err) => setErreur(err.message))
+        .finally(() => setCalcul(false));
+    }, 500);
+    return () => clearTimeout(minuteur);
+  }, [parametres]);
 
   function handleChange(e) {
     const { name, type, checked, value } = e.target;
@@ -49,7 +65,7 @@ export default function ParametresSimulation() {
     e.preventDefault();
     setEnvoi(true);
     try {
-      await enregistrerScenario(nom, parametres);
+      await enregistrerScenario(nom, parametres, r);
       setMessage(`Scénario « ${nom.trim()} » enregistré.`);
       setNom("");
       setErreur("");
@@ -70,9 +86,19 @@ export default function ParametresSimulation() {
           <p className="page-sous-titre">Modifiez les moyens et les événements : les résultats se recalculent immédiatement.</p>
         </div>
         <div className="page-actions">
+          {calcul && (
+            <span className="simulation-calcul">
+              <Loader2 size={16} /> Simulation des agents...
+            </span>
+          )}
           <button type="button" className="btn btn-secondaire" onClick={() => setParametres(parametresDefaut)}>
             <RotateCcw size={16} /> Réinitialiser
           </button>
+          {simulationComplete && (
+            <button type="button" className="btn btn-primaire" onClick={() => navigate("/plan")}>
+              <Carte size={16} /> Voir sur la carte
+            </button>
+          )}
         </div>
       </div>
 
@@ -93,12 +119,21 @@ export default function ParametresSimulation() {
             <Curseur nom="camions" label="Camions bennes" min={0} max={30} valeur={parametres.camions} onChange={handleChange} />
             <Curseur nom="camionsEnPanne" label="Camions en panne" min={0} max={parametres.camions} valeur={parametres.camionsEnPanne} onChange={handleChange} />
             <Curseur nom="rotations" label="Rotations par camion et par jour" min={1} max={4} valeur={parametres.rotations} onChange={handleChange} />
+            <Curseur nom="frequencePassage" label="Passage chez un abonné tous les" min={1} max={7} unite=" j" valeur={parametres.frequencePassage} onChange={handleChange} />
           </fieldset>
 
           <fieldset>
             <legend className="surtitre">Brigade Laabal et signalements</legend>
             <Curseur nom="agentsBrigade" label="Agents de la brigade" min={0} max={150} valeur={parametres.agentsBrigade} onChange={handleChange} />
             <Curseur nom="tauxPieges" label="Faux signalements" min={0} max={50} unite=" %" valeur={parametres.tauxPieges} onChange={handleChange} />
+          </fieldset>
+
+          <fieldset>
+            <legend className="surtitre">Budget</legend>
+            <label className="champ">
+              Budget mensuel (FCFA)
+              <input type="number" name="budgetMensuel" min="0" step="500000" value={parametres.budgetMensuel} onChange={handleChange} />
+            </label>
           </fieldset>
 
           <fieldset>
@@ -156,6 +191,12 @@ export default function ParametresSimulation() {
               <strong>{r.pieges}</strong>
               <span>Faux signalements à filtrer par semaine</span>
             </div>
+            {r.coutMensuel !== undefined && (
+              <div className={r.coutMensuel > r.budgetMensuel ? "indicateur alerte" : "indicateur ok"}>
+                <strong>{nombre(Math.round(r.coutMensuel / 1000000))} M</strong>
+                <span>Coût mensuel en FCFA (budget {nombre(Math.round(r.budgetMensuel / 1000000))} M)</span>
+              </div>
+            )}
           </div>
 
           <div className="panneau">

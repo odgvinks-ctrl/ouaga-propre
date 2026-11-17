@@ -1,0 +1,72 @@
+# Paramètres du simulateur multi-agents FASO NEERE
+# Chaque valeur peut être remplacée au lancement (tableau de bord admin, API POST /simulation
+# ou ligne de commande). Les unités sont indiquées pour chaque paramètre.
+# Les coordonnées et les nombres de ménages sont des valeurs de démonstration approximatives :
+# les remplacer par les données Open Buildings et les chiffres fixés avec la mairie.
+
+zone:
+  nom: "Zone de démonstration (Ouagadougou)"
+  # Centre de traitement où les camions vident les points de regroupement (position approximative).
+  centre_traitement: { nom: "Centre de traitement", lat: 12.4250, lng: -1.4680 }
+  # Quartiers simulés : position du centre, rayon en mètres et part des ménages de la zone.
+  quartiers:
+    - { nom: "Paspanga", lat: 12.3725, lng: -1.5165, rayon_m: 700, part: 0.16 }
+    - { nom: "Dapoya", lat: 12.3780, lng: -1.5240, rayon_m: 650, part: 0.13 }
+    - { nom: "Koulouba", lat: 12.3640, lng: -1.5110, rayon_m: 600, part: 0.11 }
+    - { nom: "Gounghin", lat: 12.3600, lng: -1.5420, rayon_m: 900, part: 0.18 }
+    - { nom: "Tanghin", lat: 12.3930, lng: -1.5080, rayon_m: 850, part: 0.16 }
+    - { nom: "Nonsin", lat: 12.3990, lng: -1.5330, rayon_m: 800, part: 0.12 }
+    - { nom: "Wemtenga", lat: 12.3640, lng: -1.4790, rayon_m: 750, part: 0.14 }
+  # Quartier ajouté quand le paramètre nouveau_quartier est activé (aucune pré-collecte au départ).
+  nouveau_quartier: { nom: "Nouveau quartier", lat: 12.4120, lng: -1.4950, rayon_m: 900, menages: 3000 }
+
+population:
+  menages: 18000                # nombre de ménages de la zone simulée
+  taux_abonnement: 35           # % des ménages abonnés à une structure de pré-collecte
+  kg_par_menage_jour: 3.0       # déchets produits par ménage et par jour (kg)
+  menages_par_agent: 10         # un agent « ménage » représente ce nombre de ménages voisins
+  part_depotoir_non_abonnes: 0.2   # part des déchets d'un ménage non abonné jetée dans un dépotoir sauvage (le reste est brûlé ou enfoui)
+  jours_avant_debordement: 4    # au-delà de ces jours sans passage, un abonné vide sa poubelle dans la rue
+  probabilite_signalement: 0.35 # chance qu'un nouveau dépotoir soit signalé par un habitant chaque jour
+
+pre_collecte:
+  pre_collecteurs: 40           # tricycles ou charrettes en service
+  capacite_tricycle_t: 0.5      # tonnes transportées par tour
+  tours_par_jour: 3             # tours vers le point de regroupement par jour
+  frequence_passage_jours: 3    # un abonné est servi tous les N jours
+  cout_jour_fcfa: 6000          # coût d'un tricycle par jour (carburant, salaire)
+
+transport:
+  camions: 3                    # camions de la mairie
+  camions_en_panne: 0           # camions immobilisés
+  rotations_par_jour: 1         # aller-retours vers le centre de traitement par camion
+  capacite_camion_t: 8          # tonnes par rotation
+  cout_jour_fcfa: 85000         # coût d'un camion par jour
+
+points_regroupement:
+  menages_par_point: 1200       # un point de regroupement pour ce nombre de ménages
+  capacite_t: 12                # tonnes avant débordement
+
+brigade_laabal:
+  agents: 30                    # agents de la brigade de nettoyage
+  tonnes_par_agent_jour: 0.25   # tonnes nettoyées par agent et par jour
+  cout_jour_fcfa: 3000          # coût d'un agent par jour
+
+mairie:
+  verifications_par_jour: 40    # signalements que la mairie peut vérifier par jour
+  taux_pieges: 10               # % de faux signalements parmi les signalements reçus
+  detection_pieges: 0.85        # part des faux signalements repérés à la vérification
+  tonnes_perdues_par_piege: 0.3 # temps de brigade perdu sur un faux signalement non repéré (t)
+  budget_mensuel_fcfa: 20000000 # budget mensuel de la gestion des déchets
+
+saison_pluies:
+  active: false
+  hausse_production: 0.15       # +15 % de déchets (humidité, végétaux)
+  baisse_vitesse_tricycles: 0.25
+  baisse_capacite_camions: 0.30
+  baisse_efficacite_brigade: 0.40
+
+simulation:
+  duree_jours: 30
+  graine: 2026                  # même graine = mêmes résultats, pour comparer les scénarios
+  nouveau_quartier: false

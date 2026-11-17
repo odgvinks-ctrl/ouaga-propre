@@ -1,17 +1,45 @@
 import { lireBase, ecrireBase, delai, nouvelId } from "@donnees/base.js";
+import { apiActive, requete } from "./http.js";
+
+const CLE_PARAMETRES = "faso-neere-simulation-parametres";
 
 export const parametresDefaut = {
   menages: 18000,
   tauxAbonnement: 35,
   preCollecteurs: 40,
-  camions: 6,
+  camions: 3,
   camionsEnPanne: 0,
-  rotations: 2,
+  rotations: 1,
   agentsBrigade: 30,
   tauxPieges: 10,
   saisonPluies: false,
   nouveauQuartier: false,
+  frequencePassage: 3,
+  budgetMensuel: 20000000,
 };
+
+export const simulationComplete = apiActive;
+
+export function lireParametres() {
+  try {
+    return { ...parametresDefaut, ...JSON.parse(localStorage.getItem(CLE_PARAMETRES) || "{}") };
+  } catch {
+    return parametresDefaut;
+  }
+}
+
+export function ecrireParametres(parametres) {
+  try {
+    localStorage.setItem(CLE_PARAMETRES, JSON.stringify(parametres));
+  } catch {
+    return;
+  }
+}
+
+export async function simulerComplet(parametres) {
+  if (!apiActive) return { resume: simuler(parametres), jours: [], plan: null };
+  return requete("/api/v1/simulation/", { methode: "POST", corps: parametres });
+}
 
 const KG_PAR_MENAGE = 3;
 const TONNES_PAR_TRICYCLE = 0.5;
@@ -87,11 +115,11 @@ export async function listerScenarios() {
   return [...lireScenarios(lireBase())].sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function enregistrerScenario(nom, parametres) {
+export async function enregistrerScenario(nom, parametres, resultats) {
   await delai();
   if (!nom.trim()) throw new Error("Donnez un nom au scénario.");
   const base = lireBase();
-  const scenario = { id: nouvelId("sc"), nom: nom.trim(), date: new Date().toISOString(), parametres, resultats: simuler(parametres) };
+  const scenario = { id: nouvelId("sc"), nom: nom.trim(), date: new Date().toISOString(), parametres, resultats: resultats || simuler(parametres) };
   base.scenarios = [...lireScenarios(base), scenario];
   ecrireBase(base);
   return scenario;

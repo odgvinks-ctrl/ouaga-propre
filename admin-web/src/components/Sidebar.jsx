@@ -12,6 +12,7 @@ import {
   FileDown,
   Gift,
   Smartphone,
+  Route,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "../hooks/AuthContext.jsx";
@@ -41,6 +42,7 @@ const groupes = [
   {
     titre: "Aide à la décision",
     liens: [
+      { vers: "/plan", label: "Plan de gestion", icone: Route },
       { vers: "/simulation", label: "Paramètres de simulation", icone: SlidersHorizontal },
       { vers: "/scenarios", label: "Comparaison de scénarios", icone: GitCompare },
       { vers: "/rapports", label: "Rapports et exports", icone: FileDown },

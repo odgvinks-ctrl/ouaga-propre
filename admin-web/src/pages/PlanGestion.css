@@ -1,0 +1,173 @@
+.plan-evenements {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+}
+
+.plan-evenement {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-evenement > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.plan-compteur {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--ligne);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.plan-compteur button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: var(--fond);
+  color: var(--encre);
+  cursor: pointer;
+}
+
+.plan-compteur strong {
+  min-width: 56px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.plan-bascule {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--ligne);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-bascule.actif {
+  border-color: var(--rouge);
+  background: var(--rouge-clair);
+  color: var(--rouge-fonce);
+}
+
+.plan-bascule input {
+  accent-color: var(--rouge);
+}
+
+.plan-etat {
+  margin-left: auto;
+  color: var(--encre-douce);
+  font-size: 14px;
+}
+
+.plan-grille {
+  align-items: start;
+}
+
+.plan-carte {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.plan-temps {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plan-temps input {
+  flex: 1;
+  accent-color: var(--vert);
+}
+
+.plan-temps strong {
+  min-width: 64px;
+  text-align: right;
+}
+
+.plan-cote {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.plan-diagnostic {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.plan-ok {
+  margin: 0;
+  color: var(--vert-fonce);
+}
+
+.plan-alerte {
+  margin: 0;
+  color: var(--rouge-fonce);
+}
+
+.plan-note {
+  margin: 10px 0 0;
+  color: var(--encre-douce);
+  font-size: 13px;
+}
+
+.plan-pastille {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+}
+
+.plan-courbe + .plan-courbe {
+  margin-top: 12px;
+}
+
+.plan-courbe-titre {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--encre-douce);
+}
+
+.plan-courbe-titre strong {
+  color: var(--encre);
+}
+
+.simulation-calcul {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.simulation-calcul svg {
+  animation: tourner-plan 1s linear infinite;
+}
+
+@keyframes tourner-plan {
+  to {
+    transform: rotate(360deg);
+  }
+}

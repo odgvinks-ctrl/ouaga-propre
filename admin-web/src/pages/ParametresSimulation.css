@@ -115,3 +115,21 @@
 .simulation-enregistrer .btn {
   align-self: flex-start;
 }
+
+.simulation-calcul {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--encre-douce);
+  font-size: 14px;
+}
+
+.simulation-calcul svg {
+  animation: tourner 1s linear infinite;
+}
+
+@keyframes tourner {
+  to {
+    transform: rotate(360deg);
+  }
+}
