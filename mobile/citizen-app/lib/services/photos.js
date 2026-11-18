@@ -1,7 +1,6 @@
-import { apiActive, lireJeton, erreurReseau } from "./http.js";
+import { apiActive, lireJeton, erreurReseau, racineApi } from "./http.js";
 
 const COTE_MAX = 1280;
-const racine = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 
 function chargerImage(source) {
   return new Promise((resolve, reject) => {
@@ -104,7 +103,7 @@ export async function envoyerPhoto(image) {
   if (jeton) entetes.Authorization = `Bearer ${jeton}`;
   let reponse;
   try {
-    reponse = await fetch(racine + "/api/v1/photos/", { method: "POST", headers: entetes, body: formulaire });
+    reponse = await fetch(racineApi() + "/api/v1/photos/", { method: "POST", headers: entetes, body: formulaire });
   } catch {
     throw erreurReseau();
   }

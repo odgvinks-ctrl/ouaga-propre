@@ -63,6 +63,14 @@ docker compose up --build
 - Administration (mairie) : http://localhost:8080/admin (`admin@fasoneere.bf` / `admin12345`)
 - Documentation de l'API : http://localhost:8080/docs
 
+Pour lancer Docker **et** fabriquer l'APK reliée à ces conteneurs (Windows, Java 21 requis pour l'APK) :
+
+```powershell
+.\docker.bat
+```
+
+Le script démarre les conteneurs, ouvre un tunnel internet (service `tunnel`), copie son adresse dans le presse-papiers et fabrique `FASO-NEERE.apk` avec cette adresse. Options : `-SansApk`, `-Reinitialiser`. Si l'adresse du tunnel change, il suffit de la coller dans l'app : écran Connexion, « Adresse du serveur ». Ne pas lancer `lancer.bat` en même temps : les deux utilisent le port 8000.
+
 La base SQLite et les photos sont gardées dans le volume Docker `donnees`. Pour repartir de zéro : `docker compose down -v`. Pour changer le port : `PORT=9000 docker compose up --build`.
 
 Si Docker n'arrive pas à télécharger les images (`context deadline exceeded`), ajouter dans Docker Desktop, réglage « Docker engine » : `"registry-mirrors": ["https://mirror.gcr.io"]`.

@@ -73,6 +73,31 @@
   color: var(--encre);
 }
 
+.auth-serveur-champ {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.auth-serveur-champ input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #C3CCC6;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.auth-serveur-actuel {
+  margin: 8px 0 0;
+  word-break: break-all;
+}
+
+.auth-serveur-etat {
+  margin: 8px 0 0;
+  font-weight: 700;
+}
+
 .attente-icone {
   width: 56px;
   height: 56px;

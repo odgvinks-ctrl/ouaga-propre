@@ -5,6 +5,7 @@ import { login } from "../services/auth.js";
 import { useAuth } from "../providers/AuthContext.jsx";
 import Logo from "../widgets/Logo.jsx";
 import ChampMotDePasse from "../widgets/ChampMotDePasse.jsx";
+import ChoixServeur from "../widgets/ChoixServeur.jsx";
 import "./Ecran.css";
 import "./Auth.css";
 
@@ -115,6 +116,8 @@ export default function Connexion() {
             <dd>demo12345</dd>
           </dl>
         </details>
+
+        <ChoixServeur />
       </form>
     </section>
   );

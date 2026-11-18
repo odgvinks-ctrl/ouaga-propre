@@ -1,10 +1,35 @@
-const racine = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
+const serveurParDefaut = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/+$/, "");
 const CLE_JETON = "ouaga-propre-jeton";
+const CLE_SERVEUR = "faso-neere-serveur";
+
+export function lireServeur() {
+  try {
+    return localStorage.getItem(CLE_SERVEUR) || "";
+  } catch {
+    return "";
+  }
+}
+
+export function ecrireServeur(adresse) {
+  let propre = String(adresse || "").trim().replace(/\/+$/, "");
+  if (propre && !/^https?:\/\//.test(propre)) propre = "https://" + propre;
+  try {
+    if (propre) localStorage.setItem(CLE_SERVEUR, propre);
+    else localStorage.removeItem(CLE_SERVEUR);
+  } catch {
+    return propre;
+  }
+  return propre;
+}
+
+export function racineApi() {
+  return lireServeur() || serveurParDefaut;
+}
 
 export function adressePhoto(adresse) {
   if (!adresse) return "";
   if (/^(data:|https?:)/.test(adresse)) return adresse;
-  if (adresse.startsWith("/")) return racine + adresse;
+  if (adresse.startsWith("/")) return racineApi() + adresse;
   return "";
 }
 
@@ -39,7 +64,7 @@ export function erreurReseau() {
 export async function requeteFormulaire(chemin, champs) {
   let reponse;
   try {
-    reponse = await fetch(racine + chemin, {
+    reponse = await fetch(racineApi() + chemin, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(champs),
@@ -64,7 +89,7 @@ export async function requete(chemin, { methode = "GET", corps, auth = true } = 
 
   let reponse;
   try {
-    reponse = await fetch(racine + chemin, {
+    reponse = await fetch(racineApi() + chemin, {
       method: methode,
       headers: entetes,
       body: corps !== undefined ? JSON.stringify(corps) : undefined,
