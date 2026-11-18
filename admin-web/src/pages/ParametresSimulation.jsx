@@ -182,7 +182,7 @@ export default function ParametresSimulation() {
               <span>Nouveaux dépotoirs par semaine</span>
             </div>
             <div className={r.delaiIntervention > 7 ? "indicateur alerte" : "indicateur"}>
-              <strong>{r.delaiIntervention === null ? "-" : `${r.delaiIntervention} j`}</strong>
+              <strong>{r.delaiIntervention === null ? "-" : `${nombre(r.delaiIntervention)} j`}</strong>
               <span>Délai moyen d'intervention</span>
             </div>
             <div className="indicateur">

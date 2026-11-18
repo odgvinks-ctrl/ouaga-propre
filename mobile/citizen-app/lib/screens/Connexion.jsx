@@ -106,13 +106,13 @@ export default function Connexion() {
           <summary>Comptes de démonstration</summary>
           <dl>
             <dt>Citoyen</dt>
-            <dd>70112233</dd>
+            <dd>70000001</dd>
             <dt>Structure validée</dt>
-            <dd>70223344</dd>
+            <dd>70000101</dd>
             <dt>Structure en attente</dt>
-            <dd>78990011</dd>
+            <dd>70000103</dd>
             <dt>Mot de passe</dt>
-            <dd>demo1234</dd>
+            <dd>demo12345</dd>
           </dl>
         </details>
       </form>

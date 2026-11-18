@@ -44,8 +44,8 @@ export default function Connexion() {
         </div>
 
         <label className="champ">
-          Numéro de téléphone
-          <input type="tel" name="telephone" inputMode="numeric" value={form.telephone} onChange={handleChange} required />
+          E-mail ou téléphone
+          <input type="text" name="telephone" autoComplete="username" value={form.telephone} onChange={handleChange} required />
         </label>
         <label className="champ">
           Mot de passe
@@ -61,10 +61,10 @@ export default function Connexion() {
         <details className="connexion-demo">
           <summary>Compte de démonstration</summary>
           <dl className="liste-cles">
-            <dt>Téléphone</dt>
-            <dd>70000000</dd>
+            <dt>E-mail</dt>
+            <dd>admin@fasoneere.bf</dd>
             <dt>Mot de passe</dt>
-            <dd>admin1234</dd>
+            <dd>admin12345</dd>
           </dl>
         </details>
       </form>

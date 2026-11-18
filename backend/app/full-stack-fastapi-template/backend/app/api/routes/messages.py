@@ -5,7 +5,6 @@ from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import (
-    Message,
     MessageCreate,
     MessagePublic,
     MessagesPublic,
@@ -13,6 +12,7 @@ from app.models import (
     User,
     UserRole,
 )
+from app.models.messages import Message
 
 router = APIRouter(prefix="/messages", tags=["Messages"])
 
