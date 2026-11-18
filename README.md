@@ -46,10 +46,33 @@ ouaga-propre/
 ## Prérequis
 
 - Windows PowerShell.
-- Node.js avec npm.
-- Python 3.14 ou environnement `uv` compatible.
+- Node.js 22 avec npm.
+- Python 3.14 (avec `uv` ou `pip`).
+- Docker Desktop pour le démarrage en une commande.
 - Java 21 uniquement pour générer l'APK Android.
-- Optionnel : `cloudflared` pour exposer l'API lors d'une démonstration.
+- Optionnel : `cloudflared` pour exposer l'API lors d'une démonstration hors Docker.
+
+## Dépendances
+
+Toutes les dépendances Python du backend, avec leurs versions exactes, sont listées dans
+[`requirements.txt`](requirements.txt) à la racine. Les dépendances JavaScript sont dans
+`mobile/package.json` et `admin-web/package.json`, verrouillées par leurs `package-lock.json`.
+
+Installation complète depuis la racine du projet :
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+cd mobile
+npm ci
+cd ..\admin-web
+npm ci
+cd ..
+```
+
+Avec `uv`, `uv sync` dans `backend\app\full-stack-fastapi-template\backend` installe les mêmes versions.
+Avec Docker, rien n'est à installer à part Docker Desktop : les conteneurs installent tout.
 
 ## Démarrage en une commande (Docker)
 
@@ -62,14 +85,6 @@ docker compose up --build
 - Application citoyen et structures : http://localhost:8080
 - Administration (mairie) : http://localhost:8080/admin (`admin@fasoneere.bf` / `admin12345`)
 - Documentation de l'API : http://localhost:8080/docs
-
-Pour lancer Docker **et** fabriquer l'APK reliée à ces conteneurs (Windows, Java 21 requis pour l'APK) :
-
-```powershell
-.\docker.bat
-```
-
-Le script démarre les conteneurs, ouvre un tunnel internet (service `tunnel`), copie son adresse dans le presse-papiers et fabrique `FASO-NEERE.apk` avec cette adresse. Options : `-SansApk`, `-Reinitialiser`. Si l'adresse du tunnel change, il suffit de la coller dans l'app : écran Connexion, « Adresse du serveur ». Ne pas lancer `lancer.bat` en même temps : les deux utilisent le port 8000.
 
 La base SQLite et les photos sont gardées dans le volume Docker `donnees`. Pour repartir de zéro : `docker compose down -v`. Pour changer le port : `PORT=9000 docker compose up --build`.
 
@@ -115,6 +130,14 @@ uv run python app\initial_data.py
 uv run python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
+Sans `uv`, avec l'environnement créé à partir de `requirements.txt` :
+
+```powershell
+cd backend\app\full-stack-fastapi-template\backend
+python app\initial_data.py
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
 Appliquer les migrations PostgreSQL ou lors d'une base existante :
 
 ```powershell
@@ -141,8 +164,10 @@ npm run dev
 
 Les identifiants exacts sont initialisés par `lancer.ps1` et le jeu de données :
 
-- Administrateur : `admin@fasoneere.bf`
-- Mot de passe administrateur : `admin12345`
+- Administrateur : `admin@fasoneere.bf` / `admin12345`
+- Citoyen : `70000001` / `demo12345`
+- Structure validée : `70000101` / `demo12345`
+- Structure en attente de validation : `70000103` / `demo12345`
 
 Les autres comptes synthétiques sont décrits dans
 [`data/reference/jeu_demo_faso_neere.json`](data/reference/jeu_demo_faso_neere.json).
